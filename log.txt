@@ -1,1 +1,2 @@
 # Error Log
+Warning! The maximum key length for a clustered index is 900 bytes. The index 'PK__user_dep__04019FB9E5663E1B' has maximum length of 1020 bytes. For some combination of large values, the insert/update operation will fail.
