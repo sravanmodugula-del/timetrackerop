@@ -17,6 +17,31 @@ BEGIN
 END
 GO
 
+-- Drop existing tables if they exist (in dependency order)
+IF EXISTS (SELECT * FROM sys.tables WHERE name = 'time_entries' AND schema_id = SCHEMA_ID('timetracker'))
+    DROP TABLE timetracker.time_entries;
+
+IF EXISTS (SELECT * FROM sys.tables WHERE name = 'user_departments' AND schema_id = SCHEMA_ID('timetracker'))
+    DROP TABLE timetracker.user_departments;
+
+IF EXISTS (SELECT * FROM sys.tables WHERE name = 'tasks' AND schema_id = SCHEMA_ID('timetracker'))
+    DROP TABLE timetracker.tasks;
+
+IF EXISTS (SELECT * FROM sys.tables WHERE name = 'projects' AND schema_id = SCHEMA_ID('timetracker'))
+    DROP TABLE timetracker.projects;
+
+IF EXISTS (SELECT * FROM sys.tables WHERE name = 'departments' AND schema_id = SCHEMA_ID('timetracker'))
+    DROP TABLE timetracker.departments;
+
+IF EXISTS (SELECT * FROM sys.tables WHERE name = 'organizations' AND schema_id = SCHEMA_ID('timetracker'))
+    DROP TABLE timetracker.organizations;
+
+IF EXISTS (SELECT * FROM sys.tables WHERE name = 'users' AND schema_id = SCHEMA_ID('timetracker'))
+    DROP TABLE timetracker.users;
+
+PRINT 'Existing tables dropped successfully.';
+GO
+
 -- Users table
 IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'users' AND schema_id = SCHEMA_ID('timetracker'))
 BEGIN
