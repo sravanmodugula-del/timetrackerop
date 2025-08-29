@@ -46,10 +46,10 @@ GO
 IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'users' AND schema_id = SCHEMA_ID('timetracker'))
 BEGIN
     CREATE TABLE timetracker.users (
-        id NVARCHAR(255) PRIMARY KEY,
-        email NVARCHAR(255) NOT NULL UNIQUE,
-        firstName NVARCHAR(255) NOT NULL,
-        lastName NVARCHAR(255) NOT NULL,
+        id NVARCHAR(50) PRIMARY KEY,
+        email NVARCHAR(320) NOT NULL UNIQUE,
+        firstName NVARCHAR(100) NOT NULL,
+        lastName NVARCHAR(100) NOT NULL,
         profileImageUrl NVARCHAR(1000),
         role NVARCHAR(50) DEFAULT 'employee' CHECK (role IN ('admin', 'manager', 'project_manager', 'department_manager', 'employee')),
         createdAt DATETIME2 DEFAULT GETUTCDATE(),
@@ -67,7 +67,7 @@ GO
 IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'organizations' AND schema_id = SCHEMA_ID('timetracker'))
 BEGIN
     CREATE TABLE timetracker.organizations (
-        id NVARCHAR(255) PRIMARY KEY,
+        id NVARCHAR(50) PRIMARY KEY,
         name NVARCHAR(255) NOT NULL,
         description NVARCHAR(MAX),
         createdAt DATETIME2 DEFAULT GETUTCDATE(),
@@ -83,11 +83,11 @@ GO
 IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'departments' AND schema_id = SCHEMA_ID('timetracker'))
 BEGIN
     CREATE TABLE timetracker.departments (
-        id NVARCHAR(255) PRIMARY KEY,
+        id NVARCHAR(50) PRIMARY KEY,
         name NVARCHAR(255) NOT NULL,
         description NVARCHAR(MAX),
-        organizationId NVARCHAR(255),
-        managerId NVARCHAR(255),
+        organizationId NVARCHAR(50),
+        managerId NVARCHAR(50),
         createdAt DATETIME2 DEFAULT GETUTCDATE(),
         updatedAt DATETIME2 DEFAULT GETUTCDATE(),
         isActive BIT DEFAULT 1,
@@ -106,12 +106,12 @@ GO
 IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'projects' AND schema_id = SCHEMA_ID('timetracker'))
 BEGIN
     CREATE TABLE timetracker.projects (
-        id NVARCHAR(255) PRIMARY KEY,
+        id NVARCHAR(50) PRIMARY KEY,
         name NVARCHAR(255) NOT NULL,
         description NVARCHAR(MAX),
-        organizationId NVARCHAR(255),
-        departmentId NVARCHAR(255),
-        managerId NVARCHAR(255),
+        organizationId NVARCHAR(50),
+        departmentId NVARCHAR(50),
+        managerId NVARCHAR(50),
         startDate DATE,
         endDate DATE,
         isEnterpriseWide BIT DEFAULT 0,
@@ -136,11 +136,11 @@ GO
 IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'tasks' AND schema_id = SCHEMA_ID('timetracker'))
 BEGIN
     CREATE TABLE timetracker.tasks (
-        id NVARCHAR(255) PRIMARY KEY,
+        id NVARCHAR(50) PRIMARY KEY,
         name NVARCHAR(255) NOT NULL,
         description NVARCHAR(MAX),
-        projectId NVARCHAR(255) NOT NULL,
-        assignedToId NVARCHAR(255),
+        projectId NVARCHAR(50) NOT NULL,
+        assignedToId NVARCHAR(50),
         status NVARCHAR(50) DEFAULT 'open' CHECK (status IN ('open', 'in_progress', 'completed', 'cancelled')),
         priority NVARCHAR(50) DEFAULT 'medium' CHECK (priority IN ('low', 'medium', 'high', 'urgent')),
         estimatedHours DECIMAL(10,2),
@@ -163,10 +163,10 @@ GO
 IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'time_entries' AND schema_id = SCHEMA_ID('timetracker'))
 BEGIN
     CREATE TABLE timetracker.time_entries (
-        id NVARCHAR(255) PRIMARY KEY,
-        userId NVARCHAR(255) NOT NULL,
-        projectId NVARCHAR(255) NOT NULL,
-        taskId NVARCHAR(255),
+        id NVARCHAR(50) PRIMARY KEY,
+        userId NVARCHAR(50) NOT NULL,
+        projectId NVARCHAR(50) NOT NULL,
+        taskId NVARCHAR(50),
         date DATE NOT NULL,
         startTime TIME,
         endTime TIME,
@@ -189,18 +189,20 @@ BEGIN
 END
 GO
 
--- User departments junction table
+-- User departments junction table - using surrogate key to avoid composite key length issues
 IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'user_departments' AND schema_id = SCHEMA_ID('timetracker'))
 BEGIN
     CREATE TABLE timetracker.user_departments (
-        userId NVARCHAR(255) NOT NULL,
-        departmentId NVARCHAR(255) NOT NULL,
+        id INT IDENTITY(1,1) PRIMARY KEY,
+        userId NVARCHAR(50) NOT NULL,
+        departmentId NVARCHAR(50) NOT NULL,
         createdAt DATETIME2 DEFAULT GETUTCDATE(),
         
-        PRIMARY KEY (userId, departmentId),
         CONSTRAINT FK_user_departments_user FOREIGN KEY (userId) REFERENCES timetracker.users(id),
         CONSTRAINT FK_user_departments_department FOREIGN KEY (departmentId) REFERENCES timetracker.departments(id)
     );
+    
+    CREATE UNIQUE INDEX IX_user_departments_unique ON timetracker.user_departments(userId, departmentId);
 END
 GO
 
