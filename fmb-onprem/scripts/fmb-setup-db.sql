@@ -8,7 +8,7 @@ USE timetracker;
 GO
 
 -- =============================================================================
--- Drop existing constraints and tables in correct order
+-- Drop existing objects in correct order (dependencies first)
 -- =============================================================================
 
 -- Drop triggers first
@@ -20,51 +20,21 @@ IF OBJECT_ID('TR_projects_update', 'TR') IS NOT NULL DROP TRIGGER TR_projects_up
 IF OBJECT_ID('TR_tasks_update', 'TR') IS NOT NULL DROP TRIGGER TR_tasks_update;
 IF OBJECT_ID('TR_timeentries_update', 'TR') IS NOT NULL DROP TRIGGER TR_timeentries_update;
 
--- Drop foreign key constraints first
-IF OBJECT_ID('FK_timeentry_task', 'F') IS NOT NULL 
-    ALTER TABLE time_entries DROP CONSTRAINT FK_timeentry_task;
-IF OBJECT_ID('FK_timeentry_project', 'F') IS NOT NULL 
-    ALTER TABLE time_entries DROP CONSTRAINT FK_timeentry_project;
-IF OBJECT_ID('FK_timeentry_user', 'F') IS NOT NULL 
-    ALTER TABLE time_entries DROP CONSTRAINT FK_timeentry_user;
+-- Drop all foreign key constraints first
+DECLARE @sql NVARCHAR(MAX) = '';
+SELECT @sql = @sql + 'ALTER TABLE ' + QUOTENAME(TABLE_SCHEMA) + '.' + QUOTENAME(TABLE_NAME) 
+                  + ' DROP CONSTRAINT ' + QUOTENAME(CONSTRAINT_NAME) + ';' + CHAR(13)
+FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS 
+WHERE CONSTRAINT_TYPE = 'FOREIGN KEY' 
+  AND TABLE_CATALOG = 'timetracker';
 
-IF OBJECT_ID('FK_projempl_user', 'F') IS NOT NULL 
-    ALTER TABLE project_employees DROP CONSTRAINT FK_projempl_user;
-IF OBJECT_ID('FK_projempl_employee', 'F') IS NOT NULL 
-    ALTER TABLE project_employees DROP CONSTRAINT FK_projempl_employee;
-IF OBJECT_ID('FK_projempl_project', 'F') IS NOT NULL 
-    ALTER TABLE project_employees DROP CONSTRAINT FK_projempl_project;
+IF @sql <> ''
+BEGIN
+    EXEC sp_executesql @sql;
+END
+GO
 
-IF OBJECT_ID('FK_tasks_creator', 'F') IS NOT NULL 
-    ALTER TABLE tasks DROP CONSTRAINT FK_tasks_creator;
-IF OBJECT_ID('FK_tasks_assigned', 'F') IS NOT NULL 
-    ALTER TABLE tasks DROP CONSTRAINT FK_tasks_assigned;
-IF OBJECT_ID('FK_tasks_project', 'F') IS NOT NULL 
-    ALTER TABLE tasks DROP CONSTRAINT FK_tasks_project;
-
-IF OBJECT_ID('FK_projects_user', 'F') IS NOT NULL 
-    ALTER TABLE projects DROP CONSTRAINT FK_projects_user;
-IF OBJECT_ID('FK_projects_manager', 'F') IS NOT NULL 
-    ALTER TABLE projects DROP CONSTRAINT FK_projects_manager;
-IF OBJECT_ID('FK_projects_dept', 'F') IS NOT NULL 
-    ALTER TABLE projects DROP CONSTRAINT FK_projects_dept;
-IF OBJECT_ID('FK_projects_org', 'F') IS NOT NULL 
-    ALTER TABLE projects DROP CONSTRAINT FK_projects_org;
-
-IF OBJECT_ID('FK_departments_user', 'F') IS NOT NULL 
-    ALTER TABLE departments DROP CONSTRAINT FK_departments_user;
-IF OBJECT_ID('FK_departments_manager', 'F') IS NOT NULL 
-    ALTER TABLE departments DROP CONSTRAINT FK_departments_manager;
-IF OBJECT_ID('FK_departments_org', 'F') IS NOT NULL 
-    ALTER TABLE departments DROP CONSTRAINT FK_departments_org;
-
-IF OBJECT_ID('FK_employees_user', 'F') IS NOT NULL 
-    ALTER TABLE employees DROP CONSTRAINT FK_employees_user;
-
-IF OBJECT_ID('FK_organizations_user', 'F') IS NOT NULL 
-    ALTER TABLE organizations DROP CONSTRAINT FK_organizations_user;
-
--- Now drop tables in reverse dependency order
+-- Drop tables in reverse dependency order
 IF OBJECT_ID('time_entries', 'U') IS NOT NULL DROP TABLE time_entries;
 IF OBJECT_ID('project_employees', 'U') IS NOT NULL DROP TABLE project_employees;
 IF OBJECT_ID('tasks', 'U') IS NOT NULL DROP TABLE tasks;
@@ -76,7 +46,7 @@ IF OBJECT_ID('users', 'U') IS NOT NULL DROP TABLE users;
 GO
 
 -- =============================================================================
--- Core Tables (in dependency order)
+-- Core Tables (in dependency order with NO ACTION to prevent cycles)
 -- =============================================================================
 
 -- Users (base table with no dependencies)
@@ -102,8 +72,7 @@ CREATE TABLE organizations (
     description NVARCHAR(MAX),
     user_id NVARCHAR(255) NOT NULL,
     created_at DATETIME2 NOT NULL DEFAULT GETDATE(),
-    updated_at DATETIME2 NOT NULL DEFAULT GETDATE(),
-    CONSTRAINT FK_organizations_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    updated_at DATETIME2 NOT NULL DEFAULT GETDATE()
 );
 
 -- Employees (depends on users)
@@ -115,8 +84,7 @@ CREATE TABLE employees (
     department NVARCHAR(255) NOT NULL,
     user_id NVARCHAR(255),
     created_at DATETIME2 NOT NULL DEFAULT GETDATE(),
-    updated_at DATETIME2 NOT NULL DEFAULT GETDATE(),
-    CONSTRAINT FK_employees_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+    updated_at DATETIME2 NOT NULL DEFAULT GETDATE()
 );
 
 -- Departments (depends on organizations and employees)
@@ -128,10 +96,7 @@ CREATE TABLE departments (
     description NVARCHAR(255),
     user_id NVARCHAR(255) NOT NULL,
     created_at DATETIME2 NOT NULL DEFAULT GETDATE(),
-    updated_at DATETIME2 NOT NULL DEFAULT GETDATE(),
-    CONSTRAINT FK_departments_org FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE,
-    CONSTRAINT FK_departments_manager FOREIGN KEY (manager_id) REFERENCES employees(id) ON DELETE SET NULL,
-    CONSTRAINT FK_departments_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    updated_at DATETIME2 NOT NULL DEFAULT GETDATE()
 );
 
 -- Projects (depends on organizations, departments, users)
@@ -156,10 +121,6 @@ CREATE TABLE projects (
     enable_billing BIT NOT NULL DEFAULT 0,
     created_at DATETIME2 NOT NULL DEFAULT GETDATE(),
     updated_at DATETIME2 NOT NULL DEFAULT GETDATE(),
-    CONSTRAINT FK_projects_org FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE SET NULL,
-    CONSTRAINT FK_projects_dept FOREIGN KEY (department_id) REFERENCES departments(id) ON DELETE SET NULL,
-    CONSTRAINT FK_projects_manager FOREIGN KEY (manager_id) REFERENCES users(id) ON DELETE SET NULL,
-    CONSTRAINT FK_projects_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     CONSTRAINT CHK_projects_status CHECK (status IN ('active', 'inactive', 'completed', 'archived')),
     CONSTRAINT CHK_projects_dates CHECK (end_date IS NULL OR end_date >= start_date)
 );
@@ -180,9 +141,6 @@ CREATE TABLE tasks (
     actual_hours DECIMAL(5,2) DEFAULT 0,
     created_at DATETIME2 NOT NULL DEFAULT GETDATE(),
     updated_at DATETIME2 NOT NULL DEFAULT GETDATE(),
-    CONSTRAINT FK_tasks_project FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE,
-    CONSTRAINT FK_tasks_assigned FOREIGN KEY (assigned_to) REFERENCES users(id) ON DELETE SET NULL,
-    CONSTRAINT FK_tasks_creator FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL,
     CONSTRAINT CHK_tasks_status CHECK (status IN ('pending', 'in_progress', 'completed', 'cancelled')),
     CONSTRAINT CHK_tasks_priority CHECK (priority IN ('low', 'medium', 'high', 'urgent')),
     CONSTRAINT CHK_tasks_hours CHECK (estimated_hours IS NULL OR estimated_hours >= 0)
@@ -195,9 +153,6 @@ CREATE TABLE project_employees (
     employee_id NVARCHAR(255) NOT NULL,
     user_id NVARCHAR(255) NOT NULL,
     created_at DATETIME2 NOT NULL DEFAULT GETDATE(),
-    CONSTRAINT FK_projempl_project FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE,
-    CONSTRAINT FK_projempl_employee FOREIGN KEY (employee_id) REFERENCES employees(id) ON DELETE CASCADE,
-    CONSTRAINT FK_projempl_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     CONSTRAINT UQ_project_employee UNIQUE (project_id, employee_id)
 );
 
@@ -222,14 +177,100 @@ CREATE TABLE time_entries (
     is_template BIT NOT NULL DEFAULT 0,
     created_at DATETIME2 NOT NULL DEFAULT GETDATE(),
     updated_at DATETIME2 NOT NULL DEFAULT GETDATE(),
-    CONSTRAINT FK_timeentry_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    CONSTRAINT FK_timeentry_project FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE SET NULL,
-    CONSTRAINT FK_timeentry_task FOREIGN KEY (task_id) REFERENCES tasks(id) ON DELETE SET NULL,
     CONSTRAINT CHK_timeentry_hours CHECK (hours >= 0 AND hours <= 24),
     CONSTRAINT CHK_timeentry_duration CHECK (duration >= 0),
     CONSTRAINT CHK_timeentry_status CHECK (status IN ('draft', 'submitted', 'approved', 'rejected')),
     CONSTRAINT CHK_timeentry_times CHECK (end_time IS NULL OR start_time IS NULL OR end_time >= start_time)
 );
+GO
+
+-- =============================================================================
+-- Add Foreign Key Constraints (with NO ACTION to prevent cascade cycles)
+-- =============================================================================
+
+-- Organizations foreign keys
+ALTER TABLE organizations 
+ADD CONSTRAINT FK_organizations_user 
+FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+-- Update users with organization reference (nullable, no constraint to avoid cycle)
+-- ALTER TABLE users 
+-- ADD CONSTRAINT FK_users_organization 
+-- FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+-- Employees foreign keys
+ALTER TABLE employees 
+ADD CONSTRAINT FK_employees_user 
+FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL ON UPDATE NO ACTION;
+
+-- Departments foreign keys
+ALTER TABLE departments 
+ADD CONSTRAINT FK_departments_org 
+FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+ALTER TABLE departments 
+ADD CONSTRAINT FK_departments_manager 
+FOREIGN KEY (manager_id) REFERENCES employees(id) ON DELETE SET NULL ON UPDATE NO ACTION;
+
+ALTER TABLE departments 
+ADD CONSTRAINT FK_departments_user 
+FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+-- Projects foreign keys
+ALTER TABLE projects 
+ADD CONSTRAINT FK_projects_org 
+FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE SET NULL ON UPDATE NO ACTION;
+
+ALTER TABLE projects 
+ADD CONSTRAINT FK_projects_dept 
+FOREIGN KEY (department_id) REFERENCES departments(id) ON DELETE SET NULL ON UPDATE NO ACTION;
+
+ALTER TABLE projects 
+ADD CONSTRAINT FK_projects_manager 
+FOREIGN KEY (manager_id) REFERENCES users(id) ON DELETE SET NULL ON UPDATE NO ACTION;
+
+ALTER TABLE projects 
+ADD CONSTRAINT FK_projects_user 
+FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+-- Tasks foreign keys
+ALTER TABLE tasks 
+ADD CONSTRAINT FK_tasks_project 
+FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE ON UPDATE NO ACTION;
+
+ALTER TABLE tasks 
+ADD CONSTRAINT FK_tasks_assigned 
+FOREIGN KEY (assigned_to) REFERENCES users(id) ON DELETE SET NULL ON UPDATE NO ACTION;
+
+ALTER TABLE tasks 
+ADD CONSTRAINT FK_tasks_creator 
+FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL ON UPDATE NO ACTION;
+
+-- Project employees foreign keys
+ALTER TABLE project_employees 
+ADD CONSTRAINT FK_projempl_project 
+FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE ON UPDATE NO ACTION;
+
+ALTER TABLE project_employees 
+ADD CONSTRAINT FK_projempl_employee 
+FOREIGN KEY (employee_id) REFERENCES employees(id) ON DELETE CASCADE ON UPDATE NO ACTION;
+
+ALTER TABLE project_employees 
+ADD CONSTRAINT FK_projempl_user 
+FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+-- Time entries foreign keys
+ALTER TABLE time_entries 
+ADD CONSTRAINT FK_timeentry_user 
+FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+ALTER TABLE time_entries 
+ADD CONSTRAINT FK_timeentry_project 
+FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE SET NULL ON UPDATE NO ACTION;
+
+ALTER TABLE time_entries 
+ADD CONSTRAINT FK_timeentry_task 
+FOREIGN KEY (task_id) REFERENCES tasks(id) ON DELETE SET NULL ON UPDATE NO ACTION;
 GO
 
 -- =============================================================================
