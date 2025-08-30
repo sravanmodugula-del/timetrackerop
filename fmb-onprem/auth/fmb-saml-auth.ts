@@ -33,7 +33,7 @@ export async function setupFmbSamlAuth(app: Express) {
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      secure: false, // Set to true in production with HTTPS
+      secure: true, // Always true for HTTPS-only deployment
       maxAge: sessionTtl,
       sameSite: 'lax',
     },
