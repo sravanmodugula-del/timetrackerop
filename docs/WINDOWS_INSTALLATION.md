@@ -5,7 +5,7 @@ This guide covers the complete installation of FMB TimeTracker on Windows Server
 ## Prerequisites
 
 - Windows Server 2022
-- Node.js 20.x or higher
+- Node.js 20.x or higher (already installed)
 - MS SQL Server access (HUB-SQL1TST-LIS)
 - IIS with URL Rewrite Module
 - PowerShell 5.1 or higher
@@ -29,13 +29,10 @@ Set-ExecutionPolicy Bypass -Scope Process -Force
 [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
 iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
 
-# Install Node.js 20.x
-choco install nodejs --version=20.10.0 -y
-
 # Install Git
 choco install git -y
 
-# Install PM2 globally
+# Install PM2 globally (Node.js is already installed on the server)
 npm install -g pm2
 npm install -g pm2-windows-service
 ```
@@ -50,14 +47,18 @@ sqlcmd -S HUB-SQL1TST-LIS -d timetracker -U timetracker -P "iTT!\$Lo7gm\"i\'JAg~
 ### 3. Application Installation
 
 ```powershell
-# Clone the repository to C:\fmb-timetracker
-cd C:\
-git clone <repository-url> fmb-timetracker
-cd C:\fmb-timetracker
+# Navigate to your project directory (adjust path as needed)
+cd C:\path\to\your\project
 
-# Run the FMB installation script
+# Ensure you're in the correct directory (should contain fmb-onprem folder)
+Get-ChildItem
+
+# Run the FMB installation script as Administrator
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process
 .\fmb-onprem\scripts\fmb-install.ps1
+
+# Optional: Specify custom install path
+.\fmb-onprem\scripts\fmb-install.ps1 -InstallPath "C:\fmb-timetracker" -ServiceName "FMBTimeTracker"
 ```
 
 ### 4. Environment Configuration
@@ -150,17 +151,23 @@ module.exports = {
 ### 8. Start the Application
 
 ```powershell
+# Navigate to installation directory
+cd C:\fmb-timetracker
+
 # Start with PM2
 pm2 start ecosystem.config.js
 
 # Save PM2 configuration
 pm2 save
 
-# Install PM2 as Windows service
-pm2-service-install -n FMBTimeTracker
+# Check application status
+pm2 status
 
-# Start the Windows service
-net start FMBTimeTracker
+# View logs
+pm2 logs FMBTimeTracker
+
+# Start the Windows service (if PM2 service was installed)
+net start PM2
 ```
 
 ### 9. Configure Windows Firewall
