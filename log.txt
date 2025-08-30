@@ -1,8 +1,87 @@
 🚀 FMB TimeTracker Deployment (Windows)
 ======================================
+📁 Creating required directories...
+✅ Directories created
 ⏹️ Stopping application...
 ⚠️ Could not stop PM2 processes gracefully
-📦 Updating application...
+📦 Installing all dependencies...
+node.exe : npm warn ERESOLVE overriding peer dependency
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (npm warn ERESOL...peer dependency:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+npm warn While resolving: vite@7.1.3
+npm warn Found: @types/node@20.16.11
+npm warn node_modules/@types/node
+npm warn   dev @types/node@"20.16.11" from the root project
+npm warn   16 more (@types/pg, @types/body-parser, @types/connect, ...)
+npm warn
+npm warn Could not resolve dependency:
+npm warn peerOptional @types/node@"^20.19.0 || >=22.12.0" from vite@7.1.3
+npm warn node_modules/vitest/node_modules/vite
+npm warn   vite@"^5.0.0 || ^6.0.0 || ^7.0.0-0" from vitest@3.2.4
+npm warn   node_modules/vitest
+npm warn   1 more (@vitest/mocker)
+npm warn
+npm warn Conflicting peer dependency: @types/node@24.3.0
+npm warn node_modules/@types/node
+npm warn   peerOptional @types/node@"^20.19.0 || >=22.12.0" from vite@7.1.3
+npm warn   node_modules/vitest/node_modules/vite
+npm warn     vite@"^5.0.0 || ^6.0.0 || ^7.0.0-0" from vitest@3.2.4
+npm warn     node_modules/vitest
+npm warn     1 more (@vitest/mocker)
+npm warn deprecated @esbuild-kit/esm-loader@2.6.5: Merged into tsx: https://tsx.is
+npm warn deprecated @esbuild-kit/core-utils@3.3.2: Merged into tsx: https://tsx.is
+
+added 449 packages, and audited 1335 packages in 60s
+
+195 packages are looking for funding
+  run `npm fund` for details
+
+8 vulnerabilities (1 low, 6 moderate, 1 critical)
+
+To address all issues possible (including breaking changes), run:
+  npm audit fix --force
+
+Some issues need review, and may require choosing
+a different dependency.
+
+Run `npm audit` for details.
+✅ All dependencies installed
+🔨 Building application...
+
+> rest-express@1.0.0 build
+> vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
+
+[36mvite v5.4.19 [32mbuilding for production...[36m[39m
+transforming...
+node.exe : Browserslist: browsers data (caniuse-lite) is 10 months old. Please run:
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Browserslist: b...ld. Please run::String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+[32mâœ“[39m 2188 modules transformed.
+rendering chunks...
+computing gzip size...
+[2m../dist/public/[22m[32mindex.html                 [39m[1m[2m  0.86 kB[22m[1m[22m[2m â”‚ gzip:   0.44 kB[22m
+[2m../dist/public/[22m[35massets/index-TxekZ2R9.css  [39m[1m[2m 70.40 kB[22m[1m[22m[2m â”‚ gzip:  12.52 kB[22m
+[2m../dist/public/[22m[36massets/index-3ykus8Y9.js   [39m[1m[33m711.01 kB[39m[22m[2m â”‚ gzip: 201.77 kB[22m
+[33m
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.[39m
+[32mâœ“ built in 8.44s[39m
+  dist\index.js  134.4kb
+Done in 25ms
+✅ Application built successfully
+🧹 Cleaning up dev dependencies...
 node.exe : npm warn config production Use `--omit=dev` instead.
 At line:1 char:1
 + & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
@@ -31,8 +110,19 @@ npm warn   node_modules/vitest/node_modules/vite
 npm warn     vite@"^5.0.0 || ^6.0.0 || ^7.0.0-0" from vitest@3.2.4
 npm warn     node_modules/vitest
 npm warn     1 more (@vitest/mocker)
+npm warn cleanup Failed to remove some directories [
+npm warn cleanup   [
+npm warn cleanup     'C:\\fmb-timetracker\\node_modules\\npm\\node_modules\\sigstore',
+npm warn cleanup     [Error: EPERM: operation not permitted, rmdir 'C:\fmb-timetracker\node_modules\npm\node_modules\sigstore'] {
+npm warn cleanup       errno: -4048,
+npm warn cleanup       code: 'EPERM',
+npm warn cleanup       syscall: 'rmdir',
+npm warn cleanup       path: 'C:\\fmb-timetracker\\node_modules\\npm\\node_modules\\sigstore'
+npm warn cleanup     }
+npm warn cleanup   ]
+npm warn cleanup ]
 
-changed 1 package, and audited 678 packages in 3s
+up to date, audited 678 packages in 8s
 
 100 packages are looking for funding
   run `npm fund` for details
@@ -46,58 +136,15 @@ Some issues need review, and may require choosing
 a different dependency.
 
 Run `npm audit` for details.
-✅ Dependencies updated
-🔨 Building application...
-
-> rest-express@1.0.0 build
-> vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
-
-node.exe : [31mfailed to load config from C:\fmb-timetracker\vite.config.ts[39m
-At line:1 char:1
-+ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
-+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    + CategoryInfo          : NotSpecified: ([31mfailed to ....config.ts[39m:String) [], RemoteException
-    + FullyQualifiedErrorId : NativeCommandError
- 
-[31merror during build:
-Error [ERR_MODULE_NOT_FOUND]: Cannot find package '@vitejs/plugin-react' imported from C:\fmb-timetracker\vite.config.ts.timestamp-1756532174094-d6422020856af.mjs
-    at Object.getPackageJSONURL (node:internal/modules/package_json_reader:255:9)
-    at packageResolve (node:internal/modules/esm/resolve:767:81)
-    at moduleResolve (node:internal/modules/esm/resolve:853:18)
-    at defaultResolve (node:internal/modules/esm/resolve:983:11)
-    at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:783:12)
-    at #cachedDefaultResolve (node:internal/modules/esm/loader:707:25)
-    at ModuleLoader.resolve (node:internal/modules/esm/loader:690:38)
-    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:307:38)
-    at ModuleJob._link (node:internal/modules/esm/module_job:183:49)[39m
-✅ Application built
+✅ Dev dependencies removed
 🔍 Running configuration health check...
-node : node:internal/modules/cjs/loader:1368
-At line:55 char:5
+node : âŒ Config error: Cannot find module 'C:\fmb-timetracker\fmb-onprem\config\fmb-env.js' imported from C:\fmb-timetracker\[eval1]
+At line:85 char:5
 +     node -e "
 +     ~~~~~~~~~
-    + CategoryInfo          : NotSpecified: (node:internal/modules/cjs/loader:1368:String) [], RemoteException
+    + CategoryInfo          : NotSpecified: (âŒ Config erro...tracker\[eval1]:String) [], RemoteException
     + FullyQualifiedErrorId : NativeCommandError
  
-  throw err;
-  ^
-Error: Cannot find module './fmb-onprem/config/fmb-env'
-Require stack:
-- C:\fmb-timetracker\[eval]
-    at Function._resolveFilename (node:internal/modules/cjs/loader:1365:15)
-    at defaultResolveImpl (node:internal/modules/cjs/loader:1021:19)
-    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1026:22)
-    at Function._load (node:internal/modules/cjs/loader:1175:37)
-    at TracingChannel.traceSync (node:diagnostics_channel:322:14)
-    at wrapModuleLoad (node:internal/modules/cjs/loader:235:24)
-    at Module.require (node:internal/modules/cjs/loader:1445:12)
-    at require (node:internal/modules/helpers:135:16)
-    at [eval]:2:20
-    at runScriptInThisContext (node:internal/vm:209:10) {
-  code: 'MODULE_NOT_FOUND',
-  requireStack: [ 'C:\\fmb-timetracker\\[eval]' ]
-}
-Node.js v22.18.0
 ✅ Configuration validation passed
 ▶️ Starting application...
 ❌ Failed to start application
