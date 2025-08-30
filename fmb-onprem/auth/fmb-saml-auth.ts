@@ -1,4 +1,3 @@
-
 import type { Express, RequestHandler } from "express";
 import session from "express-session";
 import passport from "passport";
@@ -12,7 +11,7 @@ function authLog(level: 'INFO' | 'WARN' | 'ERROR' | 'DEBUG', message: string, da
   const timestamp = new Date().toISOString();
   const emoji = level === 'ERROR' ? '🔴' : level === 'WARN' ? '🟡' : level === 'INFO' ? '🔵' : '🟢';
   const logMessage = `${timestamp} ${emoji} [FMB-SAML] ${message}`;
-  
+
   if (data) {
     console.log(logMessage, typeof data === 'object' ? JSON.stringify(data, null, 2) : data);
   } else {
@@ -22,12 +21,12 @@ function authLog(level: 'INFO' | 'WARN' | 'ERROR' | 'DEBUG', message: string, da
 
 export async function setupFmbSamlAuth(app: Express) {
   authLog('INFO', 'Initializing FMB SAML Authentication...');
-  
+
   const config = loadFmbOnPremConfig();
-  
+
   // Setup session management with MS SQL session store
   const sessionTtl = 7 * 24 * 60 * 60 * 1000; // 1 week
-  
+
   const MSSQLStore = connectSQLServer(session);
   const sessionStore = new MSSQLStore({
     server: config.database.server,
@@ -42,7 +41,7 @@ export async function setupFmbSamlAuth(app: Express) {
     },
     table: 'sessions'
   });
-  
+
   app.use(session({
     store: sessionStore,
     secret: config.app.sessionSecret,
@@ -72,25 +71,48 @@ export async function setupFmbSamlAuth(app: Express) {
     },
     async (profile: any, done: any) => {
       try {
-        authLog('INFO', 'SAML authentication successful', {
-          nameID: profile.nameID,
-          email: profile.email || profile.nameID,
-          firstName: profile.firstName,
-          lastName: profile.lastName
-        });
-
-        // Create/update user in storage
-        const user = {
+        // Extract user data from SAML response
+        const userData = {
           id: profile.nameID,
-          email: profile.email || profile.nameID,
-          firstName: profile.firstName || 'Unknown',
-          lastName: profile.lastName || 'User',
-          profileImageUrl: null,
+          email: profile.nameID, // nameID is the email
+          firstName: profile.firstName || '',
+          lastName: profile.lastName || '',
+          employeeId: profile.employeeId || '',
+          department: profile.department || '',
+          role: 'employee' as const // Default role, can be updated later
         };
 
-        const fmbStorage = getFmbStorage();
-        await fmbStorage.upsertUser(user);
-        
+        authLog('INFO', 'SAML authentication successful', {
+          nameID: profile.nameID,
+          email: userData.email,
+          firstName: userData.firstName,
+          lastName: userData.lastName
+        });
+
+        // Import upsertUser to ensure user exists in database
+        const { upsertUser } = await import('../../server/storage.js');
+
+        try {
+          // Ensure user exists in database
+          await upsertUser({
+            id: userData.id,
+            email: userData.email,
+            firstName: userData.firstName,
+            lastName: userData.lastName,
+            role: userData.role,
+            employeeId: userData.employeeId,
+            department: userData.department
+          });
+
+          authLog('INFO', `User upserted in database: ${userData.email}`);
+        } catch (dbError) {
+          authLog('ERROR', `Failed to upsert user in database:`, dbError);
+          // Continue with authentication even if database upsert fails
+        }
+
+        // Store user data in session
+        req.session.user = userData;
+
         return done(null, user);
       } catch (error) {
         authLog('ERROR', 'Error processing SAML profile:', error);
@@ -109,7 +131,16 @@ export async function setupFmbSamlAuth(app: Express) {
     try {
       const fmbStorage = getFmbStorage();
       const user = await fmbStorage.getUser(id);
-      done(null, user);
+      
+      // Handle cases where Replit and FMB SAML user structures might differ
+      if (user && !user.sub && user.id) {
+        // If 'user' object from FMB storage doesn't have 'sub' but has 'id',
+        // and we are expecting 'sub' for Replit auth, map 'id' to 'sub'.
+        // This ensures compatibility with endpoints expecting 'user.sub'.
+        done(null, { ...user, sub: user.id });
+      } else {
+        done(null, user);
+      }
     } catch (error) {
       done(error);
     }
@@ -137,7 +168,7 @@ export async function setupFmbSamlAuth(app: Express) {
 
 export function getFmbSamlMetadata(): string {
   const config = loadFmbOnPremConfig();
-  
+
   return `<?xml version="1.0" encoding="UTF-8"?>
 <md:EntityDescriptor xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata" 
                      entityID="${config.saml.entityId}">
@@ -162,7 +193,7 @@ export const isAuthenticated: RequestHandler = async (req, res, next) => {
     if (process.env.NODE_ENV === 'development' && (!req.isAuthenticated() || !req.user)) {
       authLog('DEBUG', 'Development mode: Creating test admin user');
       authLog('WARN', 'SECURITY: Authentication bypass active - DO NOT USE IN PRODUCTION');
-      
+
       // Create a mock authenticated user for testing
       const testUser = {
         id: "test-admin-user",
@@ -171,18 +202,18 @@ export const isAuthenticated: RequestHandler = async (req, res, next) => {
         lastName: "Admin",
         profileImageUrl: null,
       };
-      
+
       req.user = testUser;
-      
+
       // Ensure the test user exists in database
       try {
         const fmbStorage = getFmbStorage();
         await fmbStorage.upsertUser(testUser);
-        
+
         // In development mode, respect the current database role instead of forcing admin
         const currentUser = await fmbStorage.getUser("test-admin-user");
         const currentRole = currentUser?.role || "admin";
-        
+
         // Only set admin role if user doesn't exist or has no role
         if (!currentUser || !currentUser.role) {
           await fmbStorage.updateUserRole("test-admin-user", "admin");
@@ -193,7 +224,7 @@ export const isAuthenticated: RequestHandler = async (req, res, next) => {
       } catch (dbError) {
         authLog('ERROR', 'Failed to setup test user:', dbError);
       }
-      
+
       return next();
     }
 
@@ -217,7 +248,7 @@ export const isAuthenticated: RequestHandler = async (req, res, next) => {
 
     authLog('DEBUG', 'Authentication successful, proceeding to next middleware');
     return next();
-    
+
   } catch (error) {
     authLog('ERROR', 'Authentication middleware error:', {
       error: error instanceof Error ? {
