@@ -253,6 +253,139 @@ export class FmbStorage {
     return result.recordset;
   }
 
+  // Department management
+  async createDepartment(dept: InsertDepartment): Promise<Department> {
+    const pool = this.getPool();
+    const request = pool.request();
+
+    const id = randomUUID();
+    const query = `
+      INSERT INTO departments (id, name, organizationId, managerId, description, userId, createdAt)
+      OUTPUT INSERTED.*
+      VALUES (@id, @name, @organizationId, @managerId, @description, @userId, GETUTCDATE())
+    `;
+
+    request.input('id', sql.VarChar(255), id);
+    request.input('name', sql.VarChar(255), dept.name);
+    request.input('organizationId', sql.VarChar(255), dept.organizationId);
+    request.input('managerId', sql.VarChar(255), dept.managerId);
+    request.input('description', sql.VarChar(255), dept.description);
+    request.input('userId', sql.VarChar(255), dept.userId);
+
+    const result = await request.query(query);
+    return result.recordset[0];
+  }
+
+  async getDepartments(): Promise<Department[]> {
+    const pool = this.getPool();
+    const result = await pool.request().query('SELECT * FROM departments ORDER BY name');
+    return result.recordset;
+  }
+
+  // Employee management
+  async createEmployee(emp: InsertEmployee): Promise<Employee> {
+    const pool = this.getPool();
+    const request = pool.request();
+
+    const id = randomUUID();
+    const query = `
+      INSERT INTO employees (id, employeeId, firstName, lastName, department, userId, createdAt)
+      OUTPUT INSERTED.*
+      VALUES (@id, @employeeId, @firstName, @lastName, @department, @userId, GETUTCDATE())
+    `;
+
+    request.input('id', sql.VarChar(255), id);
+    request.input('employeeId', sql.VarChar(255), emp.employeeId);
+    request.input('firstName', sql.VarChar(255), emp.firstName);
+    request.input('lastName', sql.VarChar(255), emp.lastName);
+    request.input('department', sql.VarChar(255), emp.department);
+    request.input('userId', sql.VarChar(255), emp.userId);
+
+    const result = await request.query(query);
+    return result.recordset[0];
+  }
+
+  async getEmployees(): Promise<Employee[]> {
+    const pool = this.getPool();
+    const result = await pool.request().query('SELECT * FROM employees ORDER BY firstName, lastName');
+    return result.recordset;
+  }
+
+  // Task management
+  async createTask(taskData: InsertTask): Promise<Task> {
+    const pool = this.getPool();
+    const request = pool.request();
+
+    const id = randomUUID();
+    const query = `
+      INSERT INTO tasks (id, projectId, name, description, status, createdAt)
+      OUTPUT INSERTED.*
+      VALUES (@id, @projectId, @name, @description, @status, GETUTCDATE())
+    `;
+
+    request.input('id', sql.VarChar(255), id);
+    request.input('projectId', sql.VarChar(255), taskData.projectId);
+    request.input('name', sql.VarChar(255), taskData.name);
+    request.input('description', sql.Text, taskData.description);
+    request.input('status', sql.VarChar(50), taskData.status || 'active');
+
+    const result = await request.query(query);
+    return result.recordset[0];
+  }
+
+  async getTasks(projectId: string): Promise<Task[]> {
+    const pool = this.getPool();
+    const request = pool.request();
+
+    request.input('projectId', sql.VarChar(255), projectId);
+    const result = await request.query('SELECT * FROM tasks WHERE projectId = @projectId ORDER BY name');
+    return result.recordset;
+  }
+
+  async updateTask(id: string, updates: Partial<Task>): Promise<Task> {
+    const pool = this.getPool();
+    const request = pool.request();
+
+    const setParts = [];
+    if (updates.name !== undefined) {
+      setParts.push('name = @name');
+      request.input('name', sql.VarChar(255), updates.name);
+    }
+    if (updates.description !== undefined) {
+      setParts.push('description = @description');
+      request.input('description', sql.Text, updates.description);
+    }
+    if (updates.status !== undefined) {
+      setParts.push('status = @status');
+      request.input('status', sql.VarChar(50), updates.status);
+    }
+
+    if (setParts.length === 0) {
+      throw new Error('No updates provided');
+    }
+
+    setParts.push('updatedAt = GETUTCDATE()');
+
+    const query = `
+      UPDATE tasks 
+      SET ${setParts.join(', ')} 
+      OUTPUT INSERTED.*
+      WHERE id = @id
+    `;
+
+    request.input('id', sql.VarChar(255), id);
+    const result = await request.query(query);
+    return result.recordset[0];
+  }
+
+  async deleteTask(id: string): Promise<void> {
+    const pool = this.getPool();
+    const request = pool.request();
+
+    request.input('id', sql.VarChar(255), id);
+    await request.query('DELETE FROM tasks WHERE id = @id');
+  }
+
   // Dashboard stats
   async getDashboardStats(userId: string, userRole: string, startDate: string, endDate: string): Promise<any> {
     const pool = this.getPool();
