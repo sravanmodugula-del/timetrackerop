@@ -1,5 +1,4 @@
-import pkg from 'mssql';
-const { sql } = pkg;
+import sql from 'mssql';
 import { loadFmbOnPremConfig } from './fmb-env.js';
 import { FmbStorage } from '../storage/fmb-storage.js';
 
