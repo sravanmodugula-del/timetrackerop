@@ -1,5 +1,6 @@
 
-import { sql } from 'mssql';
+import pkg from 'mssql';
+const { sql } = pkg;
 import type { 
   User, 
   Project, 
@@ -157,6 +158,24 @@ export class FmbStorage {
       monthHours: 0,
       activeProjects: 0
     };
+  }
+
+  // Add missing methods that are called by database config
+  async execute(query: string, params: any[] = []): Promise<any> {
+    const pool = await this.connect();
+    const request = pool.request();
+    
+    // Add parameters if provided
+    params.forEach((param, index) => {
+      request.input(`param${index}`, param);
+    });
+    
+    const result = await request.query(query);
+    return result.recordset;
+  }
+
+  async disconnect() {
+    await this.close();
   }
 
   async close() {
