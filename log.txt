@@ -1,112 +1,24 @@
-PS C:\fmb-timetracker> npm config get prefix
-C:\Users\ADM91381\AppData\Roaming\npm
-
-PS C:\fmb-timetracker> npm install pm2 --save
-node.exe : npm warn ERESOLVE overriding peer dependency
+PS C:\fmb-timetracker> npx pm2 start ecosystem.config.cjs
+node.exe : (node:2968) Warning: Failed to load the ES module: C:\fmb-timetracker\ecosystem.config.cjs. Make sure to set "type": "module" in the nearest package.json file or use the .mjs extension.
 At line:1 char:1
 + & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
 + ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    + CategoryInfo          : NotSpecified: (npm warn ERESOL...peer dependency:String) [], RemoteException
+    + CategoryInfo          : NotSpecified: ((node:2968) War....mjs extension.:String) [], RemoteException
     + FullyQualifiedErrorId : NativeCommandError
  
-npm warn While resolving: vite@7.1.3
-npm warn Found: @types/node@20.16.11
-npm warn node_modules/@types/node
-npm warn   @types/node@"*" from @types/pg@8.11.6
-npm warn   node_modules/@neondatabase/serverless/node_modules/@types/pg
-npm warn     @types/pg@"8.11.6" from @neondatabase/serverless@0.10.4
-npm warn     node_modules/@neondatabase/serverless
-npm warn   16 more (@types/body-parser, @types/connect, ...)
-npm warn
-npm warn Could not resolve dependency:
-npm warn peerOptional @types/node@"^20.19.0 || >=22.12.0" from vite@7.1.3
-npm warn node_modules/vitest/node_modules/vite
-npm warn   vite@"^5.0.0 || ^6.0.0 || ^7.0.0-0" from vitest@3.2.4
-npm warn   node_modules/vitest
-npm warn   1 more (@vitest/mocker)
-npm warn
-npm warn Conflicting peer dependency: @types/node@24.3.0
-npm warn node_modules/@types/node
-npm warn   peerOptional @types/node@"^20.19.0 || >=22.12.0" from vite@7.1.3
-npm warn   node_modules/vitest/node_modules/vite
-npm warn     vite@"^5.0.0 || ^6.0.0 || ^7.0.0-0" from vitest@3.2.4
-npm warn     node_modules/vitest
-npm warn     1 more (@vitest/mocker)
-npm warn deprecated @esbuild-kit/esm-loader@2.6.5: Merged into tsx: https://tsx.is
-npm warn deprecated @esbuild-kit/core-utils@3.3.2: Merged into tsx: https://tsx.is
-
-added 72 packages, and audited 1335 packages in 14s
-
-196 packages are looking for funding
-  run `npm fund` for details
-
-8 vulnerabilities (1 low, 6 moderate, 1 critical)
-
-To address all issues possible (including breaking changes), run:
-  npm audit fix --force
-
-Some issues need review, and may require choosing
-a different dependency.
-
-Run `npm audit` for details.
-
-PS C:\fmb-timetracker> npx pm2 start ecosystem.config.js
-
-                        -------------
-
-__/\\\\\\\\\\\\\____/\\\\____________/\\\\____/\\\\\\\\\_____
- _\/\\\/////////\\\_\/\\\\\\________/\\\\\\__/\\\///////\\\___
-  _\/\\\_______\/\\\_\/\\\//\\\____/\\\//\\\_\///______\//\\\__
-   _\/\\\\\\\\\\\\\/__\/\\\\///\\\/\\\/_\/\\\___________/\\\/___
-    _\/\\\/////////____\/\\\__\///\\\/___\/\\\________/\\\//_____
-     _\/\\\_____________\/\\\____\///_____\/\\\_____/\\\//________
-      _\/\\\_____________\/\\\_____________\/\\\___/\\\/___________
-       _\/\\\_____________\/\\\_____________\/\\\__/\\\\\\\\\\\\\\\_
-        _\///______________\///______________\///__\///////////////__
-
-
-                          Runtime Edition
-
-        PM2 is a Production Process Manager for Node.js applications
-                     with a built-in Load Balancer.
-
-                Start and Daemonize any application:
-                $ pm2 start app.js
-
-                Load Balance 4 instances of api.js:
-                $ pm2 start api.js -i 4
-
-                Monitor in production:
-                $ pm2 monitor
-
-                Make pm2 auto-boot at server restart:
-                $ pm2 startup
-
-                To go further checkout:
-                http://pm2.io/
-
-
-                        -------------
-
-node.exe : [PM2][ERROR] File ecosystem.config.js malformated
-At line:1 char:1
-+ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
-+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    + CategoryInfo          : NotSpecified: ([PM2][ERROR] Fi....js malformated:String) [], RemoteException
-    + FullyQualifiedErrorId : NativeCommandError
- 
-ReferenceError: module is not defined in ES module scope
-This file is being treated as an ES module because it has a '.js' file extension and 'C:\fmb-timetracker\package.json' contains "type": "module". To treat it as a CommonJS script, rename it to use the 
-'.cjs' file extension.
-    at file:///C:/fmb-timetracker/ecosystem.config.js:1:1
-    at ModuleJobSync.runSync (node:internal/modules/esm/module_job:450:37)
-    at ModuleLoader.importSyncForRequire (node:internal/modules/esm/loader:429:47)
-    at loadESMFromCJS (node:internal/modules/cjs/loader:1519:24)
-    at Module._compile (node:internal/modules/cjs/loader:1670:5)
+(Use `node --trace-warnings ...` to show where the warning was created)
+[PM2][ERROR] File ecosystem.config.cjs malformated
+C:\fmb-timetracker\ecosystem.config.cjs:2
+export default {
+^^^^^^
+SyntaxError: Unexpected token 'export'
+    at wrapSafe (node:internal/modules/cjs/loader:1620:18)
+    at Module._compile (node:internal/modules/cjs/loader:1662:20)
     at Object..js (node:internal/modules/cjs/loader:1820:10)
     at Module.load (node:internal/modules/cjs/loader:1423:32)
     at Function._load (node:internal/modules/cjs/loader:1246:12)
     at TracingChannel.traceSync (node:diagnostics_channel:322:14)
     at wrapModuleLoad (node:internal/modules/cjs/loader:235:24)
-
-PS C:\fmb-timetracker> 
+    at Module.require (node:internal/modules/cjs/loader:1445:12)
+    at require (node:internal/modules/helpers:135:16)
+    at Common.parseConfig (C:\fmb-timetracker\node_modules\pm2\lib\Common.js:331:12)
