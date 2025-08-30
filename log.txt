@@ -1,17 +1,7 @@
-Msg 1785, Level 16, State 0, Line 123
-Introducing FOREIGN KEY constraint 'FK_departments_user' on table 'departments' may cause cycles or multiple cascade paths. Specify ON DELETE NO ACTION or ON UPDATE NO ACTION, or modify other FOREIGN KEY constraints.
-Msg 1750, Level 16, State 1, Line 123
+Msg 1785, Level 16, State 0, Line 245
+Introducing FOREIGN KEY constraint 'FK_tasks_creator' on table 'tasks' may cause cycles or multiple cascade paths. Specify ON DELETE NO ACTION or ON UPDATE NO ACTION, or modify other FOREIGN KEY constraints.
+Msg 1750, Level 16, State 1, Line 245
 Could not create constraint or index. See previous errors.
-Msg 1088, Level 16, State 12, Line 252
-Cannot find the object "departments" because it does not exist or you do not have permissions.
-Msg 8197, Level 16, State 4, Procedure TR_departments_update, Line 2 [Batch Start Line 302]
-The object 'departments' does not exist or is invalid for this operation.
-Msg 8197, Level 16, State 4, Procedure TR_projects_update, Line 2 [Batch Start Line 309]
-The object 'projects' does not exist or is invalid for this operation.
-Msg 8197, Level 16, State 4, Procedure TR_tasks_update, Line 2 [Batch Start Line 316]
-The object 'tasks' does not exist or is invalid for this operation.
-Msg 8197, Level 16, State 4, Procedure TR_timeentries_update, Line 2 [Batch Start Line 323]
-The object 'time_entries' does not exist or is invalid for this operation.
 
 (1 row affected)
 
@@ -20,11 +10,16 @@ The object 'time_entries' does not exist or is invalid for this operation.
 (1 row affected)
 
 (1 row affected)
-Msg 208, Level 16, State 1, Line 352
-Invalid object name 'departments'.
+
+(1 row affected)
+
+(1 row affected)
 === FMB TimeTracker Database Setup Complete ===
  
-Msg 208, Level 16, State 1, Line 368
-Invalid object name 'departments'.
 
-Completion time: 2025-08-30T06:19:21.6885170-07:00
+(8 rows affected)
+ 
+Database ready for TimeTracker application!
+Default admin user: admin@fmb.com (ID: admin-001)
+
+Completion time: 2025-08-30T06:23:06.7762736-07:00
