@@ -60,6 +60,26 @@ try {
     Write-Host "URL Rewrite Module installation may have failed - install manually if needed" -ForegroundColor Yellow
 }
 
+# Install Application Request Routing (ARR) Module (required for reverse proxy)
+Write-Host "Installing Application Request Routing (ARR) Module..." -ForegroundColor Yellow
+$arrUrl = "https://download.microsoft.com/download/E/9/8/E9849D6A-020E-47E4-9FD0-A023E99B54EB/requestRouter_amd64.msi"
+$arrTempPath = "$env:TEMP\arr.msi"
+
+try {
+    Invoke-WebRequest -Uri $arrUrl -OutFile $arrTempPath
+    Start-Process msiexec.exe -Wait -ArgumentList "/i `"$arrTempPath`" /quiet"
+    Remove-Item $arrTempPath -Force
+    Write-Host "ARR Module installed successfully" -ForegroundColor Green
+    
+    # Enable ARR proxy functionality
+    Write-Host "Enabling ARR proxy functionality..." -ForegroundColor Yellow
+    Import-Module WebAdministration
+    Set-WebConfigurationProperty -PSPath "MACHINE/WEBROOT/APPHOST" -Filter "system.webServer/proxy" -Name "enabled" -Value "True"
+    Write-Host "ARR proxy enabled successfully" -ForegroundColor Green
+} catch {
+    Write-Host "ARR Module installation may have failed - install manually if needed" -ForegroundColor Yellow
+}
+
 # Create Application Pool
 Write-Host "Creating Application Pool: $ApplicationPool..." -ForegroundColor Yellow
 if (Get-IISAppPool -Name $ApplicationPool -ErrorAction SilentlyContinue) {
@@ -127,7 +147,12 @@ $webConfigContent = @"
             <add input="{REQUEST_FILENAME}" matchType="IsFile" negate="true" />
             <add input="{REQUEST_FILENAME}" matchType="IsDirectory" negate="true" />
           </conditions>
-          <action type="Rewrite" url="http://localhost:$NodePort/{R:1}" />
+          <action type="Rewrite" url="http://127.0.0.1:$NodePort/{R:1}" logRewrittenUrl="true" />
+          <serverVariables>
+            <set name="HTTP_X_FORWARDED_PROTO" value="https" />
+            <set name="HTTP_X_FORWARDED_FOR" value="{REMOTE_ADDR}" />
+            <set name="HTTP_X_FORWARDED_HOST" value="{HTTP_HOST}" />
+          </serverVariables>
         </rule>
       </rules>
     </rewrite>
