@@ -1,9 +1,10 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import type { RequestHandler } from "express";
-import { storage } from "./storage";
-
-// Import FMB SAML authentication if on-prem
+// Storage abstraction - use appropriate storage based on environment
+import { db } from './db.js';
+import * as storage from './storage.js';
+import { getFmbStorage } from '../fmb-onprem/config/fmb-database.js';
 import { isFmbOnPremEnvironment } from '../fmb-onprem/config/fmb-env.js';
 
 // Role-based permissions helper
@@ -36,6 +37,14 @@ function getRolePermissions(role: string) {
 import { insertProjectSchema, insertTaskSchema, insertTimeEntrySchema, insertEmployeeSchema } from "../shared/schema.js";
 import { z } from "zod";
 
+// Storage abstraction - use appropriate storage based on environment
+function getStorage() {
+  if (isFmbOnPremEnvironment() && process.env.NODE_ENV === 'production') {
+    return getFmbStorage();
+  }
+  return storage;
+}
+
 export async function registerRoutes(app: Express): Promise<Server> {
   // Dynamic authentication middleware based on environment
   let isAuthenticated: RequestHandler;
@@ -55,12 +64,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   }
 
   // Auth routes
-  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
+  app.get('/api/auth/user', isAuthenticated, async (req, res) => {
     try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
+      const userId = req.user.claims?.sub || req.user.id;
+      const activeStorage = getStorage();
+      const user = await activeStorage.getUser(userId);
 
-      // Include role-based auth context
       const response = {
         ...user,
         authContext: {
@@ -77,10 +86,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Project routes
-  app.get('/api/projects', isAuthenticated, async (req: any, res) => {
+  app.get('/api/projects', isAuthenticated, async (req, res) => {
     try {
-      const userId = req.user.claims.sub;
-      const projects = await storage.getProjects();
+      const userId = req.user.claims?.sub || req.user.id;
+      const activeStorage = getStorage();
+      const projects = await activeStorage.getProjects(userId);
       res.json(projects);
     } catch (error) {
       console.error("Error fetching projects:", error);
@@ -90,9 +100,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/projects/:id', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.claims?.sub || req.user.id;
       const { id } = req.params;
-      const project = await storage.getProject(id, userId);
+      const activeStorage = getStorage();
+      const project = await activeStorage.getProject(id, userId);
 
       if (!project) {
         return res.status(404).json({ message: "Project not found" });
@@ -107,8 +118,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/projects', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
+      const userId = req.user.claims?.sub || req.user.id;
+      const activeStorage = getStorage();
+      const user = await activeStorage.getUser(userId);
       const userRole = user?.role || 'employee';
 
       // Only project managers and admins can create projects
@@ -117,7 +129,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const projectData = insertProjectSchema.parse({ ...req.body, userId });
-      const project = await storage.createProject(projectData, userId);
+      const project = await activeStorage.createProject(projectData, userId);
       res.status(201).json(project);
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -130,11 +142,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.patch('/api/projects/:id', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.claims?.sub || req.user.id;
       const { id } = req.params;
       console.log("Received project update data:", req.body);
+      const activeStorage = getStorage();
       const projectData = insertProjectSchema.partial().parse(req.body);
-      const project = await storage.updateProject(id, projectData, userId);
+      const project = await activeStorage.updateProject(id, projectData, userId);
 
       if (!project) {
         return res.status(404).json({ message: "Project not found" });
@@ -156,11 +169,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.put('/api/projects/:id', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.claims?.sub || req.user.id;
       const { id } = req.params;
       console.log("Received project PUT update data:", req.body);
+      const activeStorage = getStorage();
       const projectData = insertProjectSchema.partial().parse(req.body);
-      const project = await storage.updateProject(id, projectData, userId);
+      const project = await activeStorage.updateProject(id, projectData, userId);
 
       if (!project) {
         return res.status(404).json({ message: "Project not found" });
@@ -179,9 +193,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete('/api/projects/:id', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.claims?.sub || req.user.id;
       const { id } = req.params;
-      const deleted = await storage.deleteProject(id, userId);
+      const activeStorage = getStorage();
+      const deleted = await activeStorage.deleteProject(id, userId);
 
       if (!deleted) {
         return res.status(404).json({ message: "Project not found" });
@@ -200,8 +215,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Project access control routes
   app.get('/api/projects/:id/employees', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
+      const userId = req.user.claims?.sub || req.user.id;
+      const activeStorage = getStorage();
+      const user = await activeStorage.getUser(userId);
       const userRole = user?.role || 'employee';
 
       // Only admins and project managers can view project employee assignments
@@ -210,7 +226,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const { id } = req.params;
-      const employees = await storage.getProjectEmployees(id, userId);
+      const employees = await activeStorage.getProjectEmployees(id, userId);
       res.json(employees);
     } catch (error) {
       console.error("Error fetching project employees:", error);
@@ -220,8 +236,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/projects/:id/employees', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
+      const userId = req.user.claims?.sub || req.user.id;
+      const activeStorage = getStorage();
+      const user = await activeStorage.getUser(userId);
       const userRole = user?.role || 'employee';
 
       // Only admins and project managers can assign employees to projects
@@ -236,7 +253,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "employeeIds must be an array" });
       }
 
-      await storage.assignEmployeesToProject(id, employeeIds, userId);
+      await activeStorage.assignEmployeesToProject(id, employeeIds, userId);
       res.status(200).json({ message: "Employees assigned successfully" });
     } catch (error) {
       console.error("Error assigning employees to project:", error);
@@ -246,8 +263,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete('/api/projects/:id/employees/:employeeId', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
+      const userId = req.user.claims?.sub || req.user.id;
+      const activeStorage = getStorage();
+      const user = await activeStorage.getUser(userId);
       const userRole = user?.role || 'employee';
 
       // Only admins and project managers can remove employees from projects
@@ -256,7 +274,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const { id, employeeId } = req.params;
-      const removed = await storage.removeEmployeeFromProject(id, employeeId, userId);
+      const removed = await activeStorage.removeEmployeeFromProject(id, employeeId, userId);
 
       if (!removed) {
         return res.status(404).json({ message: "Employee assignment not found" });
@@ -272,9 +290,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Task routes
   app.get('/api/projects/:projectId/tasks', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.claims?.sub || req.user.id;
       const { projectId } = req.params;
-      const tasks = await storage.getTasks(projectId, userId);
+      const activeStorage = getStorage();
+      const tasks = await activeStorage.getTasks(projectId, userId);
       res.json(tasks);
     } catch (error) {
       console.error("Error fetching tasks:", error);
@@ -285,8 +304,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get all tasks across projects for cloning (must be before /api/tasks/:id)
   app.get('/api/tasks/all', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
-      const tasks = await storage.getAllUserTasks(userId);
+      const userId = req.user.claims?.sub || req.user.id;
+      const activeStorage = getStorage();
+      const tasks = await activeStorage.getAllUserTasks(userId);
       res.json(tasks);
     } catch (error) {
       console.error("Error fetching all tasks:", error);
@@ -296,9 +316,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/tasks/:id', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.claims?.sub || req.user.id;
       const { id } = req.params;
-      const task = await storage.getTask(id, userId);
+      const activeStorage = getStorage();
+      const task = await activeStorage.getTask(id, userId);
 
       if (!task) {
         return res.status(404).json({ message: "Task not found" });
@@ -313,8 +334,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/tasks', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
+      const userId = req.user.claims?.sub || req.user.id;
+      const activeStorage = getStorage();
+      const user = await activeStorage.getUser(userId);
       const userRole = user?.role || 'employee';
 
       // Only project managers and admins can create tasks
@@ -325,12 +347,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const taskData = insertTaskSchema.parse(req.body);
 
       // Verify project exists (project access is now enterprise-wide)
-      const project = await storage.getProject(taskData.projectId, userId);
+      const project = await activeStorage.getProject(taskData.projectId, userId);
       if (!project) {
         return res.status(404).json({ message: "Project not found" });
       }
 
-      const task = await storage.createTask(taskData);
+      const task = await activeStorage.createTask(taskData);
       res.status(201).json(task);
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -343,8 +365,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.put('/api/tasks/:id', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
+      const userId = req.user.claims?.sub || req.user.id;
+      const activeStorage = getStorage();
+      const user = await activeStorage.getUser(userId);
       const userRole = user?.role || 'employee';
 
       // Only project managers and admins can edit tasks
@@ -354,7 +377,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const { id } = req.params;
       const taskData = insertTaskSchema.partial().parse(req.body);
-      const task = await storage.updateTask(id, taskData, userId);
+      const task = await activeStorage.updateTask(id, taskData, userId);
 
       if (!task) {
         return res.status(404).json({ message: "Task not found" });
@@ -372,9 +395,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete('/api/tasks/:id', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.claims?.sub || req.user.id;
       const { id } = req.params;
-      const deleted = await storage.deleteTask(id, userId);
+      const activeStorage = getStorage();
+      const deleted = await activeStorage.deleteTask(id, userId);
 
       if (!deleted) {
         return res.status(404).json({ message: "Task not found" });
@@ -390,28 +414,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Clone task to another project
   app.post('/api/tasks/:id/clone', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.claims?.sub || req.user.id;
       const { id } = req.params;
       const { targetProjectId } = req.body;
+      const activeStorage = getStorage();
 
       if (!targetProjectId) {
         return res.status(400).json({ message: "Target project ID is required" });
       }
 
       // Get the original task
-      const originalTask = await storage.getTask(id, userId);
+      const originalTask = await activeStorage.getTask(id, userId);
       if (!originalTask) {
         return res.status(404).json({ message: "Task not found" });
       }
 
       // Verify user owns the target project
-      const targetProject = await storage.getProject(targetProjectId, userId);
+      const targetProject = await activeStorage.getProject(targetProjectId, userId);
       if (!targetProject) {
         return res.status(403).json({ message: "Access denied to target project" });
       }
 
       // Clone the task
-      const clonedTask = await storage.createTask({
+      const clonedTask = await activeStorage.createTask({
         projectId: targetProjectId,
         name: originalTask.name,
         description: originalTask.description,
@@ -430,8 +455,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Time entry routes
   app.get('/api/time-entries', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.claims?.sub || req.user.id;
       const { projectId, startDate, endDate, limit, offset } = req.query;
+      const activeStorage = getStorage();
 
       const filters = {
         projectId: (projectId === "all" || !projectId) ? undefined : projectId as string,
@@ -441,7 +467,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         offset: offset ? parseInt(offset as string) : undefined,
       };
 
-      const timeEntries = await storage.getTimeEntries(userId, filters);
+      const timeEntries = await activeStorage.getTimeEntries(userId, filters);
       res.json(timeEntries);
     } catch (error) {
       console.error("Error fetching time entries:", error);
@@ -451,9 +477,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/time-entries/:id', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.claims?.sub || req.user.id;
       const { id } = req.params;
-      const timeEntry = await storage.getTimeEntry(id, userId);
+      const activeStorage = getStorage();
+      const timeEntry = await activeStorage.getTimeEntry(id, userId);
 
       if (!timeEntry) {
         return res.status(404).json({ message: "Time entry not found" });
@@ -468,7 +495,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/time-entries', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.claims?.sub || req.user.id;
+      const activeStorage = getStorage();
 
       console.log("📝 Time Entry Request Body:", JSON.stringify(req.body, null, 2));
 
@@ -487,7 +515,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       console.log("✅ Parsed Entry Data:", JSON.stringify(entryData, null, 2));
 
-      const timeEntry = await storage.createTimeEntry(entryData);
+      const timeEntry = await activeStorage.createTimeEntry(entryData);
       res.status(201).json(timeEntry);
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -501,12 +529,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.put('/api/time-entries/:id', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.claims?.sub || req.user.id;
       const { id } = req.params;
+      const activeStorage = getStorage();
       // Handle partial updates for time entries
       const partialSchema = insertTimeEntrySchema.deepPartial();
       const entryData = partialSchema.parse(req.body);
-      const timeEntry = await storage.updateTimeEntry(id, entryData, userId);
+      const timeEntry = await activeStorage.updateTimeEntry(id, entryData, userId);
 
       if (!timeEntry) {
         return res.status(404).json({ message: "Time entry not found" });
@@ -524,9 +553,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete('/api/time-entries/:id', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.claims?.sub || req.user.id;
       const { id } = req.params;
-      const deleted = await storage.deleteTimeEntry(id, userId);
+      const activeStorage = getStorage();
+      const deleted = await activeStorage.deleteTimeEntry(id, userId);
 
       if (!deleted) {
         return res.status(404).json({ message: "Time entry not found" });
@@ -542,9 +572,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Dashboard routes - require authentication
   app.get('/api/dashboard/stats', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.claims?.sub || req.user.id;
       const { startDate, endDate } = req.query;
-      const stats = await storage.getDashboardStats(
+      const activeStorage = getStorage();
+      const stats = await activeStorage.getDashboardStats(
         userId,
         startDate as string,
         endDate as string
@@ -558,9 +589,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/dashboard/project-breakdown', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.claims?.sub || req.user.id;
       const { startDate, endDate } = req.query;
-      const breakdown = await storage.getProjectTimeBreakdown(
+      const activeStorage = getStorage();
+      const breakdown = await activeStorage.getProjectTimeBreakdown(
         userId,
         startDate as string,
         endDate as string
@@ -574,9 +606,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/dashboard/recent-activity', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.claims?.sub || req.user.id;
       const { limit, startDate, endDate } = req.query;
-      const activity = await storage.getRecentActivity(
+      const activeStorage = getStorage();
+      const activity = await activeStorage.getRecentActivity(
         userId,
         limit ? parseInt(limit as string) : undefined,
         startDate as string,
@@ -593,10 +626,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/dashboard/department-hours', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.claims?.sub || req.user.id;
       const { startDate, endDate } = req.query;
+      const activeStorage = getStorage();
       console.log("🏢 Fetching department hours for user:", userId, "dates:", startDate, endDate);
-      const departmentHours = await storage.getDepartmentHoursSummary(userId, startDate as string, endDate as string);
+      const departmentHours = await activeStorage.getDepartmentHoursSummary(userId, startDate as string, endDate as string);
       console.log("📊 Department hours result:", JSON.stringify(departmentHours, null, 2));
       res.json(departmentHours);
     } catch (error) {
@@ -610,8 +644,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // User role management routes
   app.get('/api/users/current-role', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
+      const userId = req.user.claims?.sub || req.user.id;
+      const activeStorage = getStorage();
+      const user = await activeStorage.getUser(userId);
       res.json({
         role: user?.role || 'employee',
         permissions: getRolePermissions(user?.role || 'employee')
@@ -624,15 +659,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/users/change-role', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.claims?.sub || req.user.id;
       const { role } = req.body;
+      const activeStorage = getStorage();
 
       const validRoles = ['admin', 'manager', 'project_manager', 'employee', 'viewer'];
       if (!validRoles.includes(role)) {
         return res.status(400).json({ message: "Invalid role" });
       }
 
-      await storage.updateUserRole(userId, role);
+      await activeStorage.updateUserRole(userId, role);
       res.json({ message: "Role updated successfully", role });
     } catch (error) {
       console.error("Error changing user role:", error);
@@ -643,9 +679,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Admin role testing - allows temporary role switching for testing purposes
   app.post('/api/admin/test-role', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.claims?.sub || req.user.id;
       const { testRole } = req.body;
-      const currentUser = await storage.getUser(userId);
+      const activeStorage = getStorage();
+      const currentUser = await activeStorage.getUser(userId);
 
       // Only allow admin users to use role testing
       if (!currentUser || currentUser.role !== 'admin') {
@@ -662,7 +699,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       req.session.testingRole = true;
 
       // Temporarily change role for testing
-      await storage.updateUserRole(userId, testRole);
+      await activeStorage.updateUserRole(userId, testRole);
 
       console.log(`🧪 [ROLE-TEST] Admin ${currentUser.email} testing role: ${testRole} (original: ${req.session.originalRole})`);
 
@@ -681,15 +718,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Restore admin role after testing
   app.post('/api/admin/restore-role', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
-      const currentUser = await storage.getUser(userId);
+      const userId = req.user.claims?.sub || req.user.id;
+      const activeStorage = getStorage();
+      const currentUser = await activeStorage.getUser(userId);
 
       if (!req.session.originalRole || !req.session.testingRole) {
         return res.status(400).json({ message: "No role testing session found" });
       }
 
       // Restore original admin role
-      await storage.updateUserRole(userId, req.session.originalRole);
+      await activeStorage.updateUserRole(userId, req.session.originalRole);
 
       console.log(`🧪 [ROLE-TEST] Restored ${currentUser?.email} to original role: ${req.session.originalRole}`);
 
@@ -712,8 +750,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get current testing status
   app.get('/api/admin/test-status', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
-      const currentUser = await storage.getUser(userId);
+      const userId = req.user.claims?.sub || req.user.id;
+      const activeStorage = getStorage();
+      const currentUser = await activeStorage.getUser(userId);
 
       res.json({
         currentRole: currentUser?.role || 'employee',
@@ -729,15 +768,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/admin/create-test-users', isAuthenticated, async (req: any, res) => {
     try {
-      const currentUserId = req.user.claims.sub;
-      const currentUser = await storage.getUser(currentUserId);
+      const currentUserId = req.user.claims?.sub || req.user.id;
+      const activeStorage = getStorage();
+      const currentUser = await activeStorage.getUser(currentUserId);
 
       // Only admin or manager can create test users
       if (!currentUser || !['admin', 'manager'].includes(currentUser.role || 'employee')) {
         return res.status(403).json({ message: "Insufficient permissions" });
       }
 
-      const testUsers = await storage.createTestUsers();
+      const testUsers = await activeStorage.createTestUsers();
       res.json({ message: "Test users created successfully", users: testUsers });
     } catch (error) {
       console.error("Error creating test users:", error);
@@ -747,14 +787,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/admin/test-users', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
+      const userId = req.user.claims?.sub || req.user.id;
+      const activeStorage = getStorage();
+      const user = await activeStorage.getUser(userId);
 
       if (!user || !['admin', 'manager'].includes(user.role || 'employee')) {
         return res.status(403).json({ message: "Insufficient permissions" });
       }
 
-      const testUsers = await storage.getTestUsers();
+      const testUsers = await activeStorage.getTestUsers();
       res.json(testUsers);
     } catch (error) {
       console.error("Error fetching test users:", error);
@@ -766,13 +807,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/reports/project-time-entries/:projectId', isAuthenticated, async (req: any, res) => {
     try {
       const { projectId } = req.params;
-      const userId = req.user.claims.sub;
+      const userId = req.user.claims?.sub || req.user.id;
+      const activeStorage = getStorage();
 
       if (!userId) {
         return res.status(401).json({ message: "User not authenticated" });
       }
 
-      const currentUser = await storage.getUser(userId);
+      const currentUser = await activeStorage.getUser(userId);
 
       // Check if user has permission to view reports
       const allowedRoles = ['project_manager', 'admin', 'manager'];
@@ -781,7 +823,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Get time entries for the project with employee information
-      const timeEntries = await storage.getTimeEntriesForProject(projectId);
+      const timeEntries = await activeStorage.getTimeEntriesForProject(projectId);
 
       res.json(timeEntries);
     } catch (error) {
@@ -793,8 +835,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Employee routes
   app.get('/api/employees', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
-      const employees = await storage.getEmployees(userId);
+      const userId = req.user.claims?.sub || req.user.id;
+      const activeStorage = getStorage();
+      const employees = await activeStorage.getEmployees(userId);
       res.json(employees);
     } catch (error) {
       console.error("Error fetching employees:", error);
@@ -804,9 +847,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/employees/:id', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.claims?.sub || req.user.id;
       const { id } = req.params;
-      const employee = await storage.getEmployee(id, userId);
+      const activeStorage = getStorage();
+      const employee = await activeStorage.getEmployee(id, userId);
 
       if (!employee) {
         return res.status(404).json({ message: "Employee not found" });
@@ -821,8 +865,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/employees', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
+      const userId = req.user.claims?.sub || req.user.id;
+      const activeStorage = getStorage();
+      const user = await activeStorage.getUser(userId);
       const userRole = user?.role || 'employee';
 
       // Only admins and department managers can create employees
@@ -832,7 +877,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const employeeData = insertEmployeeSchema.parse({ ...req.body, userId });
 
-      const employee = await storage.createEmployee(employeeData);
+      const employee = await activeStorage.createEmployee(employeeData);
       res.status(201).json(employee);
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -845,8 +890,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.put('/api/employees/:id', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
+      const userId = req.user.claims?.sub || req.user.id;
+      const activeStorage = getStorage();
+      const user = await activeStorage.getUser(userId);
       const userRole = user?.role || 'employee';
 
       // Only admins and department managers can update employees
@@ -856,7 +902,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const { id } = req.params;
       const employeeData = insertEmployeeSchema.partial().parse(req.body);
-      const employee = await storage.updateEmployee(id, employeeData, userId);
+      const employee = await activeStorage.updateEmployee(id, employeeData, userId);
 
       if (!employee) {
         return res.status(404).json({ message: "Employee not found" });
@@ -874,8 +920,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete('/api/employees/:id', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
+      const userId = req.user.claims?.sub || req.user.id;
+      const activeStorage = getStorage();
+      const user = await activeStorage.getUser(userId);
       const userRole = user?.role || 'employee';
 
       // Only admins and department managers can delete employees
@@ -884,7 +931,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const { id } = req.params;
-      const deleted = await storage.deleteEmployee(id, userId);
+      const deleted = await activeStorage.deleteEmployee(id, userId);
 
       if (!deleted) {
         return res.status(404).json({ message: "Employee not found" });
@@ -900,7 +947,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Department routes
   app.get("/api/departments", isAuthenticated, async (req: any, res) => {
     try {
-      const departments = await storage.getDepartments();
+      const activeStorage = getStorage();
+      const departments = await activeStorage.getDepartments();
       console.log(`📋 Departments API: Found ${departments.length} departments`);
       res.json(departments);
     } catch (error) {
@@ -912,7 +960,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/departments/:id", isAuthenticated, async (req: any, res) => {
     try {
       const { id } = req.params;
-      const department = await storage.getDepartment(id);
+      const activeStorage = getStorage();
+      const department = await activeStorage.getDepartment(id);
 
       if (!department) {
         return res.status(404).json({ message: "Department not found" });
@@ -927,8 +976,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/departments", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
+      const userId = req.user.claims?.sub || req.user.id;
+      const activeStorage = getStorage();
+      const user = await activeStorage.getUser(userId);
       const userRole = user?.role || 'employee';
 
       // Only system administrators can create departments
@@ -938,7 +988,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const departmentData = { ...req.body, userId };
 
-      const department = await storage.createDepartment(departmentData);
+      const department = await activeStorage.createDepartment(departmentData);
       res.status(201).json(department);
     } catch (error) {
       console.error("Error creating department:", error);
@@ -949,8 +999,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put("/api/departments/:id", isAuthenticated, async (req: any, res) => {
     try {
       const { id } = req.params;
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
+      const userId = req.user.claims?.sub || req.user.id;
+      const activeStorage = getStorage();
+      const user = await activeStorage.getUser(userId);
       const userRole = user?.role || 'employee';
 
       // Only system administrators can update departments
@@ -958,7 +1009,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: "Insufficient permissions to update departments" });
       }
 
-      const department = await storage.updateDepartment(id, req.body, userId);
+      const department = await activeStorage.updateDepartment(id, req.body, userId);
 
       if (!department) {
         return res.status(404).json({ message: "Department not found" });
@@ -974,8 +1025,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete("/api/departments/:id", isAuthenticated, async (req: any, res) => {
     try {
       const { id } = req.params;
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
+      const userId = req.user.claims?.sub || req.user.id;
+      const activeStorage = getStorage();
+      const user = await activeStorage.getUser(userId);
       const userRole = user?.role || 'employee';
 
       // Only system administrators can delete departments
@@ -983,7 +1035,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: "Insufficient permissions to delete departments" });
       }
 
-      const success = await storage.deleteDepartment(id, userId);
+      const success = await activeStorage.deleteDepartment(id, userId);
 
       if (!success) {
         return res.status(404).json({ message: "Department not found" });
@@ -1000,9 +1052,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { id } = req.params;
       const { managerId } = req.body;
-      const userId = req.user.claims.sub;
+      const userId = req.user.claims?.sub || req.user.id;
+      const activeStorage = getStorage();
 
-      await storage.assignManagerToDepartment(id, managerId, userId);
+      await activeStorage.assignManagerToDepartment(id, managerId, userId);
       res.json({ message: "Manager assigned successfully" });
     } catch (error) {
       console.error("Error assigning manager:", error);
@@ -1013,14 +1066,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // User Management routes (Admin only)
   app.get("/api/admin/users", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
+      const userId = req.user.claims?.sub || req.user.id;
+      const activeStorage = getStorage();
+      const user = await activeStorage.getUser(userId);
 
       if (user?.role !== 'admin') {
         return res.status(403).json({ message: "Only System Administrators can view all users" });
       }
 
-      const users = await storage.getAllUsers();
+      const users = await activeStorage.getAllUsers();
       res.json(users);
     } catch (error) {
       console.error("Error fetching users:", error);
@@ -1030,14 +1084,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/admin/users/without-employee", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
+      const userId = req.user.claims?.sub || req.user.id;
+      const activeStorage = getStorage();
+      const user = await activeStorage.getUser(userId);
 
       if (user?.role !== 'admin') {
         return res.status(403).json({ message: "Only System Administrators can view unlinked users" });
       }
 
-      const users = await storage.getUsersWithoutEmployeeProfile();
+      const users = await activeStorage.getUsersWithoutEmployeeProfile();
       res.json(users);
     } catch (error) {
       console.error("Error fetching unlinked users:", error);
@@ -1047,8 +1102,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/admin/employees/:employeeId/link-user", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
+      const userId = req.user.claims?.sub || req.user.id;
+      const activeStorage = getStorage();
+      const user = await activeStorage.getUser(userId);
 
       if (user?.role !== 'admin') {
         return res.status(403).json({ message: "Only System Administrators can link users to employees" });
@@ -1057,7 +1113,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { employeeId } = req.params;
       const { userId: targetUserId } = req.body;
 
-      const linkedEmployee = await storage.linkUserToEmployee(targetUserId, employeeId);
+      const linkedEmployee = await activeStorage.linkUserToEmployee(targetUserId, employeeId);
 
       if (!linkedEmployee) {
         return res.status(404).json({ message: "Employee not found" });
@@ -1077,9 +1133,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log("🎯 Target user ID:", req.params.userId);
       console.log("🔄 New role:", req.body.role);
 
-      const currentUserId = req.user.claims.sub;
+      const currentUserId = req.user.claims?.sub || req.user.id;
       console.log("🔍 Fetching current user...");
-      const currentUser = await storage.getUser(currentUserId);
+      const activeStorage = getStorage();
+      const currentUser = await activeStorage.getUser(currentUserId);
       console.log("📋 Current user role:", currentUser?.role);
 
       if (currentUser?.role !== 'admin') {
@@ -1108,7 +1165,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       console.log("🔄 Updating user role in database...");
-      const updatedUser = await storage.updateUserRole(targetUserId, role);
+      const updatedUser = await activeStorage.updateUserRole(targetUserId, role);
       console.log("✅ Role update result:", !!updatedUser);
 
       if (!updatedUser) {
@@ -1135,8 +1192,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Organization routes
   app.get("/api/organizations", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
-      const organizations = await storage.getOrganizations();
+      const userId = req.user.claims?.sub || req.user.id;
+      const activeStorage = getStorage();
+      const organizations = await activeStorage.getOrganizations(userId);
       res.json(organizations);
     } catch (error) {
       console.error("Error fetching organizations:", error);
@@ -1147,7 +1205,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/organizations/:id", isAuthenticated, async (req: any, res) => {
     try {
       const { id } = req.params;
-      const organization = await storage.getOrganization(id);
+      const userId = req.user.claims?.sub || req.user.id;
+      const activeStorage = getStorage();
+      const organization = await activeStorage.getOrganization(id, userId);
 
       if (!organization) {
         return res.status(404).json({ message: "Organization not found" });
@@ -1162,8 +1222,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/organizations", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
+      const userId = req.user.claims?.sub || req.user.id;
+      const activeStorage = getStorage();
+      const user = await activeStorage.getUser(userId);
       const userRole = user?.role || 'employee';
 
       // Only system administrators can create organizations
@@ -1173,7 +1234,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const organizationData = { ...req.body, userId };
 
-      const organization = await storage.createOrganization(organizationData);
+      const organization = await activeStorage.createOrganization(organizationData);
       res.status(201).json(organization);
     } catch (error) {
       console.error("Error creating organization:", error);
@@ -1184,8 +1245,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put("/api/organizations/:id", isAuthenticated, async (req: any, res) => {
     try {
       const { id } = req.params;
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
+      const userId = req.user.claims?.sub || req.user.id;
+      const activeStorage = getStorage();
+      const user = await activeStorage.getUser(userId);
       const userRole = user?.role || 'employee';
 
       // Only system administrators can update organizations
@@ -1193,7 +1255,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: "Insufficient permissions to update organizations" });
       }
 
-      const organization = await storage.updateOrganization(id, req.body, userId);
+      const organization = await activeStorage.updateOrganization(id, req.body, userId);
 
       if (!organization) {
         return res.status(404).json({ message: "Organization not found" });
@@ -1209,8 +1271,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete("/api/organizations/:id", isAuthenticated, async (req: any, res) => {
     try {
       const { id } = req.params;
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
+      const userId = req.user.claims?.sub || req.user.id;
+      const activeStorage = getStorage();
+      const user = await activeStorage.getUser(userId);
       const userRole = user?.role || 'employee';
 
       // Only system administrators can delete organizations
@@ -1218,7 +1281,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: "Insufficient permissions to delete organizations" });
       }
 
-      const success = await storage.deleteOrganization(id, userId);
+      const success = await activeStorage.deleteOrganization(id, userId);
 
       if (!success) {
         return res.status(404).json({ message: "Organization not found" });
@@ -1234,7 +1297,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/organizations/:id/departments", isAuthenticated, async (req: any, res) => {
     try {
       const { id } = req.params;
-      const departments = await storage.getDepartmentsByOrganization(id);
+      const activeStorage = getStorage();
+      const departments = await activeStorage.getDepartmentsByOrganization(id);
       res.json(departments);
     } catch (error) {
       console.error("Error fetching organization departments:", error);
