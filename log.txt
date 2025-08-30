@@ -1,16 +1,45 @@
-✅ FMB MS SQL database connected successfully
-2025-08-30T06:20:07.332Z 🔵 INFO [FMB-ONPREM] On-premises services initialized successfully
-🚀 Setting up FMB SAML Authentication for On-Premises production environment...
-2025-08-30T06:20:07.338Z 🔵 [FMB-SAML] Initializing FMB SAML Authentication...
-Database password: ********************
-Warning: connect.session() MemoryStore is not
-designed for a production environment, as it will leak
-memory, and will not scale past a single process.
-2025-08-30T06:20:07.341Z 🔵 [FMB-SAML] FMB SAML Authentication configured successfully
-2025-08-30T06:20:07.345Z 🔴 ERROR [PROCESS] Uncaught Exception: {
-  "message": "listen ENOTSUP: operation not supported on socket 0.0.0.0:3000",
-  "stack": "Error: listen ENOTSUP: operation not supported on socket 0.0.0.0:3000\n    at Server.setupListenHandle [as _listen2] (node:net:1918:21)\n    at listenInCluster (node:net:1997:12)\n    at node:net:2206:7\n    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)",
-  "name": "Error"
-}
-2025-08-30T06:20:07.346Z 🔴 ERROR [PROCESS] Critical error - shutting down server
-PS C:\fmb-timetracker>
+  Type 'string' is not assignable to type 'keyof this & string'.
+    Type 'string' is not assignable to type 'keyof this'.
+      Type '"config"' is not assignable to type '"offset" | "_" | "getSQL" | "as" | "union" | "intersect" | "except" | "where" | "orderBy" | "limit" | "toSQL" | "$dynamic" | "having" | "groupBy" | "leftJoi
+n" | "rightJoin" | "innerJoin" | "fullJoin" | "unionAll"'.
+node_modules/drizzle-orm/sqlite-core/query-builders/select.d.ts(280,248): error TS2344: Type 'string' does not satisfy the constraint 'keyof this & string'.
+  Type 'string' is not assignable to type 'keyof this & string'.
+    Type 'string' is not assignable to type 'keyof this'.
+      Type '"config"' is not assignable to type '"offset" | "_" | "getSQL" | "as" | "union" | "intersect" | "except" | "where" | "orderBy" | "limit" | "toSQL" | "$dynamic" | "having" | "groupBy" | "leftJoi
+n" | "rightJoin" | "innerJoin" | "fullJoin" | "unionAll"'.
+node_modules/drizzle-orm/sqlite-core/query-builders/select.d.ts(421,22): error TS2515: Non-abstract class 'SQLiteSelectBase<TTableName, TResultType, TRunResult, TSelection, TSelectMode, TNullabilityMap, TD
+ynamic, TExcludedMethods, TResult, TSelectedFields>' does not implement inherited abstract member getSQL from class 'SQLiteSelectQueryBuilderBase<SQLiteSelectHKT, TTableName, TResultType, TRunResult, TSele
+ction, TSelectMode, TNullabilityMap, TDynamic, TExcludedMethods, TResult, TSelectedFields>'.
+node_modules/drizzle-orm/sqlite-core/query-builders/select.types.d.ts(122,1157): error TS2344: Type 'SQLiteSetOperatorExcludedMethods' does not satisfy the constraint '"values" | "all" | "offset" | "get" |
+ "_" | "getSQL" | "as" | "union" | "intersect" | "except" | "where" | "orderBy" | "limit" | "toSQL" | "prepare" | "execute" | "$dynamic" | "catch" | ... 9 more ... | "run"'.
+  Type '"config"' is not assignable to type '"values" | "all" | "offset" | "get" | "_" | "getSQL" | "as" | "union" | "intersect" | "except" | "where" | "orderBy" | "limit" | "toSQL" | "prepare" | "execute"
+ | "$dynamic" | "catch" | ... 9 more ... | "run"'.
+node_modules/tedious/lib/connection.d.ts(755,29): error TS2304: Cannot find name 'AggregateError'.
+node_modules/tedious/lib/errors.d.ts(4,59): error TS2304: Cannot find name 'ErrorOptions'.
+node_modules/tedious/lib/errors.d.ts(14,59): error TS2304: Cannot find name 'ErrorOptions'.
+shared/schema.ts(124,3): error TS2322: Type 'boolean' is not assignable to type 'never'.
+shared/schema.ts(125,3): error TS2322: Type 'boolean' is not assignable to type 'never'.
+shared/schema.ts(126,3): error TS2322: Type 'boolean' is not assignable to type 'never'.
+shared/schema.ts(133,3): error TS2322: Type 'boolean' is not assignable to type 'never'.
+shared/schema.ts(134,3): error TS2322: Type 'boolean' is not assignable to type 'never'.
+shared/schema.ts(135,3): error TS2322: Type 'boolean' is not assignable to type 'never'.
+shared/schema.ts(139,3): error TS2322: Type 'boolean' is not assignable to type 'never'.
+shared/schema.ts(140,3): error TS2322: Type 'boolean' is not assignable to type 'never'.
+shared/schema.ts(141,3): error TS2322: Type 'boolean' is not assignable to type 'never'.
+shared/schema.ts(194,3): error TS2322: Type 'boolean' is not assignable to type 'never'.
+shared/schema.ts(195,3): error TS2322: Type 'boolean' is not assignable to type 'never'.
+shared/schema.ts(196,3): error TS2322: Type 'boolean' is not assignable to type 'never'.
+shared/schema.ts(200,3): error TS2322: Type 'boolean' is not assignable to type 'never'.
+shared/schema.ts(201,3): error TS2322: Type 'boolean' is not assignable to type 'never'.
+shared/schema.ts(259,3): error TS2322: Type 'boolean' is not assignable to type 'never'.
+shared/schema.ts(260,3): error TS2322: Type 'boolean' is not assignable to type 'never'.
+shared/schema.ts(261,3): error TS2322: Type 'boolean' is not assignable to type 'never'.
+shared/schema.ts(265,3): error TS2322: Type 'boolean' is not assignable to type 'never'.
+shared/schema.ts(266,3): error TS2322: Type 'boolean' is not assignable to type 'never'.
+shared/schema.ts(267,3): error TS2322: Type 'boolean' is not assignable to type 'never'.
+✅ Application built successfully
+📦 Keeping all dependencies for Vite compatibility...
+✅ Dependencies preserved for production build
+🔍 Running configuration health check...
+☁️ Replit deployment detected - skipping FMB on-prem validation
+❌ Missing basic environment variables: NODE_ENV
