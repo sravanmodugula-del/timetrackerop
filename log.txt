@@ -1,122 +1,18 @@
-FMB TimeTracker IIS Configuration
-====================================
-Installing required IIS features...
-
-
-Path          : 
-Online        : True
-RestartNeeded : False
-
-Enabled feature: IIS-WebServerRole
-Path          : 
-Online        : True
-RestartNeeded : False
-
-Enabled feature: IIS-WebServer
-Path          : 
-Online        : True
-RestartNeeded : False
-
-Enabled feature: IIS-CommonHttpFeatures
-Path          : 
-Online        : True
-RestartNeeded : False
-
-Enabled feature: IIS-HttpRedirect
-Path          : 
-Online        : True
-RestartNeeded : False
-
-Enabled feature: IIS-HttpErrors
-Path          : 
-Online        : True
-RestartNeeded : False
-
-Enabled feature: IIS-StaticContent
-Path          : 
-Online        : True
-RestartNeeded : False
-
-Enabled feature: IIS-DefaultDocument
-Path          : 
-Online        : True
-RestartNeeded : False
-
-Enabled feature: IIS-DirectoryBrowsing
-Path          : 
-Online        : True
-RestartNeeded : False
-
-Enabled feature: IIS-ASPNET45
-Path          : 
-Online        : True
-RestartNeeded : False
-
-Enabled feature: IIS-NetFxExtensibility45
-Path          : 
-Online        : True
-RestartNeeded : False
-
-Enabled feature: IIS-ISAPIExtensions
-Path          : 
-Online        : True
-RestartNeeded : False
-
-Enabled feature: IIS-ISAPIFilter
-Path          : 
-Online        : True
-RestartNeeded : False
-
-Enabled feature: IIS-ApplicationDevelopment
-Installing URL Rewrite Module...
-URL Rewrite Module installed successfully
-Creating Application Pool: FMBTimeTrackerPool...
-WARNING: Application pool 'FMBTimeTrackerPool' does not exist.
-New-WebAppPool : Destination element already exists, please use "force" parameter to override.
-At line:71 char:1
-+ New-WebAppPool -Name $ApplicationPool
-+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    + CategoryInfo          : InvalidArgument: (:) [New-WebAppPool], ArgumentException
-    + FullyQualifiedErrorId : Destination element already exists, please use "force" parameter to override.,Microsoft.IIs.PowerShell.Provider.NewAppPoolCommand
- 
-Application Pool created successfully
-Creating Website: timetracker.fmb.com...
-Removed existing Website
-
-Name         : timetracker.fmb.com
-ID           : 3
-State        : Stopped
-PhysicalPath : C:\inetpub\wwwroot\timetracker.fmb.com
-Bindings     : Microsoft.IIs.PowerShell.Framework.ConfigurationElement
-
-Website created successfully
-URL Rewrite rules configured successfully
-Setting permissions...
-Permissions set successfully
-Starting website...
-Start-Website : Cannot create a file when that file already exists. (Exception from HRESULT: 0x800700B7)
-At line:151 char:1
-+ Start-Website -Name $SiteName
-+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    + CategoryInfo          : InvalidOperation: (:) [Start-Website], COMException
-    + FullyQualifiedErrorId : InvalidOperation,Microsoft.IIs.PowerShell.Provider.StartWebsiteCommand
- 
-Website started successfully
-
-IIS configuration completed successfully!
-
-Configuration Summary:
-Website: timetracker.fmb.com
-Application Pool: FMBTimeTrackerPool
-Physical Path: C:\inetpub\wwwroot\timetracker.fmb.com
-Proxy Target: http://localhost:3000
-
-Next Steps:
-1. Ensure your Node.js application is running on port 3000
-2. Test the proxy: http://localhost or http://timetracker.fmb.com
-3. Configure SSL certificate for HTTPS (if needed)
-4. Update DNS to point timetracker.fmb.com to this server
-
-Test Commands:
-curl http://localhost
-curl http://localhost/api/health
+You have triggered an unhandledRejection, you may have forgotten to catch a Promise rejection:
+Error: Environment variable REPLIT_DOMAINS not provided
+    at file:///C:/fmb-timetracker/dist/index.js:1492:9
+    at ModuleJob.run (node:internal/modules/esm/module_job:343:25)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:647:26)
+You have triggered an unhandledRejection, you may have forgotten to catch a Promise rejection:
+Error: Environment variable REPLIT_DOMAINS not provided
+    at file:///C:/fmb-timetracker/dist/index.js:1492:9
+    at ModuleJob.run (node:internal/modules/esm/module_job:343:25)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:647:26)
+You have triggered an unhandledRejection, you may have forgotten to catch a Promise rejection:
+Error: Environment variable REPLIT_DOMAINS not provided
+    at file:///C:/fmb-timetracker/dist/index.js:1492:9
+    at ModuleJob.run (node:internal/modules/esm/module_job:343:25)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:647:26)
