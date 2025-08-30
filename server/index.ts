@@ -301,11 +301,18 @@ app.use((req, res, next) => {
   // this serves both the API and the client.
   // It is the only port that is not firewalled.
   const port = parseInt(process.env.PORT || '5000', 10);
-  server.listen({
+  // Configure server options with Windows-compatible settings
+  const serverOptions: any = {
     port,
     host: "0.0.0.0",
-    reusePort: true,
-  }, () => {
+  };
+
+  // Only add reusePort on non-Windows platforms
+  if (process.platform !== 'win32') {
+    serverOptions.reusePort = true;
+  }
+
+  server.listen(serverOptions, () => {
     enhancedLog('INFO', 'SERVER', `Server started successfully on port ${port}`, {
       port: port,
       environment: process.env.NODE_ENV,

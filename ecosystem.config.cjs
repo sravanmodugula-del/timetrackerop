@@ -5,7 +5,7 @@ module.exports = {
     cwd: process.cwd(),
     env: {
       NODE_ENV: 'production',
-      PORT: 8181,
+      PORT: 3000,
       HOST: '0.0.0.0',
       FMB_DEPLOYMENT: 'onprem'
     },
@@ -25,7 +25,7 @@ module.exports = {
     // Clean environment to avoid duplicate variable issues
     env_production: {
       NODE_ENV: 'production',
-      PORT: 8181,
+      PORT: 3000,
       HOST: '0.0.0.0',
       FMB_DEPLOYMENT: 'onprem'
     }
