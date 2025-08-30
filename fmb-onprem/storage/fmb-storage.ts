@@ -1,4 +1,3 @@
-
 import sql from 'mssql';
 import type { 
   User, UpsertUser, 
@@ -7,6 +6,17 @@ import type {
   Employee, InsertEmployee,
   Organization, InsertOrganization,
   Department, InsertDepartment
+} from '../../shared/schema.js';
+
+// Added missing import types
+import { 
+  InsertProject, 
+  InsertTask, 
+  InsertTimeEntry,
+  Project,
+  Task,
+  TimeEntry,
+  User
 } from '../../shared/schema.js';
 
 interface FmbDatabaseConfig {
@@ -68,7 +78,7 @@ export class FmbStorage {
   async upsertUser(user: UpsertUser): Promise<User> {
     const pool = this.getPool();
     const request = pool.request();
-    
+
     const query = `
       MERGE users AS target
       USING (VALUES (@id, @email, @firstName, @lastName, @profileImageUrl, @role, @isActive)) 
@@ -103,28 +113,30 @@ export class FmbStorage {
   async getUser(id: string): Promise<User | null> {
     const pool = this.getPool();
     const request = pool.request();
-    
+
     request.input('id', sql.VarChar(255), id);
     const result = await request.query('SELECT * FROM users WHERE id = @id');
-    
+
     return result.recordset[0] || null;
   }
 
   async updateUserRole(id: string, role: string): Promise<void> {
     const pool = this.getPool();
     const request = pool.request();
-    
+
     request.input('id', sql.VarChar(255), id);
     request.input('role', sql.VarChar(50), role);
-    
+
     await request.query('UPDATE users SET role = @role, updatedAt = GETUTCDATE() WHERE id = @id');
   }
 
   // Project management
-  async createProject(project: InsertProject): Promise<Project> {
+  async createProject(projectData: InsertProject): Promise<Project> {
+    console.log('📝 [FMB-STORAGE] Creating project:', projectData);
+
     const pool = this.getPool();
     const request = pool.request();
-    
+
     const id = crypto.randomUUID();
     const query = `
       INSERT INTO projects (id, name, projectNumber, description, color, startDate, endDate, 
@@ -137,19 +149,19 @@ export class FmbStorage {
     `;
 
     request.input('id', sql.VarChar(255), id);
-    request.input('name', sql.VarChar(255), project.name);
-    request.input('projectNumber', sql.VarChar(50), project.projectNumber);
-    request.input('description', sql.Text, project.description);
-    request.input('color', sql.VarChar(7), project.color || '#1976D2');
-    request.input('startDate', sql.DateTime2, project.startDate);
-    request.input('endDate', sql.DateTime2, project.endDate);
-    request.input('isEnterpriseWide', sql.Bit, project.isEnterpriseWide !== false);
-    request.input('userId', sql.VarChar(255), project.userId);
-    request.input('isTemplate', sql.Bit, project.isTemplate || false);
-    request.input('allowTimeTracking', sql.Bit, project.allowTimeTracking !== false);
-    request.input('requireTaskSelection', sql.Bit, project.requireTaskSelection || false);
-    request.input('enableBudgetTracking', sql.Bit, project.enableBudgetTracking || false);
-    request.input('enableBilling', sql.Bit, project.enableBilling || false);
+    request.input('name', sql.VarChar(255), projectData.name);
+    request.input('projectNumber', sql.VarChar(50), projectData.projectNumber);
+    request.input('description', sql.Text, projectData.description);
+    request.input('color', sql.VarChar(7), projectData.color || '#1976D2');
+    request.input('startDate', sql.DateTime2, projectData.startDate);
+    request.input('endDate', sql.DateTime2, projectData.endDate);
+    request.input('isEnterpriseWide', sql.Bit, projectData.isEnterpriseWide !== false);
+    request.input('userId', sql.VarChar(255), projectData.userId);
+    request.input('isTemplate', sql.Bit, projectData.isTemplate || false);
+    request.input('allowTimeTracking', sql.Bit, projectData.allowTimeTracking !== false);
+    request.input('requireTaskSelection', sql.Bit, projectData.requireTaskSelection || false);
+    request.input('enableBudgetTracking', sql.Bit, projectData.enableBudgetTracking || false);
+    request.input('enableBilling', sql.Bit, projectData.enableBilling || false);
 
     const result = await request.query(query);
     return result.recordset[0];
@@ -158,22 +170,24 @@ export class FmbStorage {
   async getProjects(userId: string): Promise<Project[]> {
     const pool = this.getPool();
     const request = pool.request();
-    
+
     request.input('userId', sql.VarChar(255), userId);
     const result = await request.query(`
       SELECT * FROM projects 
       WHERE isEnterpriseWide = 1 OR userId = @userId 
       ORDER BY createdAt DESC
     `);
-    
+
     return result.recordset;
   }
 
   // Time entry management
-  async createTimeEntry(entry: InsertTimeEntry): Promise<TimeEntry> {
+  async createTimeEntry(timeEntryData: InsertTimeEntry): Promise<TimeEntry> {
+    console.log('⏰ [FMB-STORAGE] Creating time entry:', timeEntryData);
+
     const pool = this.getPool();
     const request = pool.request();
-    
+
     const id = crypto.randomUUID();
     const query = `
       INSERT INTO time_entries (id, userId, projectId, taskId, description, date, startTime, endTime,
@@ -186,19 +200,19 @@ export class FmbStorage {
     `;
 
     request.input('id', sql.VarChar(255), id);
-    request.input('userId', sql.VarChar(255), entry.userId);
-    request.input('projectId', sql.VarChar(255), entry.projectId);
-    request.input('taskId', sql.VarChar(255), entry.taskId);
-    request.input('description', sql.Text, entry.description);
-    request.input('date', sql.Date, entry.date);
-    request.input('startTime', sql.VarChar(5), entry.startTime);
-    request.input('endTime', sql.VarChar(5), entry.endTime);
-    request.input('duration', sql.Decimal(5, 2), entry.duration);
-    request.input('isTemplate', sql.Bit, entry.isTemplate || false);
-    request.input('isBillable', sql.Bit, entry.isBillable || false);
-    request.input('isApproved', sql.Bit, entry.isApproved || false);
-    request.input('isManualEntry', sql.Bit, entry.isManualEntry !== false);
-    request.input('isTimerEntry', sql.Bit, entry.isTimerEntry || false);
+    request.input('userId', sql.VarChar(255), timeEntryData.userId);
+    request.input('projectId', sql.VarChar(255), timeEntryData.projectId);
+    request.input('taskId', sql.VarChar(255), timeEntryData.taskId);
+    request.input('description', sql.Text, timeEntryData.description);
+    request.input('date', sql.Date, timeEntryData.date);
+    request.input('startTime', sql.VarChar(5), timeEntryData.startTime);
+    request.input('endTime', sql.VarChar(5), timeEntryData.endTime);
+    request.input('duration', sql.Decimal(5, 2), timeEntryData.duration);
+    request.input('isTemplate', sql.Bit, timeEntryData.isTemplate || false);
+    request.input('isBillable', sql.Bit, timeEntryData.isBillable || false);
+    request.input('isApproved', sql.Bit, timeEntryData.isApproved || false);
+    request.input('isManualEntry', sql.Bit, timeEntryData.isManualEntry !== false);
+    request.input('isTimerEntry', sql.Bit, timeEntryData.isTimerEntry || false);
 
     const result = await request.query(query);
     return result.recordset[0];
@@ -207,16 +221,16 @@ export class FmbStorage {
   async getTimeEntries(userId: string, userRole: string): Promise<TimeEntry[]> {
     const pool = this.getPool();
     const request = pool.request();
-    
+
     let query = 'SELECT * FROM time_entries';
-    
+
     if (userRole !== 'admin') {
       query += ' WHERE userId = @userId';
       request.input('userId', sql.VarChar(255), userId);
     }
-    
+
     query += ' ORDER BY date DESC, createdAt DESC';
-    
+
     const result = await request.query(query);
     return result.recordset;
   }
@@ -225,7 +239,7 @@ export class FmbStorage {
   async createOrganization(org: InsertOrganization): Promise<Organization> {
     const pool = this.getPool();
     const request = pool.request();
-    
+
     const id = crypto.randomUUID();
     const query = `
       INSERT INTO organizations (id, name, description, userId, createdAt, updatedAt)
@@ -252,7 +266,7 @@ export class FmbStorage {
   async getDashboardStats(userId: string, userRole: string, startDate: string, endDate: string): Promise<any> {
     const pool = this.getPool();
     const request = pool.request();
-    
+
     let whereClause = '';
     if (userRole !== 'admin') {
       whereClause = 'AND te.userId = @userId';
@@ -261,7 +275,7 @@ export class FmbStorage {
 
     request.input('startDate', sql.Date, startDate);
     request.input('endDate', sql.Date, endDate);
-    
+
     const query = `
       SELECT 
         COALESCE(SUM(CASE WHEN te.date = CAST(GETUTCDATE() AS DATE) THEN te.duration ELSE 0 END), 0) as todayHours,
