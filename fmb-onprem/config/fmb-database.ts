@@ -42,6 +42,9 @@ export function getFmbStorage(): FmbStorage {
   return fmbStorage;
 }
 
+// Export the storage instance directly for compatibility
+export { fmbStorage as activeStorage };
+
 export async function closeFmbDatabase() {
   if (pool) {
     await pool.close();

@@ -27,6 +27,10 @@ interface FmbOnPremConfig {
     sessionSecret: string;
     nodeEnv: string;
   };
+  session: {
+    store: string;
+    table: string;
+  };
 }
 
 // Helper function to sanitize passwords for logging
@@ -39,7 +43,7 @@ export function loadFmbOnPremConfig(): FmbOnPremConfig {
   // Validate required environment variables
   const requiredVars = [
     'FMB_DB_SERVER',
-    'FMB_DB_NAME', 
+    'FMB_DB_NAME',
     'FMB_DB_USER',
     'FMB_DB_PASSWORD',
     'FMB_SAML_ENTITY_ID',
@@ -73,10 +77,14 @@ export function loadFmbOnPremConfig(): FmbOnPremConfig {
       }
     },
     saml: {
-      entityId: process.env.FMB_SAML_ENTITY_ID!,
-      ssoUrl: process.env.FMB_SAML_SSO_URL!,
-      certificate: process.env.FMB_SAML_CERTIFICATE!,
-      acsUrl: process.env.FMB_SAML_ACS_URL || 'https://timetracker.fmb.com/saml/acs'
+      entityId: process.env.FMB_SAML_ENTITY_ID || 'https://timetracker.fmb.com',
+      ssoUrl: process.env.FMB_SAML_SSO_URL || '',
+      acsUrl: process.env.FMB_SAML_ACS_URL || 'https://timetracker.fmb.com/saml/acs',
+      certificate: process.env.FMB_SAML_CERTIFICATE || ''
+    },
+    session: {
+      store: 'mssql',
+      table: 'sessions'
     },
     app: {
       port: parseInt(process.env.PORT || '3000', 10),
@@ -88,12 +96,15 @@ export function loadFmbOnPremConfig(): FmbOnPremConfig {
 }
 
 export function isFmbOnPremEnvironment(): boolean {
-  return process.env.FMB_DEPLOYMENT === 'onprem';
+  // Check if we're running in FMB on-premises environment
+  // Only use FMB when explicitly configured
+  return process.env.FMB_ONPREM === 'true' ||
+         !!process.env.FMB_SAML_ENTRY_POINT;
 }
 
 export function isActualOnPremDeployment(): boolean {
   // Only return true when actually deployed on Windows server with production environment
-  return process.env.FMB_DEPLOYMENT === 'onprem' && 
+  return process.env.FMB_DEPLOYMENT === 'onprem' &&
          process.env.NODE_ENV === 'production' &&
          process.platform === 'win32';
 }

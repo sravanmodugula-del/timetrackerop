@@ -164,9 +164,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/projects', isAuthenticated, async (req, res) => {
     try {
       // Extract user ID based on authentication type
-      const userId = isFmbOnPremEnvironment() ? 
-        (req.user.userId || req.user.email) : 
-        (req.user.claims?.sub || req.user.id);
+      const userId = extractUserId(req.user);
       const activeStorage = getStorage();
       const projects = await activeStorage.getProjects(userId);
       res.json(projects);
@@ -178,7 +176,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/projects/:id', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims?.sub || req.user.id;
+      const userId = extractUserId(req.user);
       const { id } = req.params;
       const activeStorage = getStorage();
       const project = await activeStorage.getProject(id, userId);
@@ -196,7 +194,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/projects', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims?.sub || req.user.id;
+      const userId = extractUserId(req.user);
       const activeStorage = getStorage();
       const user = await activeStorage.getUser(userId);
       const userRole = user?.role || 'employee';
@@ -220,7 +218,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.patch('/api/projects/:id', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims?.sub || req.user.id;
+      const userId = extractUserId(req.user);
       const { id } = req.params;
       console.log("Received project update data:", req.body);
       const activeStorage = getStorage();
@@ -247,7 +245,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.put('/api/projects/:id', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims?.sub || req.user.id;
+      const userId = extractUserId(req.user);
       const { id } = req.params;
       console.log("Received project PUT update data:", req.body);
       const activeStorage = getStorage();
@@ -271,7 +269,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete('/api/projects/:id', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims?.sub || req.user.id;
+      const userId = extractUserId(req.user);
       const { id } = req.params;
       const activeStorage = getStorage();
       const deleted = await activeStorage.deleteProject(id, userId);
@@ -293,7 +291,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Project access control routes
   app.get('/api/projects/:id/employees', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims?.sub || req.user.id;
+      const userId = extractUserId(req.user);
       const activeStorage = getStorage();
       const user = await activeStorage.getUser(userId);
       const userRole = user?.role || 'employee';
@@ -314,7 +312,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/projects/:id/employees', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims?.sub || req.user.id;
+      const userId = extractUserId(req.user);
       const activeStorage = getStorage();
       const user = await activeStorage.getUser(userId);
       const userRole = user?.role || 'employee';
@@ -341,7 +339,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete('/api/projects/:id/employees/:employeeId', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims?.sub || req.user.id;
+      const userId = extractUserId(req.user);
       const activeStorage = getStorage();
       const user = await activeStorage.getUser(userId);
       const userRole = user?.role || 'employee';
@@ -368,7 +366,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Task routes
   app.get('/api/projects/:projectId/tasks', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims?.sub || req.user.id;
+      const userId = extractUserId(req.user);
       const { projectId } = req.params;
       const activeStorage = getStorage();
       const tasks = await activeStorage.getTasks(projectId, userId);
@@ -382,7 +380,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get all tasks across projects for cloning (must be before /api/tasks/:id)
   app.get('/api/tasks/all', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims?.sub || req.user.id;
+      const userId = extractUserId(req.user);
       const activeStorage = getStorage();
       const tasks = await activeStorage.getAllUserTasks(userId);
       res.json(tasks);
@@ -394,7 +392,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/tasks/:id', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims?.sub || req.user.id;
+      const userId = extractUserId(req.user);
       const { id } = req.params;
       const activeStorage = getStorage();
       const task = await activeStorage.getTask(id, userId);
@@ -412,7 +410,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/tasks', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims?.sub || req.user.id;
+      const userId = extractUserId(req.user);
       const activeStorage = getStorage();
       const user = await activeStorage.getUser(userId);
       const userRole = user?.role || 'employee';
@@ -443,7 +441,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.put('/api/tasks/:id', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims?.sub || req.user.id;
+      const userId = extractUserId(req.user);
       const activeStorage = getStorage();
       const user = await activeStorage.getUser(userId);
       const userRole = user?.role || 'employee';
@@ -473,7 +471,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete('/api/tasks/:id', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims?.sub || req.user.id;
+      const userId = extractUserId(req.user);
       const { id } = req.params;
       const activeStorage = getStorage();
       const deleted = await activeStorage.deleteTask(id, userId);
@@ -492,7 +490,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Clone task to another project
   app.post('/api/tasks/:id/clone', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims?.sub || req.user.id;
+      const userId = extractUserId(req.user);
       const { id } = req.params;
       const { targetProjectId } = req.body;
       const activeStorage = getStorage();
@@ -533,7 +531,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Time entry routes
   app.get('/api/time-entries', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims?.sub || req.user.id;
+      const userId = extractUserId(req.user);
       const { projectId, startDate, endDate, limit, offset } = req.query;
       const activeStorage = getStorage();
 
@@ -555,7 +553,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/time-entries/:id', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims?.sub || req.user.id;
+      const userId = extractUserId(req.user);
       const { id } = req.params;
       const activeStorage = getStorage();
       const timeEntry = await activeStorage.getTimeEntry(id, userId);
@@ -573,7 +571,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/time-entries', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims?.sub || req.user.id;
+      const userId = extractUserId(req.user);
       const activeStorage = getStorage();
 
       console.log("📝 Time Entry Request Body:", JSON.stringify(req.body, null, 2));
@@ -607,7 +605,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.put('/api/time-entries/:id', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims?.sub || req.user.id;
+      const userId = extractUserId(req.user);
       const { id } = req.params;
       const activeStorage = getStorage();
       // Handle partial updates for time entries
@@ -631,7 +629,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete('/api/time-entries/:id', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims?.sub || req.user.id;
+      const userId = extractUserId(req.user);
       const { id } = req.params;
       const activeStorage = getStorage();
       const deleted = await activeStorage.deleteTimeEntry(id, userId);
@@ -650,7 +648,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Dashboard routes - require authentication
   app.get('/api/dashboard/stats', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims?.sub || req.user.id;
+      const userId = extractUserId(req.user);
       const { startDate, endDate } = req.query;
       const activeStorage = getStorage();
       const stats = await activeStorage.getDashboardStats(
@@ -667,7 +665,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/dashboard/project-breakdown', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims?.sub || req.user.id;
+      const userId = extractUserId(req.user);
       const { startDate, endDate } = req.query;
       const activeStorage = getStorage();
       const breakdown = await activeStorage.getProjectTimeBreakdown(
@@ -684,7 +682,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/dashboard/recent-activity', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims?.sub || req.user.id;
+      const userId = extractUserId(req.user);
       const { limit, startDate, endDate } = req.query;
       const activeStorage = getStorage();
       const activity = await activeStorage.getRecentActivity(
@@ -704,7 +702,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/dashboard/department-hours', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims?.sub || req.user.id;
+      const userId = extractUserId(req.user);
       const { startDate, endDate } = req.query;
       const activeStorage = getStorage();
       console.log("🏢 Fetching department hours for user:", userId, "dates:", startDate, endDate);
@@ -722,7 +720,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // User role management routes
   app.get('/api/users/current-role', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims?.sub || req.user.id;
+      const userId = extractUserId(req.user);
       const activeStorage = getStorage();
       const user = await activeStorage.getUser(userId);
       res.json({
@@ -737,7 +735,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/users/change-role', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims?.sub || req.user.id;
+      const userId = extractUserId(req.user);
       const { role } = req.body;
       const activeStorage = getStorage();
 
@@ -757,7 +755,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Admin role testing - allows temporary role switching for testing purposes
   app.post('/api/admin/test-role', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims?.sub || req.user.id;
+      const userId = extractUserId(req.user);
       const { testRole } = req.body;
       const activeStorage = getStorage();
       const currentUser = await activeStorage.getUser(userId);
@@ -796,7 +794,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Restore admin role after testing
   app.post('/api/admin/restore-role', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims?.sub || req.user.id;
+      const userId = extractUserId(req.user);
       const activeStorage = getStorage();
       const currentUser = await activeStorage.getUser(userId);
 
@@ -828,7 +826,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get current testing status
   app.get('/api/admin/test-status', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims?.sub || req.user.id;
+      const userId = extractUserId(req.user);
       const activeStorage = getStorage();
       const currentUser = await activeStorage.getUser(userId);
 
@@ -846,7 +844,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/admin/create-test-users', isAuthenticated, async (req: any, res) => {
     try {
-      const currentUserId = req.user.claims?.sub || req.user.id;
+      const currentUserId = extractUserId(req.user);
       const activeStorage = getStorage();
       const currentUser = await activeStorage.getUser(currentUserId);
 
@@ -865,7 +863,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/admin/test-users', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims?.sub || req.user.id;
+      const userId = extractUserId(req.user);
       const activeStorage = getStorage();
       const user = await activeStorage.getUser(userId);
 
@@ -885,7 +883,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/reports/project-time-entries/:projectId', isAuthenticated, async (req: any, res) => {
     try {
       const { projectId } = req.params;
-      const userId = req.user.claims?.sub || req.user.id;
+      const userId = extractUserId(req.user);
       const activeStorage = getStorage();
 
       if (!userId) {
@@ -913,7 +911,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Employee routes
   app.get('/api/employees', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims?.sub || req.user.id;
+      const userId = extractUserId(req.user);
       const activeStorage = getStorage();
       const employees = await activeStorage.getEmployees(userId);
       res.json(employees);
@@ -925,7 +923,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/employees/:id', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims?.sub || req.user.id;
+      const userId = extractUserId(req.user);
       const { id } = req.params;
       const activeStorage = getStorage();
       const employee = await activeStorage.getEmployee(id, userId);
@@ -943,7 +941,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/employees', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims?.sub || req.user.id;
+      const userId = extractUserId(req.user);
       const activeStorage = getStorage();
       const user = await activeStorage.getUser(userId);
       const userRole = user?.role || 'employee';
@@ -968,7 +966,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.put('/api/employees/:id', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims?.sub || req.user.id;
+      const userId = extractUserId(req.user);
       const activeStorage = getStorage();
       const user = await activeStorage.getUser(userId);
       const userRole = user?.role || 'employee';
@@ -998,7 +996,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete('/api/employees/:id', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims?.sub || req.user.id;
+      const userId = extractUserId(req.user);
       const activeStorage = getStorage();
       const user = await activeStorage.getUser(userId);
       const userRole = user?.role || 'employee';
@@ -1054,7 +1052,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/departments", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims?.sub || req.user.id;
+      const userId = extractUserId(req.user);
       const activeStorage = getStorage();
       const user = await activeStorage.getUser(userId);
       const userRole = user?.role || 'employee';
@@ -1077,7 +1075,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put("/api/departments/:id", isAuthenticated, async (req: any, res) => {
     try {
       const { id } = req.params;
-      const userId = req.user.claims?.sub || req.user.id;
+      const userId = extractUserId(req.user);
       const activeStorage = getStorage();
       const user = await activeStorage.getUser(userId);
       const userRole = user?.role || 'employee';
@@ -1103,7 +1101,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete("/api/departments/:id", isAuthenticated, async (req: any, res) => {
     try {
       const { id } = req.params;
-      const userId = req.user.claims?.sub || req.user.id;
+      const userId = extractUserId(req.user);
       const activeStorage = getStorage();
       const user = await activeStorage.getUser(userId);
       const userRole = user?.role || 'employee';
@@ -1130,7 +1128,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { id } = req.params;
       const { managerId } = req.body;
-      const userId = req.user.claims?.sub || req.user.id;
+      const userId = extractUserId(req.user);
       const activeStorage = getStorage();
 
       await activeStorage.assignManagerToDepartment(id, managerId, userId);
@@ -1144,7 +1142,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // User Management routes (Admin only)
   app.get("/api/admin/users", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims?.sub || req.user.id;
+      const userId = extractUserId(req.user);
       const activeStorage = getStorage();
       const user = await activeStorage.getUser(userId);
 
@@ -1162,7 +1160,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/admin/users/without-employee", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims?.sub || req.user.id;
+      const userId = extractUserId(req.user);
       const activeStorage = getStorage();
       const user = await activeStorage.getUser(userId);
 
@@ -1180,7 +1178,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/admin/employees/:employeeId/link-user", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims?.sub || req.user.id;
+      const userId = extractUserId(req.user);
       const activeStorage = getStorage();
       const user = await activeStorage.getUser(userId);
 
@@ -1211,7 +1209,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log("🎯 Target user ID:", req.params.userId);
       console.log("🔄 New role:", req.body.role);
 
-      const currentUserId = req.user.claims?.sub || req.user.id;
+      const currentUserId = extractUserId(req.user);
       console.log("🔍 Fetching current user...");
       const activeStorage = getStorage();
       const currentUser = await activeStorage.getUser(currentUserId);
@@ -1270,7 +1268,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Organization routes
   app.get("/api/organizations", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims?.sub || req.user.id;
+      const userId = extractUserId(req.user);
       const activeStorage = getStorage();
       const organizations = await activeStorage.getOrganizations(userId);
       res.json(organizations);
@@ -1283,7 +1281,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/organizations/:id", isAuthenticated, async (req: any, res) => {
     try {
       const { id } = req.params;
-      const userId = req.user.claims?.sub || req.user.id;
+      const userId = extractUserId(req.user);
       const activeStorage = getStorage();
       const organization = await activeStorage.getOrganization(id, userId);
 
@@ -1300,7 +1298,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/organizations", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims?.sub || req.user.id;
+      const userId = extractUserId(req.user);
       const activeStorage = getStorage();
       const user = await activeStorage.getUser(userId);
       const userRole = user?.role || 'employee';
@@ -1323,7 +1321,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put("/api/organizations/:id", isAuthenticated, async (req: any, res) => {
     try {
       const { id } = req.params;
-      const userId = req.user.claims?.sub || req.user.id;
+      const userId = extractUserId(req.user);
       const activeStorage = getStorage();
       const user = await activeStorage.getUser(userId);
       const userRole = user?.role || 'employee';
@@ -1349,7 +1347,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete("/api/organizations/:id", isAuthenticated, async (req: any, res) => {
     try {
       const { id } = req.params;
-      const userId = req.user.claims?.sub || req.user.id;
+      const userId = extractUserId(req.user);
       const activeStorage = getStorage();
       const user = await activeStorage.getUser(userId);
       const userRole = user?.role || 'employee';

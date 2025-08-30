@@ -1,53 +1,59 @@
 import sql from 'mssql';
+import { loadFmbOnPremConfig } from '../config/fmb-env.js';
 import type {
-  User, UpsertUser,
-  Project, InsertProject,
-  TimeEntry, InsertTimeEntry,
-  Employee, InsertEmployee,
-  Organization, InsertOrganization,
-  Department, InsertDepartment,
-  Task, InsertTask, TimeEntryWithProject
+  User,
+  UpsertUser,
+  InsertProject,
+  Project,
+  InsertTask,
+  Task,
+  InsertTimeEntry,
+  TimeEntry,
+  TimeEntryWithProject,
+  TaskWithProject,
+  InsertEmployee,
+  Employee,
+  InsertProjectEmployee,
+  ProjectEmployee,
+  ProjectWithEmployees,
+  Department,
+  InsertDepartment,
+  DepartmentWithManager,
+  Organization,
+  InsertOrganization,
+  OrganizationWithDepartments,
 } from '../../shared/schema.js';
 
-import { randomUUID } from 'crypto';
-
-interface FmbDatabaseConfig {
+interface FmbStorageConfig {
   server: string;
   database: string;
   user: string;
   password: string;
-  options: Record<string, any>;
+  options: {
+    port: number;
+    enableArithAbort: boolean;
+    connectTimeout: number;
+    requestTimeout: number;
+  };
+  encrypt: boolean;
+  trustServerCertificate: boolean;
 }
 
 export class FmbStorage {
   private pool: sql.ConnectionPool | null = null;
-  private config: sql.config;
+  private config: FmbStorageConfig;
 
-  constructor(config: FmbDatabaseConfig) {
-    this.config = {
-      server: config.server,
-      database: config.database,
-      user: config.user,
-      password: config.password,
-      port: 1433,
-      options: {
-        encrypt: true,
-        trustServerCertificate: true,
-        enableArithAbort: true,
-        connectTimeout: 30000,
-        requestTimeout: 30000,
-        ...config.options
-      }
-    };
+  constructor(config: FmbStorageConfig) {
+    this.config = config;
   }
 
   async connect(): Promise<void> {
     try {
       this.pool = new sql.ConnectionPool(this.config);
       await this.pool.connect();
-      console.log('✅ FMB MS SQL Database connected successfully');
+      console.log('✅ [FMB-STORAGE] Connected to MS SQL Server');
     } catch (error) {
-      console.error('❌ Failed to connect to FMB MS SQL Database:', error);
+      console.error('❌ [FMB-STORAGE] Connection failed:', error);
       throw error;
     }
   }
@@ -56,308 +62,432 @@ export class FmbStorage {
     if (this.pool) {
       await this.pool.close();
       this.pool = null;
+      console.log('✅ [FMB-STORAGE] Disconnected from MS SQL Server');
     }
   }
 
-  private getPool(): sql.ConnectionPool {
+  async execute(query: string, params: any[] = []): Promise<any> {
     if (!this.pool) {
-      throw new Error('Database not connected');
+      throw new Error('Database not connected. Call connect() first.');
     }
-    return this.pool;
+
+    try {
+      const request = this.pool.request();
+
+      // Add parameters if provided
+      params.forEach((param, index) => {
+        request.input(`param${index}`, param);
+      });
+
+      const result = await request.query(query);
+      return result.recordset || result.recordsets || [];
+    } catch (error) {
+      console.error('❌ [FMB-STORAGE] Query execution failed:', error);
+      console.error('Query:', query);
+      console.error('Params:', params);
+      throw error;
+    }
   }
 
-  // User management
+  // Enhanced logging utility
+  private storageLog(operation: string, message: string, data?: any) {
+    const timestamp = new Date().toISOString();
+    const logMessage = `${timestamp} 🗄️ [FMB-STORAGE] ${operation}: ${message}`;
+
+    if (data) {
+      console.log(logMessage, typeof data === 'object' ? JSON.stringify(data, null, 2) : data);
+    } else {
+      console.log(logMessage);
+    }
+  }
+
+  // User operations
+  async getUser(id: string): Promise<User | undefined> {
+    try {
+      this.storageLog('GET_USER', `Fetching user with id: ${id}`);
+      const result = await this.execute(
+        'SELECT id, email, firstName, lastName, profileImageUrl, role, isActive, lastLoginAt, createdAt, updatedAt FROM users WHERE id = @param0',
+        [id]
+      );
+      const user = result[0];
+      this.storageLog('GET_USER', `Found user: ${user ? user.email : 'not found'}`);
+      return user;
+    } catch (error) {
+      this.storageLog('GET_USER', `Error fetching user ${id}:`, error);
+      throw error;
+    }
+  }
+
   async upsertUser(user: UpsertUser): Promise<User> {
-    const pool = this.getPool();
-    const request = pool.request();
+    try {
+      this.storageLog('UPSERT_USER', `Upserting user: ${user.email} (${user.id})`);
 
-    const query = `
-      MERGE users AS target
-      USING (VALUES (@id, @email, @firstName, @lastName, @profileImageUrl, @role, @isActive))
-      AS source (id, email, firstName, lastName, profileImageUrl, role, isActive)
-      ON target.id = source.id
-      WHEN MATCHED THEN
-        UPDATE SET
-          email = source.email,
-          firstName = source.firstName,
-          lastName = source.lastName,
-          profileImageUrl = source.profileImageUrl
-      WHEN NOT MATCHED THEN
-        INSERT (id, email, firstName, lastName, profileImageUrl, role, isActive, createdAt)
-        VALUES (source.id, source.email, source.firstName, source.lastName, source.profileImageUrl,
-                COALESCE(source.role, 'employee'), COALESCE(source.isActive, 1), GETUTCDATE())
-      OUTPUT INSERTED.*;
-    `;
+      // Check if user exists
+      const existingUser = await this.getUser(user.id);
 
-    request.input('id', sql.VarChar(255), user.id);
-    request.input('email', sql.VarChar(255), user.email);
-    request.input('firstName', sql.VarChar(255), user.firstName);
-    request.input('lastName', sql.VarChar(255), user.lastName);
-    request.input('profileImageUrl', sql.VarChar(255), user.profileImageUrl);
-    request.input('role', sql.VarChar(50), user.role || 'employee');
-    request.input('isActive', sql.Bit, user.isActive !== false);
+      if (existingUser) {
+        // Update existing user
+        await this.execute(`
+          UPDATE users 
+          SET email = @param0, firstName = @param1, lastName = @param2, 
+              profileImageUrl = @param3, lastLoginAt = GETUTCDATE(), updatedAt = GETUTCDATE()
+          WHERE id = @param4
+        `, [user.email, user.firstName, user.lastName, user.profileImageUrl, user.id]);
 
-    const result = await request.query(query);
-    return result.recordset[0];
-  }
+        const result = await this.execute(`
+          SELECT id, email, firstName, lastName, profileImageUrl, role, isActive, lastLoginAt, createdAt, updatedAt 
+          FROM users WHERE id = @param0
+        `, [user.id]);
 
-  async getUser(id: string): Promise<User | null> {
-    const pool = this.getPool();
-    const request = pool.request();
+        this.storageLog('UPSERT_USER', `Successfully updated user ${user.email}`);
+        return result[0];
+      } else {
+        // Insert new user
+        await this.execute(`
+          INSERT INTO users (id, email, firstName, lastName, profileImageUrl, role, isActive, lastLoginAt, createdAt, updatedAt)
+          VALUES (@param0, @param1, @param2, @param3, @param4, 'employee', 1, GETUTCDATE(), GETUTCDATE(), GETUTCDATE())
+        `, [user.id, user.email, user.firstName, user.lastName, user.profileImageUrl]);
 
-    request.input('id', sql.VarChar(255), id);
-    const result = await request.query('SELECT * FROM users WHERE id = @id');
+        const result = await this.execute(`
+          SELECT id, email, firstName, lastName, profileImageUrl, role, isActive, lastLoginAt, createdAt, updatedAt 
+          FROM users WHERE id = @param0
+        `, [user.id]);
 
-    return result.recordset[0] || null;
+        this.storageLog('UPSERT_USER', `Successfully created user ${user.email}`);
+        return result[0];
+      }
+    } catch (error) {
+      this.storageLog('UPSERT_USER', `Failed to upsert user ${user.email}:`, error);
+      throw error;
+    }
   }
 
   async updateUserRole(id: string, role: string): Promise<void> {
-    const pool = this.getPool();
-    const request = pool.request();
+    this.storageLog('UPDATE_USER_ROLE', `Updating role for user ${id} to ${role}`);
 
-    request.input('id', sql.VarChar(255), id);
-    request.input('role', sql.VarChar(50), role);
+    try {
+      await this.execute(`
+        UPDATE users 
+        SET role = @param0, updatedAt = GETUTCDATE()
+        WHERE id = @param1
+      `, [role, id]);
 
-    await request.query('UPDATE users SET role = @role WHERE id = @id');
+      this.storageLog('UPDATE_USER_ROLE', `Successfully updated role for user ${id}`);
+    } catch (error) {
+      this.storageLog('UPDATE_USER_ROLE', `Failed to update role for user ${id}:`, error);
+      throw error;
+    }
   }
 
   // Project management
   async createProject(projectData: InsertProject): Promise<Project> {
-    console.log('📝 [FMB-STORAGE] Creating project:', projectData);
+    this.storageLog('CREATE_PROJECT', 'Creating project', projectData);
 
-    const pool = this.getPool();
-    const request = pool.request();
-
-    const id = randomUUID();
-    const query = `
-      INSERT INTO projects (id, name, projectNumber, description, color, startDate, endDate,
-                          isEnterpriseWide, userId, isTemplate, allowTimeTracking, requireTaskSelection,
-                          enableBudgetTracking, enableBilling, createdAt)
+    const result = await this.execute(`
+      INSERT INTO projects (
+        id, name, projectNumber, description, color, startDate, endDate, 
+        isEnterpriseWide, userId, createdAt, updatedAt, isTemplate, 
+        allowTimeTracking, requireTaskSelection, enableBudgetTracking, enableBilling
+      )
       OUTPUT INSERTED.*
-      VALUES (@id, @name, @projectNumber, @description, @color, @startDate, @endDate,
-              @isEnterpriseWide, @userId, @isTemplate, @allowTimeTracking, @requireTaskSelection,
-              @enableBudgetTracking, @enableBilling, GETUTCDATE())
-    `;
+      VALUES (
+        NEWID(), @param0, @param1, @param2, @param3, @param4, @param5, 
+        @param6, @param7, GETUTCDATE(), GETUTCDATE(), @param8, 
+        @param9, @param10, @param11, @param12
+      )
+    `, [
+      projectData.name, projectData.projectNumber, projectData.description, projectData.color,
+      projectData.startDate, projectData.endDate, projectData.isEnterpriseWide, projectData.userId,
+      projectData.isTemplate || false, projectData.allowTimeTracking !== false,
+      projectData.requireTaskSelection || false, projectData.enableBudgetTracking || false,
+      projectData.enableBilling || false
+    ]);
 
-    request.input('id', sql.VarChar(255), id);
-    request.input('name', sql.VarChar(255), projectData.name);
-    request.input('projectNumber', sql.VarChar(50), projectData.projectNumber);
-    request.input('description', sql.Text, projectData.description);
-    request.input('color', sql.VarChar(7), projectData.color || '#1976D2');
-    request.input('startDate', sql.DateTime2, projectData.startDate);
-    request.input('endDate', sql.DateTime2, projectData.endDate);
-    request.input('isEnterpriseWide', sql.Bit, projectData.isEnterpriseWide !== false);
-    request.input('userId', sql.VarChar(255), projectData.userId);
-    request.input('isTemplate', sql.Bit, projectData.isTemplate || false);
-    request.input('allowTimeTracking', sql.Bit, projectData.allowTimeTracking !== false);
-    request.input('requireTaskSelection', sql.Bit, projectData.requireTaskSelection || false);
-    request.input('enableBudgetTracking', sql.Bit, projectData.enableBudgetTracking || false);
-    request.input('enableBilling', sql.Bit, projectData.enableBilling || false);
-
-    const result = await request.query(query);
-    return result.recordset[0];
+    this.storageLog('CREATE_PROJECT', `Successfully created project: ${projectData.name}`);
+    return result[0];
   }
 
-  async getProjects(userId: string): Promise<Project[]> {
-    const pool = this.getPool();
-    const request = pool.request();
+  async getProjects(userId?: string): Promise<Project[]> {
+    let query = 'SELECT * FROM projects';
+    const params: any[] = [];
 
-    request.input('userId', sql.VarChar(255), userId);
-    const result = await request.query(`
-      SELECT * FROM projects
-      WHERE isEnterpriseWide = 1 OR userId = @userId
-      ORDER BY createdAt DESC
-    `);
+    if (userId) {
+      query += ' WHERE isEnterpriseWide = 1 OR userId = @param0';
+      params.push(userId);
+    }
 
-    return result.recordset;
+    query += ' ORDER BY createdAt DESC';
+
+    const result = await this.execute(query, params);
+    return result;
+  }
+
+  async getProject(id: string, userId: string): Promise<Project | undefined> {
+    this.storageLog('GET_PROJECT', `Fetching project ${id} for user ${userId}`);
+    const result = await this.execute(
+      'SELECT * FROM projects WHERE id = @param0',
+      [id]
+    );
+    return result[0];
+  }
+
+  async updateProject(id: string, projectData: Partial<InsertProject>, userId: string): Promise<Project | undefined> {
+    this.storageLog('UPDATE_PROJECT', `Updating project ${id}`, projectData);
+
+    const setParts: string[] = [];
+    const params: any[] = [];
+    let paramIndex = 0;
+
+    Object.keys(projectData).forEach(key => {
+      if (projectData[key as keyof InsertProject] !== undefined) {
+        setParts.push(`${key} = @param${paramIndex}`);
+        params.push(projectData[key as keyof InsertProject]);
+        paramIndex++;
+      }
+    });
+
+    if (setParts.length === 0) {
+      return undefined;
+    }
+
+    setParts.push('updatedAt = GETUTCDATE()');
+    params.push(id);
+
+    const query = `
+      UPDATE projects 
+      SET ${setParts.join(', ')} 
+      OUTPUT INSERTED.*
+      WHERE id = @param${paramIndex}
+    `;
+
+    const result = await this.execute(query, params);
+    this.storageLog('UPDATE_PROJECT', `Successfully updated project ${id}`);
+    return result[0];
+  }
+
+  async deleteProject(id: string, userId: string): Promise<boolean> {
+    this.storageLog('DELETE_PROJECT', `Deleting project ${id}`);
+    try {
+      await this.execute('DELETE FROM projects WHERE id = @param0', [id]);
+      this.storageLog('DELETE_PROJECT', `Successfully deleted project ${id}`);
+      return true;
+    } catch (error) {
+      this.storageLog('DELETE_PROJECT', `Failed to delete project ${id}:`, error);
+      return false;
+    }
   }
 
   // Time entry management
   async createTimeEntry(timeEntryData: InsertTimeEntry): Promise<TimeEntry> {
-    console.log('⏰ [FMB-STORAGE] Creating time entry:', timeEntryData);
+    this.storageLog('CREATE_TIME_ENTRY', 'Creating time entry', timeEntryData);
 
-    const pool = this.getPool();
-    const request = pool.request();
-
-    const id = randomUUID();
-    const query = `
-      INSERT INTO time_entries (id, userId, projectId, taskId, description, date, startTime, endTime,
-                               duration, isTemplate, isBillable, isApproved, isManualEntry, isTimerEntry,
-                               createdAt)
+    const result = await this.execute(`
+      INSERT INTO time_entries (
+        id, userId, projectId, taskId, description, date, startTime, endTime, 
+        duration, createdAt, updatedAt, isTemplate, isBillable, isApproved, 
+        isManualEntry, isTimerEntry
+      )
       OUTPUT INSERTED.*
-      VALUES (@id, @userId, @projectId, @taskId, @description, @date, @startTime, @endTime,
-              @duration, @isTemplate, @isBillable, @isApproved, @isManualEntry, @isTimerEntry,
-              GETUTCDATE())
-    `;
+      VALUES (
+        NEWID(), @param0, @param1, @param2, @param3, @param4, @param5, @param6,
+        @param7, GETUTCDATE(), GETUTCDATE(), @param8, @param9, @param10,
+        @param11, @param12
+      )
+    `, [
+      timeEntryData.userId, timeEntryData.projectId, timeEntryData.taskId, timeEntryData.description, timeEntryData.date,
+      timeEntryData.startTime, timeEntryData.endTime, timeEntryData.duration, timeEntryData.isTemplate || false,
+      timeEntryData.isBillable || false, timeEntryData.isApproved || false, timeEntryData.isManualEntry !== false,
+      timeEntryData.isTimerEntry || false
+    ]);
 
-    request.input('id', sql.VarChar(255), id);
-    request.input('userId', sql.VarChar(255), timeEntryData.userId);
-    request.input('projectId', sql.VarChar(255), timeEntryData.projectId);
-    request.input('taskId', sql.VarChar(255), timeEntryData.taskId);
-    request.input('description', sql.Text, timeEntryData.description);
-    request.input('date', sql.Date, timeEntryData.date);
-    request.input('startTime', sql.VarChar(5), timeEntryData.startTime);
-    request.input('endTime', sql.VarChar(5), timeEntryData.endTime);
-    request.input('duration', sql.Decimal(5, 2), timeEntryData.duration);
-    request.input('isTemplate', sql.Bit, timeEntryData.isTemplate || false);
-    request.input('isBillable', sql.Bit, timeEntryData.isBillable || false);
-    request.input('isApproved', sql.Bit, timeEntryData.isApproved || false);
-    request.input('isManualEntry', sql.Bit, timeEntryData.isManualEntry !== false);
-    request.input('isTimerEntry', sql.Bit, timeEntryData.isTimerEntry || false);
-
-    const result = await request.query(query);
-    return result.recordset[0];
+    this.storageLog('CREATE_TIME_ENTRY', `Successfully created time entry`);
+    return result[0];
   }
 
-  async getTimeEntries(userId: string, userRole: string): Promise<TimeEntry[]> {
-    const pool = this.getPool();
-    const request = pool.request();
-
+  async getTimeEntries(userId: string, options?: { userRole?: string; startDate?: string; endDate?: string; limit?: number }): Promise<TimeEntry[]> {
     let query = 'SELECT * FROM time_entries';
+    const params: any[] = [];
+    let paramIndex = 0;
+    const whereConditions: string[] = [];
 
-    if (userRole !== 'admin') {
-      query += ' WHERE userId = @userId';
-      request.input('userId', sql.VarChar(255), userId);
+    // Role-based filtering
+    if (options?.userRole !== 'admin') {
+      whereConditions.push(`userId = @param${paramIndex}`);
+      params.push(userId);
+      paramIndex++;
+    }
+
+    // Date range filtering
+    if (options?.startDate) {
+      whereConditions.push(`date >= @param${paramIndex}`);
+      params.push(options.startDate);
+      paramIndex++;
+    }
+
+    if (options?.endDate) {
+      whereConditions.push(`date <= @param${paramIndex}`);
+      params.push(options.endDate);
+      paramIndex++;
+    }
+
+    if (whereConditions.length > 0) {
+      query += ' WHERE ' + whereConditions.join(' AND ');
     }
 
     query += ' ORDER BY date DESC, createdAt DESC';
 
-    const result = await request.query(query);
-    return result.recordset;
+    // Add limit if specified
+    if (options?.limit) {
+      query += ` OFFSET 0 ROWS FETCH NEXT ${options.limit} ROWS ONLY`;
+    }
+
+    const result = await this.execute(query, params);
+    return result;
+  }
+
+  async getTimeEntry(id: string, userId: string): Promise<TimeEntry | undefined> {
+    this.storageLog('GET_TIME_ENTRY', `Fetching time entry ${id} for user ${userId}`);
+    const result = await this.execute(
+      'SELECT * FROM time_entries WHERE id = @param0',
+      [id]
+    );
+    return result[0];
+  }
+
+  async updateTimeEntry(id: string, entryData: Partial<InsertTimeEntry>, userId: string): Promise<TimeEntry | undefined> {
+    this.storageLog('UPDATE_TIME_ENTRY', `Updating time entry ${id}`, entryData);
+
+    const setParts: string[] = [];
+    const params: any[] = [];
+    let paramIndex = 0;
+
+    Object.keys(entryData).forEach(key => {
+      if (entryData[key as keyof InsertTimeEntry] !== undefined) {
+        setParts.push(`${key} = @param${paramIndex}`);
+        params.push(entryData[key as keyof InsertTimeEntry]);
+        paramIndex++;
+      }
+    });
+
+    if (setParts.length === 0) {
+      return undefined;
+    }
+
+    setParts.push('updatedAt = GETUTCDATE()');
+    params.push(id);
+
+    const query = `
+      UPDATE time_entries 
+      SET ${setParts.join(', ')} 
+      OUTPUT INSERTED.*
+      WHERE id = @param${paramIndex}
+    `;
+
+    const result = await this.execute(query, params);
+    this.storageLog('UPDATE_TIME_ENTRY', `Successfully updated time entry ${id}`);
+    return result[0];
+  }
+
+  async deleteTimeEntry(id: string, userId: string): Promise<boolean> {
+    this.storageLog('DELETE_TIME_ENTRY', `Deleting time entry ${id}`);
+    try {
+      await this.execute('DELETE FROM time_entries WHERE id = @param0', [id]);
+      this.storageLog('DELETE_TIME_ENTRY', `Successfully deleted time entry ${id}`);
+      return true;
+    } catch (error) {
+      this.storageLog('DELETE_TIME_ENTRY', `Failed to delete time entry ${id}:`, error);
+      return false;
+    }
   }
 
   // Organization management
   async createOrganization(org: InsertOrganization): Promise<Organization> {
-    const pool = this.getPool();
-    const request = pool.request();
-
-    const id = randomUUID();
-    const query = `
-      INSERT INTO organizations (id, name, description, userId, createdAt)
+    this.storageLog('CREATE_ORGANIZATION', 'Creating organization', org);
+    const result = await this.execute(`
+      INSERT INTO organizations (id, name, description, userId, createdAt, updatedAt)
       OUTPUT INSERTED.*
-      VALUES (@id, @name, @description, @userId, GETUTCDATE())
-    `;
-
-    request.input('id', sql.VarChar(255), id);
-    request.input('name', sql.VarChar(255), org.name);
-    request.input('description', sql.Text, org.description);
-    request.input('userId', sql.VarChar(255), org.userId);
-
-    const result = await request.query(query);
-    return result.recordset[0];
+      VALUES (NEWID(), @param0, @param1, @param2, GETUTCDATE(), GETUTCDATE())
+    `, [org.name, org.description, org.userId]);
+    this.storageLog('CREATE_ORGANIZATION', `Successfully created organization: ${org.name}`);
+    return result[0];
   }
 
   async getOrganizations(): Promise<Organization[]> {
-    const pool = this.getPool();
-    const result = await pool.request().query('SELECT * FROM organizations ORDER BY name');
-    return result.recordset;
+    const result = await this.execute('SELECT * FROM organizations ORDER BY name ASC');
+    return result;
   }
 
   // Department management
   async createDepartment(dept: InsertDepartment): Promise<Department> {
-    const pool = this.getPool();
-    const request = pool.request();
-
-    const id = randomUUID();
-    const query = `
-      INSERT INTO departments (id, name, organizationId, managerId, description, userId, createdAt)
+    this.storageLog('CREATE_DEPARTMENT', 'Creating department', dept);
+    const result = await this.execute(`
+      INSERT INTO departments (id, name, organizationId, managerId, description, userId, createdAt, updatedAt)
       OUTPUT INSERTED.*
-      VALUES (@id, @name, @organizationId, @managerId, @description, @userId, GETUTCDATE())
-    `;
-
-    request.input('id', sql.VarChar(255), id);
-    request.input('name', sql.VarChar(255), dept.name);
-    request.input('organizationId', sql.VarChar(255), dept.organizationId);
-    request.input('managerId', sql.VarChar(255), dept.managerId);
-    request.input('description', sql.VarChar(255), dept.description);
-    request.input('userId', sql.VarChar(255), dept.userId);
-
-    const result = await request.query(query);
-    return result.recordset[0];
+      VALUES (NEWID(), @param0, @param1, @param2, @param3, @param4, GETUTCDATE(), GETUTCDATE())
+    `, [dept.name, dept.organizationId, dept.managerId, dept.description, dept.userId]);
+    this.storageLog('CREATE_DEPARTMENT', `Successfully created department: ${dept.name}`);
+    return result[0];
   }
 
   async getDepartments(): Promise<Department[]> {
-    const pool = this.getPool();
-    const result = await pool.request().query('SELECT * FROM departments ORDER BY name');
-    return result.recordset;
+    const result = await this.execute('SELECT * FROM departments ORDER BY name ASC');
+    return result;
   }
 
   // Employee management
   async createEmployee(emp: InsertEmployee): Promise<Employee> {
-    const pool = this.getPool();
-    const request = pool.request();
-
-    const id = randomUUID();
-    const query = `
-      INSERT INTO employees (id, employeeId, firstName, lastName, department, userId, createdAt)
+    this.storageLog('CREATE_EMPLOYEE', 'Creating employee', emp);
+    const result = await this.execute(`
+      INSERT INTO employees (id, employeeId, firstName, lastName, department, userId, createdAt, updatedAt)
       OUTPUT INSERTED.*
-      VALUES (@id, @employeeId, @firstName, @lastName, @department, @userId, GETUTCDATE())
-    `;
-
-    request.input('id', sql.VarChar(255), id);
-    request.input('employeeId', sql.VarChar(255), emp.employeeId);
-    request.input('firstName', sql.VarChar(255), emp.firstName);
-    request.input('lastName', sql.VarChar(255), emp.lastName);
-    request.input('department', sql.VarChar(255), emp.department);
-    request.input('userId', sql.VarChar(255), emp.userId);
-
-    const result = await request.query(query);
-    return result.recordset[0];
+      VALUES (NEWID(), @param0, @param1, @param2, @param3, @param4, GETUTCDATE(), GETUTCDATE())
+    `, [emp.employeeId, emp.firstName, emp.lastName, emp.department, emp.userId]);
+    this.storageLog('CREATE_EMPLOYEE', `Successfully created employee: ${emp.employeeId}`);
+    return result[0];
   }
 
   async getEmployees(): Promise<Employee[]> {
-    const pool = this.getPool();
-    const result = await pool.request().query('SELECT * FROM employees ORDER BY firstName, lastName');
-    return result.recordset;
+    const result = await this.execute('SELECT * FROM employees ORDER BY firstName ASC, lastName ASC');
+    return result;
   }
 
   // Task management
   async createTask(taskData: InsertTask): Promise<Task> {
-    const pool = this.getPool();
-    const request = pool.request();
-
-    const id = randomUUID();
-    const query = `
-      INSERT INTO tasks (id, projectId, name, description, status, createdAt)
+    this.storageLog('CREATE_TASK', 'Creating task', taskData);
+    const result = await this.execute(`
+      INSERT INTO tasks (id, projectId, name, description, status, createdAt, updatedAt)
       OUTPUT INSERTED.*
-      VALUES (@id, @projectId, @name, @description, @status, GETUTCDATE())
-    `;
-
-    request.input('id', sql.VarChar(255), id);
-    request.input('projectId', sql.VarChar(255), taskData.projectId);
-    request.input('name', sql.VarChar(255), taskData.name);
-    request.input('description', sql.Text, taskData.description);
-    request.input('status', sql.VarChar(50), taskData.status || 'active');
-
-    const result = await request.query(query);
-    return result.recordset[0];
+      VALUES (NEWID(), @param0, @param1, @param2, @param3, GETUTCDATE(), GETUTCDATE())
+    `, [taskData.projectId, taskData.name, taskData.description, taskData.status || 'active']);
+    this.storageLog('CREATE_TASK', `Successfully created task: ${taskData.name}`);
+    return result[0];
   }
 
   async getTasks(projectId: string): Promise<Task[]> {
-    const pool = this.getPool();
-    const request = pool.request();
-
-    request.input('projectId', sql.VarChar(255), projectId);
-    const result = await request.query('SELECT * FROM tasks WHERE projectId = @projectId ORDER BY name');
-    return result.recordset;
+    const result = await this.execute('SELECT * FROM tasks WHERE projectId = @param0 ORDER BY name ASC', [projectId]);
+    return result;
   }
 
   async updateTask(id: string, updates: Partial<Task>): Promise<Task> {
-    const pool = this.getPool();
-    const request = pool.request();
+    this.storageLog('UPDATE_TASK', `Updating task ${id}`, updates);
+    const setParts: string[] = [];
+    const params: any[] = [];
+    let paramIndex = 0;
 
-    const setParts = [];
     if (updates.name !== undefined) {
-      setParts.push('name = @name');
-      request.input('name', sql.VarChar(255), updates.name);
+      setParts.push('name = @param' + paramIndex);
+      params.push(updates.name);
+      paramIndex++;
     }
     if (updates.description !== undefined) {
-      setParts.push('description = @description');
-      request.input('description', sql.Text, updates.description);
+      setParts.push('description = @param' + paramIndex);
+      params.push(updates.description);
+      paramIndex++;
     }
     if (updates.status !== undefined) {
-      setParts.push('status = @status');
-      request.input('status', sql.VarChar(50), updates.status);
+      setParts.push('status = @param' + paramIndex);
+      params.push(updates.status);
+      paramIndex++;
     }
 
     if (setParts.length === 0) {
@@ -370,94 +500,108 @@ export class FmbStorage {
       UPDATE tasks 
       SET ${setParts.join(', ')} 
       OUTPUT INSERTED.*
-      WHERE id = @id
+      WHERE id = @param${paramIndex}
     `;
+    params.push(id);
 
-    request.input('id', sql.VarChar(255), id);
-    const result = await request.query(query);
-    return result.recordset[0];
+    const result = await this.execute(query, params);
+    this.storageLog('UPDATE_TASK', `Successfully updated task ${id}`);
+    return result[0];
   }
 
   async deleteTask(id: string): Promise<void> {
-    const pool = this.getPool();
-    const request = pool.request();
+    this.storageLog('DELETE_TASK', `Deleting task ${id}`);
+    await this.execute('DELETE FROM tasks WHERE id = @param0', [id]);
+    this.storageLog('DELETE_TASK', `Successfully deleted task ${id}`);
+  }
 
-    request.input('id', sql.VarChar(255), id);
-    await request.query('DELETE FROM tasks WHERE id = @id');
+  async getTask(id: string, userId: string): Promise<Task | undefined> {
+    this.storageLog('GET_TASK', `Fetching task ${id} for user ${userId}`);
+    const result = await this.execute(
+      'SELECT * FROM tasks WHERE id = @param0',
+      [id]
+    );
+    return result[0];
   }
 
   // Project employee management
   async addProjectEmployee(projectId: string, employeeId: string, userId: string): Promise<void> {
-    const pool = this.getPool();
-    const request = pool.request();
-
-    const id = randomUUID();
-    request.input('id', sql.VarChar(255), id);
-    request.input('projectId', sql.VarChar(255), projectId);
-    request.input('employeeId', sql.VarChar(255), employeeId);
-    request.input('userId', sql.VarChar(255), userId);
-
-    await request.query(`
+    this.storageLog('ADD_PROJECT_EMPLOYEE', `Adding employee ${employeeId} to project ${projectId}`);
+    await this.execute(`
       INSERT INTO project_employees (id, projectId, employeeId, userId, createdAt)
-      VALUES (@id, @projectId, @employeeId, @userId, GETUTCDATE())
-    `);
+      VALUES (NEWID(), @param0, @param1, @param2, GETUTCDATE())
+    `, [projectId, employeeId, userId]);
+    this.storageLog('ADD_PROJECT_EMPLOYEE', `Successfully added employee ${employeeId} to project ${projectId}`);
   }
 
   async removeProjectEmployee(projectId: string, employeeId: string): Promise<void> {
-    const pool = this.getPool();
-    const request = pool.request();
-
-    request.input('projectId', sql.VarChar(255), projectId);
-    request.input('employeeId', sql.VarChar(255), employeeId);
-
-    await request.query(`
+    this.storageLog('REMOVE_PROJECT_EMPLOYEE', `Removing employee ${employeeId} from project ${projectId}`);
+    await this.execute(`
       DELETE FROM project_employees 
-      WHERE projectId = @projectId AND employeeId = @employeeId
-    `);
+      WHERE projectId = @param0 AND employeeId = @param1
+    `, [projectId, employeeId]);
+    this.storageLog('REMOVE_PROJECT_EMPLOYEE', `Successfully removed employee ${employeeId} from project ${projectId}`);
   }
 
-  async getProjectEmployees(projectId: string): Promise<any[]> {
-    const pool = this.getPool();
-    const request = pool.request();
-
-    request.input('projectId', sql.VarChar(255), projectId);
-    const result = await request.query(`
+  async getProjectEmployees(projectId: string): Promise<ProjectEmployee[]> {
+    this.storageLog('GET_PROJECT_EMPLOYEES', `Fetching employees for project ${projectId}`);
+    const result = await this.execute(`
       SELECT pe.*, e.firstName, e.lastName, e.employeeId
       FROM project_employees pe
       JOIN employees e ON pe.employeeId = e.id
-      WHERE pe.projectId = @projectId
-    `);
-
-    return result.recordset;
+      WHERE pe.projectId = @param0
+    `, [projectId]);
+    return result;
   }
 
   // Dashboard stats
-  async getDashboardStats(userId: string, userRole: string, startDate: string, endDate: string): Promise<any> {
-    const pool = this.getPool();
-    const request = pool.request();
+  async getDashboardStats(userId: string, startDate?: string, endDate?: string): Promise<{
+    todayHours: number;
+    weekHours: number;
+    monthHours: number;
+    activeProjects: number;
+  }> {
+    this.storageLog('GET_DASHBOARD_STATS', `Getting dashboard stats for user ${userId}`);
 
-    let whereClause = '';
-    if (userRole !== 'admin') {
-      whereClause = 'AND te.userId = @userId';
-      request.input('userId', sql.VarChar(255), userId);
-    }
+    const today = new Date().toISOString().split('T')[0];
+    const weekStart = startDate || new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+    const monthStart = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0];
 
-    request.input('startDate', sql.Date, startDate);
-    request.input('endDate', sql.Date, endDate);
+    // Get today's hours
+    const todayResult = await this.execute(`
+      SELECT COALESCE(SUM(CAST(duration AS DECIMAL(10,2))), 0) as total 
+      FROM time_entries 
+      WHERE userId = @param0 AND date = @param1
+    `, [userId, today]);
 
-    const query = `
-      SELECT
-        COALESCE(SUM(CASE WHEN te.date = CAST(GETUTCDATE() AS DATE) THEN te.duration ELSE 0 END), 0) as todayHours,
-        COALESCE(SUM(CASE WHEN te.date >= @startDate AND te.date <= @endDate THEN te.duration ELSE 0 END), 0) as weekHours,
-        COALESCE(SUM(CASE WHEN te.date >= DATEADD(month, DATEDIFF(month, 0, GETUTCDATE()), 0) THEN te.duration ELSE 0 END), 0) as monthHours,
-        COUNT(DISTINCT p.id) as activeProjects
-      FROM time_entries te
-      LEFT JOIN projects p ON te.projectId = p.id
-      WHERE 1=1 ${whereClause}
-    `;
+    // Get week's hours
+    const weekResult = await this.execute(`
+      SELECT COALESCE(SUM(CAST(duration AS DECIMAL(10,2))), 0) as total 
+      FROM time_entries 
+      WHERE userId = @param0 AND date >= @param1 AND date <= @param2
+    `, [userId, weekStart, today]);
 
-    const result = await request.query(query);
-    return result.recordset[0] || { todayHours: 0, weekHours: 0, monthHours: 0, activeProjects: 0 };
+    // Get month's hours
+    const monthResult = await this.execute(`
+      SELECT COALESCE(SUM(CAST(duration AS DECIMAL(10,2))), 0) as total 
+      FROM time_entries 
+      WHERE userId = @param0 AND date >= @param1 AND date <= @param2
+    `, [userId, monthStart, today]);
+
+    // Get active projects count
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+    const activeProjectsResult = await this.execute(`
+      SELECT COUNT(DISTINCT projectId) as count 
+      FROM time_entries 
+      WHERE userId = @param0 AND date >= @param1
+    `, [userId, thirtyDaysAgo]);
+
+    return {
+      todayHours: parseFloat(todayResult[0]?.total?.toString() || '0'),
+      weekHours: parseFloat(weekResult[0]?.total?.toString() || '0'),
+      monthHours: parseFloat(monthResult[0]?.total?.toString() || '0'),
+      activeProjects: activeProjectsResult[0]?.count || 0,
+    };
   }
 
   async getProjectTimeBreakdown(userId: string, startDate?: string, endDate?: string): Promise<Array<{
@@ -465,136 +609,127 @@ export class FmbStorage {
     totalHours: number;
     percentage: number;
   }>> {
-    const pool = this.getPool();
-
-    // Get user role to determine access level
-    const user = await this.getUser(userId);
-    const userRole = user?.role || 'employee';
-
-    let whereConditions = [];
-    let parameters: any = {};
-
-    // Role-based access control
-    if (userRole === 'admin') {
-      // Admin sees everything
-    } else if (userRole === 'project_manager') {
-      // Project managers see enterprise-wide projects
-      whereConditions.push('p.isEnterpriseWide = 1');
-    } else {
-      // Employees see enterprise-wide projects only
-      whereConditions.push('p.isEnterpriseWide = 1');
-      whereConditions.push('te.userId = @userId');
-      parameters.userId = userId;
-    }
+    let whereClause = 'WHERE te.userId = @param0';
+    const params = [userId];
+    let paramIndex = 1;
 
     if (startDate) {
-      whereConditions.push('te.date >= @startDate');
-      parameters.startDate = startDate;
+      whereClause += ` AND te.date >= @param${paramIndex}`;
+      params.push(startDate);
+      paramIndex++;
     }
 
     if (endDate) {
-      whereConditions.push('te.date <= @endDate');
-      parameters.endDate = endDate;
+      whereClause += ` AND te.date <= @param${paramIndex}`;
+      params.push(endDate);
+      paramIndex++;
     }
 
-    const whereClause = whereConditions.length > 0 ? `WHERE ${whereConditions.join(' AND ')}` : '';
-
-    const request = pool.request();
-    Object.keys(parameters).forEach(key => {
-      request.input(key, sql.NVarChar, parameters[key]);
-    });
-
-    const result = await request.query(`
+    const result = await this.execute(`
       SELECT 
-        p.id, p.name, p.description, p.userId, p.isEnterpriseWide, p.createdAt, p.updatedAt,
+        p.id, p.name, p.projectNumber, p.description, p.color, p.startDate, p.endDate, 
+        p.isEnterpriseWide, p.userId, p.createdAt, p.updatedAt, p.isTemplate, 
+        p.allowTimeTracking, p.requireTaskSelection, p.enableBudgetTracking, p.enableBilling,
         COALESCE(SUM(CAST(te.duration AS DECIMAL(10,2))), 0) as totalHours
       FROM projects p
       LEFT JOIN time_entries te ON p.id = te.projectId
       ${whereClause}
-      GROUP BY p.id, p.name, p.description, p.userId, p.isEnterpriseWide, p.createdAt, p.updatedAt
-      HAVING COALESCE(SUM(CAST(te.duration AS DECIMAL(10,2))), 0) > 0
-      ORDER BY totalHours DESC
-    `);
+      GROUP BY p.id, p.name, p.projectNumber, p.description, p.color, p.startDate, p.endDate, 
+               p.isEnterpriseWide, p.userId, p.createdAt, p.updatedAt, p.isTemplate, 
+               p.allowTimeTracking, p.requireTaskSelection, p.enableBudgetTracking, p.enableBilling
+      HAVING SUM(CAST(te.duration AS DECIMAL(10,2))) > 0
+      ORDER BY SUM(CAST(te.duration AS DECIMAL(10,2))) DESC
+    `, params);
 
-    const totalHours = result.recordset.reduce((sum, row) => sum + Number(row.totalHours), 0);
+    const totalHours = result.reduce((sum: number, row: any) => sum + Number(row.totalHours), 0);
 
-    return result.recordset.map(row => ({
+    return result.map((row: any) => ({
       project: {
         id: row.id,
         name: row.name,
+        projectNumber: row.projectNumber,
         description: row.description,
-        userId: row.userId,
+        color: row.color,
+        startDate: row.startDate,
+        endDate: row.endDate,
         isEnterpriseWide: row.isEnterpriseWide,
+        userId: row.userId,
         createdAt: row.createdAt,
         updatedAt: row.updatedAt,
+        isTemplate: row.isTemplate,
+        allowTimeTracking: row.allowTimeTracking,
+        requireTaskSelection: row.requireTaskSelection,
+        enableBudgetTracking: row.enableBudgetTracking,
+        enableBilling: row.enableBilling,
       },
       totalHours: Number(row.totalHours),
       percentage: totalHours > 0 ? Math.round((Number(row.totalHours) / totalHours) * 100) : 0,
     }));
   }
 
-  async getRecentActivity(userId: string, limit = 10, startDate?: string, endDate?: string): Promise<TimeEntryWithProject[]> {
-    const pool = this.getPool();
-    const request = pool.request();
+  async getDepartmentHoursSummary(userId: string, startDate?: string, endDate?: string): Promise<Array<{
+    departmentId: string;
+    departmentName: string;
+    totalHours: number;
+    employeeCount: number;
+  }>> {
+    this.storageLog('GET_DEPARTMENT_HOURS', `Getting department hours for user ${userId}`);
 
-    let query = `
+    let whereClause = '';
+    const params: any[] = [];
+    let paramIndex = 0;
+
+    if (startDate && endDate) {
+      whereClause = 'te.date >= @param0 AND te.date <= @param1';
+      params.push(startDate, endDate);
+      paramIndex = 2;
+    }
+
+    // Fetch user role to determine department access
+    const user = await this.getUser(userId);
+    const userRole = user?.role || 'employee';
+
+    let userFilter = '';
+    if (userRole !== 'admin') {
+      // Assuming employee.userId should be linked to the user performing the query
+      // This might need adjustment based on the actual schema and relationship logic
+      userFilter = ' AND e.userId = @param' + paramIndex;
+      params.push(userId);
+    }
+
+    const result = await this.execute(`
       SELECT 
-        te.id, te.userId, te.projectId, te.taskId, te.description, te.date, te.startTime, te.endTime, te.duration,
-        te.isTemplate, te.isBillable, te.isApproved, te.isManualEntry, te.isTimerEntry, te.createdAt, te.updatedAt,
-        p.name as projectName
-      FROM time_entries te
-      JOIN projects p ON te.projectId = p.id
-      WHERE te.userId = @userId
-    `;
+        e.department as departmentId,
+        d.name as departmentName,
+        COALESCE(SUM(CAST(te.duration AS DECIMAL(10,2))), 0) as totalHours,
+        COUNT(DISTINCT e.id) as employeeCount
+      FROM employees e
+      JOIN departments d ON e.department = d.id
+      LEFT JOIN time_entries te ON e.userId = te.userId ${whereClause ? ' AND ' + whereClause : ''}
+      WHERE e.department IS NOT NULL AND e.department != '' ${userFilter}
+      GROUP BY e.department, d.name
+      HAVING SUM(CAST(te.duration AS DECIMAL(10,2))) > 0
+      ORDER BY SUM(CAST(te.duration AS DECIMAL(10,2))) DESC
+    `, params);
 
-    if (startDate) {
-      query += ' AND te.date >= @startDate';
-      request.input('startDate', sql.Date, startDate);
-    }
-    if (endDate) {
-      query += ' AND te.date <= @endDate';
-      request.input('endDate', sql.Date, endDate);
-    }
-
-    query += ' ORDER BY te.date DESC, te.createdAt DESC';
-    query += ` OFFSET 0 ROWS FETCH NEXT ${limit} ROWS ONLY`;
-
-    request.input('userId', sql.VarChar(255), userId);
-
-    const result = await request.query(query);
-
-    return result.recordset.map(row => ({
-      id: row.id,
-      userId: row.userId,
-      projectId: row.projectId,
-      taskId: row.taskId,
-      description: row.description,
-      date: row.date,
-      startTime: row.startTime,
-      endTime: row.endTime,
-      duration: row.duration,
-      isTemplate: row.isTemplate,
-      isBillable: row.isBillable,
-      isApproved: row.isApproved,
-      isManualEntry: row.isManualEntry,
-      isTimerEntry: row.isTimerEntry,
-      createdAt: row.createdAt,
-      updatedAt: row.updatedAt,
-      projectName: row.projectName,
+    return result.map((row: any) => ({
+      departmentId: row.departmentId,
+      departmentName: row.departmentName,
+      totalHours: Number(row.totalHours),
+      employeeCount: row.employeeCount,
     }));
   }
 
   async getTestUsers(): Promise<User[]> {
-    const pool = this.getPool();
-    const result = await pool.request()
-      .query(`
-        SELECT id, email, firstName, lastName, role, profileImageUrl, isActive, lastLoginAt, createdAt, updatedAt
-        FROM users 
-        WHERE email LIKE '%timetracker.test'
-        ORDER BY created_at ASC
-      `);
+    this.storageLog('GET_TEST_USERS', 'Fetching test users');
+    const result = await this.execute(`
+      SELECT id, email, firstName, lastName, role, profileImageUrl, isActive, lastLoginAt, createdAt, updatedAt
+      FROM users 
+      WHERE email LIKE '%timetracker.test'
+      ORDER BY createdAt ASC
+    `);
 
-    return result.recordset.map(row => ({
+    return result.map((row: any) => ({
       id: row.id,
       email: row.email,
       firstName: row.firstName,
