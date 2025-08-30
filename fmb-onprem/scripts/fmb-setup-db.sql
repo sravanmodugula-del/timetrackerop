@@ -1,3 +1,4 @@
+
 -- FMB TimeTracker Database Setup for MS SQL Server
 -- Run this script on HUB-SQL1TST-LIS
 
@@ -36,6 +37,13 @@ BEGIN
         [createdAt] DATETIME2 DEFAULT GETUTCDATE(),
         [updatedAt] DATETIME2 DEFAULT GETUTCDATE()
     );
+END
+GO
+
+-- Add updatedAt column if it doesn't exist
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[users]') AND name = 'updatedAt')
+BEGIN
+    ALTER TABLE [dbo].[users] ADD [updatedAt] DATETIME2 DEFAULT GETUTCDATE();
 END
 GO
 
@@ -173,11 +181,26 @@ BEGIN
 END
 GO
 
+-- Add foreign key for departments managerId if it doesn't exist
+IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE name = 'FK_departments_managerId')
+BEGIN
+    ALTER TABLE [dbo].[departments] ADD CONSTRAINT FK_departments_managerId 
+    FOREIGN KEY ([managerId]) REFERENCES [dbo].[employees]([id]);
+END
+GO
+
 -- Create indexes for performance
-CREATE INDEX IDX_time_entries_user_date ON [dbo].[time_entries] ([userId], [date]);
-CREATE INDEX IDX_time_entries_project_date ON [dbo].[time_entries] ([projectId], [date]);
-CREATE INDEX IDX_projects_enterprise ON [dbo].[projects] ([isEnterpriseWide]);
-CREATE INDEX IDX_users_email ON [dbo].[users] ([email]);
+IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = 'IDX_time_entries_user_date')
+    CREATE INDEX IDX_time_entries_user_date ON [dbo].[time_entries] ([userId], [date]);
+
+IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = 'IDX_time_entries_project_date')
+    CREATE INDEX IDX_time_entries_project_date ON [dbo].[time_entries] ([projectId], [date]);
+
+IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = 'IDX_projects_enterprise')
+    CREATE INDEX IDX_projects_enterprise ON [dbo].[projects] ([isEnterpriseWide]);
+
+IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = 'IDX_users_email')
+    CREATE INDEX IDX_users_email ON [dbo].[users] ([email]);
 GO
 
 PRINT 'FMB TimeTracker database schema created successfully';
