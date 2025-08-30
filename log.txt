@@ -1,10 +1,1 @@
-Added FK_project_employees_project_id constraint
-Added FK_project_employees_employee_id constraint
-Added FK_project_employees_user_id constraint
-FK_departments_managerId constraint already exists or prerequisites not met
-Msg 1911, Level 16, State 1, Line 243
-Column name 'userId' does not exist in the target table or view.
-Validating database schema...
-FMB TimeTracker database schema created successfully
-
-Completion time: 2025-08-30T02:56:39.6840575-07:00
+{"message":"The target table 'target' of the DML statement cannot have any enabled triggers if the statement contains an OUTPUT clause without INTO clause."}
