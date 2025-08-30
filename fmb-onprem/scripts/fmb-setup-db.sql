@@ -185,8 +185,12 @@ IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE name = 'FK_departments_manag
 BEGIN
     IF EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[employees]') AND type in (N'U'))
     BEGIN
-        ALTER TABLE [dbo].[departments] ADD CONSTRAINT FK_departments_managerId 
-        FOREIGN KEY ([managerId]) REFERENCES [dbo].[employees]([id]);
+        -- Only add the constraint if managerId column exists and is not null
+        IF EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[departments]') AND name = 'managerId')
+        BEGIN
+            ALTER TABLE [dbo].[departments] ADD CONSTRAINT FK_departments_managerId 
+            FOREIGN KEY ([managerId]) REFERENCES [dbo].[employees]([id]);
+        END
     END
 END
 GO
