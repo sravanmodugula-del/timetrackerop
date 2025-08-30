@@ -152,14 +152,14 @@ IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[em
 BEGIN
     CREATE TABLE [dbo].[employees] (
         [id] NVARCHAR(255) NOT NULL PRIMARY KEY DEFAULT NEWID(),
-        [employeeId] NVARCHAR(255) NOT NULL UNIQUE,
-        [firstName] NVARCHAR(255) NOT NULL,
-        [lastName] NVARCHAR(255) NOT NULL,
+        [employee_id] NVARCHAR(255) NOT NULL UNIQUE,
+        [first_name] NVARCHAR(255) NOT NULL,
+        [last_name] NVARCHAR(255) NOT NULL,
         [department] NVARCHAR(255) NOT NULL,
-        [userId] NVARCHAR(255) NOT NULL,
-        [createdAt] DATETIME2 DEFAULT GETUTCDATE(),
-        [updatedAt] DATETIME2 DEFAULT GETUTCDATE(),
-        FOREIGN KEY ([userId]) REFERENCES [dbo].[users]([id]) ON DELETE CASCADE
+        [user_id] NVARCHAR(255) NOT NULL,
+        [created_at] DATETIME2 DEFAULT GETUTCDATE(),
+        [updated_at] DATETIME2 DEFAULT GETUTCDATE(),
+        FOREIGN KEY ([user_id]) REFERENCES [dbo].[users]([id]) ON DELETE CASCADE
     );
 END
 GO
@@ -169,58 +169,58 @@ IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[pr
 BEGIN
     CREATE TABLE [dbo].[project_employees] (
         [id] NVARCHAR(255) NOT NULL PRIMARY KEY DEFAULT NEWID(),
-        [projectId] NVARCHAR(255) NOT NULL,
-        [employeeId] NVARCHAR(255) NOT NULL,
-        [userId] NVARCHAR(255) NOT NULL,
-        [createdAt] DATETIME2 DEFAULT GETUTCDATE(),
-        [updatedAt] DATETIME2 DEFAULT GETUTCDATE()
+        [project_id] NVARCHAR(255) NOT NULL,
+        [employee_id] NVARCHAR(255) NOT NULL,
+        [user_id] NVARCHAR(255) NOT NULL,
+        [created_at] DATETIME2 DEFAULT GETUTCDATE(),
+        [updated_at] DATETIME2 DEFAULT GETUTCDATE()
     );
 END
 GO
 
 -- Add foreign key constraints for project_employees after all tables are created
-IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE name = 'FK_project_employees_projectId')
+IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE name = 'FK_project_employees_project_id')
 AND EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[project_employees]') AND type in (N'U'))
 AND EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[projects]') AND type in (N'U'))
-AND EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[project_employees]') AND name = 'projectId')
+AND EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[project_employees]') AND name = 'project_id')
 BEGIN
-    ALTER TABLE [dbo].[project_employees] ADD CONSTRAINT FK_project_employees_projectId 
-    FOREIGN KEY ([projectId]) REFERENCES [dbo].[projects]([id]) ON DELETE CASCADE;
-    PRINT 'Added FK_project_employees_projectId constraint';
+    ALTER TABLE [dbo].[project_employees] ADD CONSTRAINT FK_project_employees_project_id 
+    FOREIGN KEY ([project_id]) REFERENCES [dbo].[projects]([id]) ON DELETE CASCADE;
+    PRINT 'Added FK_project_employees_project_id constraint';
 END
 ELSE
 BEGIN
-    PRINT 'FK_project_employees_projectId constraint already exists or prerequisites not met';
+    PRINT 'FK_project_employees_project_id constraint already exists or prerequisites not met';
 END
 GO
 
-IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE name = 'FK_project_employees_employeeId')
+IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE name = 'FK_project_employees_employee_id')
 AND EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[project_employees]') AND type in (N'U'))
 AND EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[employees]') AND type in (N'U'))
-AND EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[project_employees]') AND name = 'employeeId')
+AND EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[project_employees]') AND name = 'employee_id')
 BEGIN
-    ALTER TABLE [dbo].[project_employees] ADD CONSTRAINT FK_project_employees_employeeId 
-    FOREIGN KEY ([employeeId]) REFERENCES [dbo].[employees]([id]) ON DELETE CASCADE;
-    PRINT 'Added FK_project_employees_employeeId constraint';
+    ALTER TABLE [dbo].[project_employees] ADD CONSTRAINT FK_project_employees_employee_id 
+    FOREIGN KEY ([employee_id]) REFERENCES [dbo].[employees]([id]) ON DELETE CASCADE;
+    PRINT 'Added FK_project_employees_employee_id constraint';
 END
 ELSE
 BEGIN
-    PRINT 'FK_project_employees_employeeId constraint already exists or prerequisites not met';
+    PRINT 'FK_project_employees_employee_id constraint already exists or prerequisites not met';
 END
 GO
 
-IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE name = 'FK_project_employees_userId')
+IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE name = 'FK_project_employees_user_id')
 AND EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[project_employees]') AND type in (N'U'))
 AND EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[users]') AND type in (N'U'))
-AND EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[project_employees]') AND name = 'userId')
+AND EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[project_employees]') AND name = 'user_id')
 BEGIN
-    ALTER TABLE [dbo].[project_employees] ADD CONSTRAINT FK_project_employees_userId 
-    FOREIGN KEY ([userId]) REFERENCES [dbo].[users]([id]) ON DELETE CASCADE;
-    PRINT 'Added FK_project_employees_userId constraint';
+    ALTER TABLE [dbo].[project_employees] ADD CONSTRAINT FK_project_employees_user_id 
+    FOREIGN KEY ([user_id]) REFERENCES [dbo].[users]([id]) ON DELETE CASCADE;
+    PRINT 'Added FK_project_employees_user_id constraint';
 END
 ELSE
 BEGIN
-    PRINT 'FK_project_employees_userId constraint already exists or prerequisites not met';
+    PRINT 'FK_project_employees_user_id constraint already exists or prerequisites not met';
 END
 GO
 
@@ -268,13 +268,13 @@ IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[em
 IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[projects]') AND name = 'id')
     PRINT 'WARNING: projects.id column missing';
 
-IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[project_employees]') AND name = 'projectId')
-    PRINT 'WARNING: project_employees.projectId column missing';
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[project_employees]') AND name = 'project_id')
+    PRINT 'WARNING: project_employees.project_id column missing';
 
-IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[project_employees]') AND name = 'employeeId')
-    PRINT 'WARNING: project_employees.employeeId column missing';
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[project_employees]') AND name = 'employee_id')
+    PRINT 'WARNING: project_employees.employee_id column missing';
 
-IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[project_employees]') AND name = 'userId')
-    PRINT 'WARNING: project_employees.userId column missing';
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[project_employees]') AND name = 'user_id')
+    PRINT 'WARNING: project_employees.user_id column missing';
 
 PRINT 'FMB TimeTracker database schema created successfully';
