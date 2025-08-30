@@ -1,1 +1,143 @@
-{"message":"The target table 'target' of the DML statement cannot have any enabled triggers if the statement contains an OUTPUT clause without INTO clause."}
+leError (C:\\fmb-timetracker\\node_modules\\mssql\\lib\\tedious\\request.js:384:15)\n    at Connection.emit (node:events:518:28)\n    at Connection.emit (C:\\fmb-timetracker\\node_modules\\tedious\\lib\\co
+nnection.js:970:18)\n    at RequestTokenHandler.onErrorMessage (C:\\fmb-timetracker\\node_modules\\tedious\\lib\\token\\handler.js:284:21)\n    at Readable.<anonymous> (C:\\fmb-timetracker\\node_modules\\t
+edious\\lib\\token\\token-stream-parser.js:19:33)\n    at Readable.emit (node:events:518:28)\n    at addChunk (node:internal/streams/readable:561:12)\n    at readableAddChunkPushObjectMode (node:internal/s
+treams/readable:538:3)\n    at Readable.push (node:internal/streams/readable:393:5)\n    at nextAsync (node:internal/streams/from:194:22)",
+4|fmb-timetracker  |     "name": "RequestError",
+4|fmb-timetracker  |     "code": "EREQUEST",
+4|fmb-timetracker  |     "status": 500
+4|fmb-timetracker  |   },
+4|fmb-timetracker  |   "request": {
+4|fmb-timetracker  |     "method": "POST",
+4|fmb-timetracker  |     "path": "/saml/acs",
+4|fmb-timetracker  |     "query": {},
+4|fmb-timetracker  |     "body": {
+4|fmb-timetracker  |       "SAMLResponse": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz48c2FtbDJwOlJlc3BvbnNlIHhtbG5zOnNhbWwycD0idXJuOm9hc2lzOm5hbWVzOnRjOlNBTUw6Mi4wOnByb3RvY29sIiBEZXN0aW5hdGlvbj0ia
+HR0cHM6Ly90aW1ldHJhY2tlci5mbWIuY29tL3NhbWwvYWNzIiBJRD0icG9lbWVpZmtqbmNmZ3BnZmtlbW9nam1jY21jY3Bpa2FlZnBubW9kaSIgSXNzdWVJbnN0YW50PSIyMDI1LTA4LTMwVDEwOjE5OjEwLjA0NVoiIFZlcnNpb249IjIuMCI+PHNhbWwyOklzc3VlciB4bW
+xuczpzYW1sMj0idXJuOm9hc2lzOm5hbWVzOnRjOlNBTUw6Mi4wOmFzc2VydGlvbiI+YTB0dDB2cm51M3R0PC9zYW1sMjpJc3N1ZXI+PHNhbWwycDpTdGF0dXM+PHNhbWwycDpTdGF0dXNDb2RlIFZhbHVlPSJ1cm46b2FzaXM6bmFtZXM6dGM6U0FNTDoyLjA6c3RhdHVzOlN
+1Y2Nlc3MiLz48L3NhbWwycDpTdGF0dXM+PHNhbWwyOkFzc2VydGlvbiB4bWxuczpzYW1sMj0idXJuOm9hc2lzOm5hbWVzOnRjOlNBTUw6Mi4wOmFzc2VydGlvbiIgSUQ9InBhY29jbmxqZm9jbWNjbG1wZ2ZnaWhlbGxta2ViaGtqa2Fibm1hbm8iIElzc3VlSW5zdGFudD0i
+MjAyNS0wOC0zMFQxMDoxOToxMC4wNDVaIiBWZXJzaW9uPSIyLjAiIHhtbG5zOnhzZD0iaHR0cDovL3d3dy53My5vcmcvMjAwMS9YTUxTY2hlbWEiPjxzYW1sMjpJc3N1ZXI+YTB0dDB2cm51M3R0PC9zYW1sMjpJc3N1ZXI+PGRzOlNpZ25hdHVyZSB4bWxuczpkcz0iaHR0c
+DovL3d3dy53My5vcmcvMjAwMC8wOS94bWxkc2lnIyI+CjxkczpTaWduZWRJbmZvPgo8ZHM6Q2Fub25pY2FsaXphdGlvbk1ldGhvZCBBbGdvcml0aG09Imh0dHA6Ly93d3cudzMub3JnLzIwMDEvMTAveG1sLWV4Yy1jMTRuIyIvPgo8ZHM6U2lnbmF0dXJlTWV0aG9kIEFsZ2
+9yaXRobT0iaHR0cDovL3d3dy53My5vcmcvMjAwMS8wNC94bWxkc2lnLW1vcmUjcnNhLXNoYTI1NiIvPgo8ZHM6UmVmZXJlbmNlIFVSST0iI3BhY29jbmxqZm9jbWNjbG1wZ2ZnaWhlbGxta2ViaGtqa2Fibm1hbm8iPgo8ZHM6VHJhbnNmb3Jtcz4KPGRzOlRyYW5zZm9ybSB
+BbGdvcml0aG09Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvMDkveG1sZHNpZyNlbnZlbG9wZWQtc2lnbmF0dXJlIi8+CjxkczpUcmFuc2Zvcm0gQWxnb3JpdGhtPSJodHRwOi8vd3d3LnczLm9yZy8yMDAxLzEwL3htbC1leGMtYzE0biMiPjxlYzpJbmNsdXNpdmVOYW1lc3Bh
+Y2VzIHhtbG5zOmVjPSJodHRwOi8vd3d3LnczLm9yZy8yMDAxLzEwL3htbC1leGMtYzE0biMiIFByZWZpeExpc3Q9InhzZCIvPjwvZHM6VHJhbnNmb3JtPgo8L2RzOlRyYW5zZm9ybXM+CjxkczpEaWdlc3RNZXRob2QgQWxnb3JpdGhtPSJodHRwOi8vd3d3LnczLm9yZy8yM
+DAxLzA0L3htbGVuYyNzaGEyNTYiLz4KPGRzOkRpZ2VzdFZhbHVlPjRsYUNnb3ZVWTludkltSTVuZW9uY083OVdjcW53MmVVemY4ZmlTVVBML3M9PC9kczpEaWdlc3RWYWx1ZT4KPC9kczpSZWZlcmVuY2U+CjwvZHM6U2lnbmVkSW5mbz4KPGRzOlNpZ25hdHVyZVZhbHVlPg
+pseS8yQ1JTbk1US21td1JMU25QZVVndCtmSTFRZG9sSGJ2ZmYvMU5iN29hMWZveWEwZ3Uzd2F0WlVZMGZ0YTIySzFjNUlkbGFyMEMyClp4YU45RWxqdDBIbFlLQ2JXODJUSUFmWmhUMnVnNkI2L25DM1ZtaTRQcUVDa1AxOGJMa3FhWXEwQy9XNEhMN1N3L20zWHVFakJVZFM
+KUTBVU2d3RyttYXJGQ2JrbElLQmN6YlBMY3ZWei9vbVBySG92VWVyUnBXY2NIcFoxTVFnN3F1OFkzY0YyaTFEanRHcVBQbFFZRjFUVAowR1JxNGdpRUJsMU9uR2pyWDRGZXZEbFpzRDZ5cC9mMkNnZWRQZVFLZzJYcTh0MzVHR0FZVGJXeThySTRyZnhxOUQvZThaR2J1ZzJC
+ClJMdDJQUmN3NXZENk5hQk12bGFTZHpEUmEzSlo1UlRTKzNxd3JnPT0KPC9kczpTaWduYXR1cmVWYWx1ZT4KPGRzOktleUluZm8+PGRzOlg1MDlEYXRhPjxkczpYNTA5Q2VydGlmaWNhdGU+TUlJQ3VqQ0NBYUtnQXdJQkFnSUdBWmpFaHZlZ01BMEdDU3FHU0liM0RRRUJDd
+1VBTUI0eEhEQWFCZ05WQkFNTUUzUnBiV1YwY21GagphMlZ5TG1adFlpNWpiMjB3SGhjTk1qVXdPREU1TWpJMU1ETTJXaGNOTWprd09ERTVNakkxTURNMldqQWVNUnd3R2dZRFZRUUREQk4wCmFXMWxkSEpoWTJ0bGNpNW1iV0l1WTI5dE1JSUJJakFOQmdrcWhraUc5dzBCQV
+FFRkFBT0NBUThBTUlJQkNnS0NBUUVBc0F2VVBtd08KNFlMUVpBUFVSUXlOOGUrUkpuTHR1WTJXTHdpbXBqYnVad1gvS2x3U0Zuajh2RWdVLzB3cUJaQ2hJdS9WajEvQkpwaEFWbEhhdHdwOQoyUUtGb3RETjJsbllpaTZqTlVvaXp6VmI0SFNBcWs1R0J2ZmVjSDBoMFpCUmV
+hZG8xU1dwclBob1JIOGJ6MytLMWtGS0hwaEkvWGtlCmFvMDdJUm54QkxJV2lHajcxM0o4TzgybVBlMDhDTm9NNVhtSU1qcHc0aUdTM2FuOGV1eU56YWZWSkhFaXBhZVNKeVdZOHB1M2orcVYKZCtvV2RRdnhXQkdOQytYVmg4bE5DbWFTR1FodFFxZmtPRGpWK05vc1JFSWVE
+bGR3ZW5YVVpiTE1KL0lkWmtxUGdETFlqbVhSYmpzLwpSTnYwdHVveko4clJDWE9GMjMzWFVHZklXb1BIandJREFRQUJNQTBHQ1NxR1NJYjNEUUVCQ3dVQUE0SUJBUUJXK2lmZ3o1cnBaRG9FClN6U205eHR4RFp4V25wbmVmQUxKNWhhZ21oMTdUb0Z5eXgvL1FFbS9UUEF5U
+mk4N2VaT25xQnZEM3BjTTdIcHBxZFZPbjRhbmJKQmYKdFdzMVhNNDRLTjc0OU9XalFKRVRkdythelVkdmJPQ0pTbXQyV3VSWTVtQjFrVTdCYmNCSWFTb1JjekFwNHlscTRRdjBKTTRMOWxXRgpHd3dVakhKcitZR1dmVEErbXY1bURhTnVNQVVYNmNZRE80OU1EbEVabU1JS1
+dNNmdLY1pibHJPbW9xQ1BLYm5TL1NtaGdxdlRZZXVjCmFqeWVQRmt2RDdkc2t2OVhrejlzSzZKeFplenZHeERMSmVrL1B3VHZ1SGEwd2ltRSt3Q21md2hpVWdQUHZYcmdxUzZkcnZGbnBXVm0KMW1wWXRsbWdVN1VSNDdpcHZTa082NVZoPC9kczpYNTA5Q2VydGlmaWNhdGU
++PC9kczpYNTA5RGF0YT48L2RzOktleUluZm8+PC9kczpTaWduYXR1cmU+PHNhbWwyOlN1YmplY3Q+PHNhbWwyOk5hbWVJRCBGb3JtYXQ9InVybjpvYXNpczpuYW1lczp0YzpTQU1MOjEuMTpuYW1laWQtZm9ybWF0OmVtYWlsQWRkcmVzcyI+U3JhdmFuLk1vZHVndWxhQGZt
+Yi5jb208L3NhbWwyOk5hbWVJRD48c2FtbDI6U3ViamVjdENvbmZpcm1hdGlvbiBNZXRob2Q9InVybjpvYXNpczpuYW1lczp0YzpTQU1MOjIuMDpjbTpiZWFyZXIiPjxzYW1sMjpTdWJqZWN0Q29uZmlybWF0aW9uRGF0YSBOb3RPbk9yQWZ0ZXI9IjIwMjUtMDgtMzBUMTA6M
+jk6MTAuMDQ1WiIgUmVjaXBpZW50PSJodHRwczovL3RpbWV0cmFja2VyLmZtYi5jb20vc2FtbC9hY3MiLz48L3NhbWwyOlN1YmplY3RDb25maXJtYXRpb24+PC9zYW1sMjpTdWJqZWN0PjxzYW1sMjpDb25kaXRpb25zIE5vdEJlZm9yZT0iMjAyNS0wOC0zMFQxMDoxNDoxMC
+4wNDVaIiBOb3RPbk9yQWZ0ZXI9IjIwMjUtMDgtMzBUMTA6Mjk6MTAuMDQ1WiI+PHNhbWwyOkF1ZGllbmNlUmVzdHJpY3Rpb24+PHNhbWwyOkF1ZGllbmNlPmh0dHBzOi8vdGltZXRyYWNrZXIuZm1iLmNvbS9zYW1sL3NwPC9zYW1sMjpBdWRpZW5jZT48L3NhbWwyOkF1ZGl
+lbmNlUmVzdHJpY3Rpb24+PC9zYW1sMjpDb25kaXRpb25zPjxzYW1sMjpBdXRoblN0YXRlbWVudCBBdXRobkluc3RhbnQ9IjIwMjUtMDgtMzBUMTA6MTk6MTAuMDQ1WiIgU2Vzc2lvbkluZGV4PSJwYWNvY25samZvY21jY2xtcGdmZ2loZWxsbWtlYmhramthYm5tYW5vIj48
+c2FtbDI6QXV0aG5Db250ZXh0PjxzYW1sMjpBdXRobkNvbnRleHRDbGFzc1JlZj51cm46b2FzaXM6bmFtZXM6dGM6U0FNTDoyLjA6YWM6Y2xhc3NlczpQYXNzd29yZDwvc2FtbDI6QXV0aG5Db250ZXh0Q2xhc3NSZWY+PC9zYW1sMjpBdXRobkNvbnRleHQ+PC9zYW1sMjpBd
+XRoblN0YXRlbWVudD48c2FtbDI6QXR0cmlidXRlU3RhdGVtZW50PjxzYW1sMjpBdHRyaWJ1dGUgTmFtZT0iZmlyc3ROYW1lIiBOYW1lRm9ybWF0PSJ1cm46b2FzaXM6bmFtZXM6dGM6U0FNTDoyLjA6YXR0cm5hbWUtZm9ybWF0OmJhc2ljIj48c2FtbDI6QXR0cmlidXRlVm
+FsdWUgeG1sbnM6eHNpPSJodHRwOi8vd3d3LnczLm9yZy8yMDAxL1hNTFNjaGVtYS1pbnN0YW5jZSIgeHNpOnR5cGU9InhzZDpzdHJpbmciPlNyYXZhbjwvc2FtbDI6QXR0cmlidXRlVmFsdWU+PC9zYW1sMjpBdHRyaWJ1dGU+PHNhbWwyOkF0dHJpYnV0ZSBOYW1lPSJsYXN
+0TmFtZSIgTmFtZUZvcm1hdD0idXJuOm9hc2lzOm5hbWVzOnRjOlNBTUw6Mi4wOmF0dHJuYW1lLWZvcm1hdDpiYXNpYyI+PHNhbWwyOkF0dHJpYnV0ZVZhbHVlIHhtbG5zOnhzaT0iaHR0cDovL3d3dy53My5vcmcvMjAwMS9YTUxTY2hlbWEtaW5zdGFuY2UiIHhzaTp0eXBl
+PSJ4c2Q6c3RyaW5nIj5Nb2R1Z3VsYTwvc2FtbDI6QXR0cmlidXRlVmFsdWU+PC9zYW1sMjpBdHRyaWJ1dGU+PHNhbWwyOkF0dHJpYnV0ZSBOYW1lPSJyb2xlIiBOYW1lRm9ybWF0PSJ1cm46b2FzaXM6bmFtZXM6dGM6U0FNTDoyLjA6YXR0cm5hbWUtZm9ybWF0OmJhc2ljI
+j48c2FtbDI6QXR0cmlidXRlVmFsdWUgeG1sbnM6eHNpPSJodHRwOi8vd3d3LnczLm9yZy8yMDAxL1hNTFNjaGVtYS1pbnN0YW5jZSIgeHNpOnR5cGU9InhzZDpzdHJpbmciPiJhcHAgTWljcm9zb2Z0IDM2NSAoRTUgTGljZW5zZSkiLCJhcHAgSVRTIFJEUyBGYXJtIFVzZX
+JzIiwidXNyIENvZGVUd28gUHJlIFByb2QgLSBGTUIgU2lnbmF0dXJlIHdpdGggTG9nbyAtIERlZmF1bHQiLCJkb29yLWFjY2Vzcy1DMy1HZW5lcmFsLUFjY2Vzcy0yNHg3IiwiYXBwIE1pbWVjYXN0IC0gRm9sZGVyIFJlcGxpY2F0aW9uIDQiLCJhcHAgTWltZWNhc3QgLSB
+Gb2xkZXIgUmVwbGljYXRpb24gMiIsImdwbyBDb21tb24gQnJhbmNoIEdyb3VwIFBvbGljeSAtIERlbnkiLCJMRiAtIEFwcGxpY2F0aW9uIEFjY2VzcyIsIlZQTiBDb3Jwb3JhdGUiLCJOb3RpZmljYXRpb24gLSBCYW5rIiwiSW50ZXJuZXQgVXNlcnMiPC9zYW1sMjpBdHRy
+aWJ1dGVWYWx1ZT48L3NhbWwyOkF0dHJpYnV0ZT48c2FtbDI6QXR0cmlidXRlIE5hbWU9ImRpc3BsYXlOYW1lIiBOYW1lRm9ybWF0PSJ1cm46b2FzaXM6bmFtZXM6dGM6U0FNTDoyLjA6YXR0cm5hbWUtZm9ybWF0OmJhc2ljIj48c2FtbDI6QXR0cmlidXRlVmFsdWUgeG1sb
+nM6eHNpPSJodHRwOi8vd3d3LnczLm9yZy8yMDAxL1hNTFNjaGVtYS1pbnN0YW5jZSIgeHNpOnR5cGU9InhzZDpzdHJpbmciPlNyYXZhbiBNb2R1Z3VsYTwvc2FtbDI6QXR0cmlidXRlVmFsdWU+PC9zYW1sMjpBdHRyaWJ1dGU+PHNhbWwyOkF0dHJpYnV0ZSBOYW1lPSJlbX
+Bsb3llZUlkIiBOYW1lRm9ybWF0PSJ1cm46b2FzaXM6bmFtZXM6dGM6U0FNTDoyLjA6YXR0cm5hbWUtZm9ybWF0OmJhc2ljIj48c2FtbDI6QXR0cmlidXRlVmFsdWUgeG1sbnM6eHNpPSJodHRwOi8vd3d3LnczLm9yZy8yMDAxL1hNTFNjaGVtYS1pbnN0YW5jZSIgeHNpOnR
+5cGU9InhzZDpzdHJpbmciPkZNQjkwMzc4PC9zYW1sMjpBdHRyaWJ1dGVWYWx1ZT48L3NhbWwyOkF0dHJpYnV0ZT48c2FtbDI6QXR0cmlidXRlIE5hbWU9ImRlcGFydG1lbnQiIE5hbWVGb3JtYXQ9InVybjpvYXNpczpuYW1lczp0YzpTQU1MOjIuMDphdHRybmFtZS1mb3Jt
+YXQ6YmFzaWMiPjxzYW1sMjpBdHRyaWJ1dGVWYWx1ZSB4bWxuczp4c2k9Imh0dHA6Ly93d3cudzMub3JnLzIwMDEvWE1MU2NoZW1hLWluc3RhbmNlIiB4c2k6dHlwZT0ieHNkOnN0cmluZyI+SW5mb3JtYXRpb24gVGVjaG5vbG9neSBTZXJ2aWNlczwvc2FtbDI6QXR0cmlid
+XRlVmFsdWU+PC9zYW1sMjpBdHRyaWJ1dGU+PHNhbWwyOkF0dHJpYnV0ZSBOYW1lPSJlbWFpbCIgTmFtZUZvcm1hdD0idXJuOm9hc2lzOm5hbWVzOnRjOlNBTUw6Mi4wOmF0dHJuYW1lLWZvcm1hdDpiYXNpYyI+PHNhbWwyOkF0dHJpYnV0ZVZhbHVlIHhtbG5zOnhzaT0iaH
+R0cDovL3d3dy53My5vcmcvMjAwMS9YTUxTY2hlbWEtaW5zdGFuY2UiIHhzaTp0eXBlPSJ4c2Q6c3RyaW5nIj5TcmF2YW4uTW9kdWd1bGFAZm1iLmNvbTwvc2FtbDI6QXR0cmlidXRlVmFsdWU+PC9zYW1sMjpBdHRyaWJ1dGU+PC9zYW1sMjpBdHRyaWJ1dGVTdGF0ZW1lbnQ
++PC9zYW1sMjpBc3NlcnRpb24+PC9zYW1sMnA6UmVzcG9uc2U+"
+4|fmb-timetracker  |     },
+4|fmb-timetracker  |     "ip": "192.168.209.51:58222",
+4|fmb-timetracker  |     "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36 Edg/139.0.0.0",
+4|fmb-timetracker  |     "sessionId": "RrykbnAMlQVtySOxqwkx-U9OuYyNIB-S",
+4|fmb-timetracker  |     "authenticated": false
+4|fmb-timetracker  |   }
+4|fmb-timetracker  | }
+4|fmb-timetracker  | 2025-08-30T03:29:32: 2025-08-30T10:29:32.760Z ðŸ”µ [FMB-SAML] SAML authentication successful {
+4|fmb-timetracker  |   "nameID": "Sravan.Modugula@fmb.com",
+4|fmb-timetracker  |   "email": "Sravan.Modugula@fmb.com",
+4|fmb-timetracker  |   "firstName": "Sravan",
+4|fmb-timetracker  |   "lastName": "Modugula"
+4|fmb-timetracker  | }
+4|fmb-timetracker  | 2025-08-30T03:29:33: 2025-08-30T10:29:33.484Z ðŸŸ¢ DEBUG [REQUEST] Incoming GET /api/auth/user {
+4|fmb-timetracker  |   "ip": "192.168.209.51:58886",
+4|fmb-timetracker  |   "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36 Edg/139.0.0.0",
+4|fmb-timetracker  |   "query": {},
+4|fmb-timetracker  |   "authenticated": false
+4|fmb-timetracker  | }
+4|fmb-timetracker  | 2025-08-30T03:29:33: 2025-08-30T10:29:33.516Z ðŸŸ¢ [FMB-SAML] Authentication check for GET /api/auth/user {
+4|fmb-timetracker  |   "ip": "192.168.209.51:58886",
+4|fmb-timetracker  |   "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36 Edg/139.0.0.0",
+4|fmb-timetracker  |   "sessionId": "Nt6G3j2WUstHtjfk8FwavcmkOcv_uYua",
+4|fmb-timetracker  |   "hasSession": true,
+4|fmb-timetracker  |   "isAuthenticated": true
+4|fmb-timetracker  | }
+4|fmb-timetracker  | 2025-08-30T03:29:33: 2025-08-30T10:29:33.516Z ðŸŸ¢ [FMB-SAML] User authenticated {
+4|fmb-timetracker  |   "userId": "Sravan.Modugula@fmb.com",
+4|fmb-timetracker  |   "email": "Sravan.Modugula@fmb.com",
+4|fmb-timetracker  |   "sessionId": "Nt6G3j2WUstHtjfk8FwavcmkOcv_uYua"
+4|fmb-timetracker  | }
+4|fmb-timetracker  | 2025-08-30T03:29:33: 2025-08-30T10:29:33.516Z ðŸŸ¢ [FMB-SAML] Authentication successful, proceeding to next middleware
+4|fmb-timetracker  | 2025-08-30T03:29:33: Error fetching user: TypeError: Cannot read properties of undefined (reading 'sub')
+4|fmb-timetracker  |     at file:///C:/fmb-timetracker/dist/index.js:2316:38
+4|fmb-timetracker  |     at Layer.handle [as handle_request] (C:\fmb-timetracker\node_modules\express\lib\router\layer.js:95:5)
+4|fmb-timetracker  |     at next (C:\fmb-timetracker\node_modules\express\lib\router\route.js:149:13)
+4|fmb-timetracker  |     at isAuthenticated (file:///C:/fmb-timetracker/dist/index.js:1930:16)
+4|fmb-timetracker  |     at Layer.handle [as handle_request] (C:\fmb-timetracker\node_modules\express\lib\router\layer.js:95:5)
+4|fmb-timetracker  |     at next (C:\fmb-timetracker\node_modules\express\lib\router\route.js:149:13)
+4|fmb-timetracker  |     at Route.dispatch (C:\fmb-timetracker\node_modules\express\lib\router\route.js:119:3)
+4|fmb-timetracker  |     at Layer.handle [as handle_request] (C:\fmb-timetracker\node_modules\express\lib\router\layer.js:95:5)
+4|fmb-timetracker  |     at C:\fmb-timetracker\node_modules\express\lib\router\index.js:284:15
+4|fmb-timetracker  |     at Function.process_params (C:\fmb-timetracker\node_modules\express\lib\router\index.js:346:12)
+4|fmb-timetracker  | 2025-08-30T03:29:33: 3:29:33 AM [express] GET /api/auth/user 500 in 34ms :: {"message":"Failed to fetch user"}
+4|fmb-timetracker  | 2025-08-30T03:29:33: 2025-08-30T10:29:33.519Z ðŸ”´ ERROR [RESPONSE] Error response for GET /api/auth/user {
+4|fmb-timetracker  |   "status": 500,
+4|fmb-timetracker  |   "duration": "34ms",
+4|fmb-timetracker  |   "response": {
+4|fmb-timetracker  |     "message": "Failed to fetch user"
+4|fmb-timetracker  |   },
+4|fmb-timetracker  |   "request": {
+4|fmb-timetracker  |     "query": {},
+4|fmb-timetracker  |     "body": {},
+4|fmb-timetracker  |     "ip": "192.168.209.51:58886",
+4|fmb-timetracker  |     "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36 Edg/139.0.0.0"
+4|fmb-timetracker  |   }
+4|fmb-timetracker  | }
+4|fmb-timetracker  | 2025-08-30T03:29:33: 2025-08-30T10:29:33.557Z ðŸŸ¢ DEBUG [REQUEST] Incoming POST /api/log/frontend-error {
+4|fmb-timetracker  |   "ip": "192.168.209.51:58886",
+4|fmb-timetracker  |   "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36 Edg/139.0.0.0",
+4|fmb-timetracker  |   "query": {},
+4|fmb-timetracker  |   "body": {
+4|fmb-timetracker  |     "timestamp": "2025-08-30T10:29:33.536Z",
+4|fmb-timetracker  |     "level": "ERROR",
+4|fmb-timetracker  |     "category": "API",
+4|fmb-timetracker  |     "message": "HTTP 500 error on https://timetracker.fmb.com/api/auth/user",
+4|fmb-timetracker  |     "data": {
+4|fmb-timetracker  |       "status": 500,
+4|fmb-timetracker  |       "statusText": "",
+4|fmb-timetracker  |       "responseText": "{\"message\":\"Failed to fetch user\"}",
+4|fmb-timetracker  |       "url": "https://timetracker.fmb.com/api/auth/user"
+4|fmb-timetracker  |     },
+4|fmb-timetracker  |     "url": "https://timetracker.fmb.com/",
+4|fmb-timetracker  |     "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36 Edg/139.0.0.0"
+4|fmb-timetracker  |   },
+4|fmb-timetracker  |   "authenticated": false
+4|fmb-timetracker  | }
+4|fmb-timetracker  | 2025-08-30T03:29:33: 2025-08-30T10:29:33.536Z ðŸ”´ [FRONTEND-API] HTTP 500 error on https://timetracker.fmb.com/api/auth/user {
+4|fmb-timetracker  |   data: {
+4|fmb-timetracker  |     status: 500,
+4|fmb-timetracker  |     statusText: '',
+4|fmb-timetracker  |     responseText: '{"message":"Failed to fetch user"}',
+4|fmb-timetracker  |     url: 'https://timetracker.fmb.com/api/auth/user'
+4|fmb-timetracker  |   },
+4|fmb-timetracker  |   url: 'https://timetracker.fmb.com/',
+4|fmb-timetracker  |   userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36 Edg/139.0.0.0',
+4|fmb-timetracker  |   ip: '192.168.209.51:58886',
+4|fmb-timetracker  |   sessionId: 'Nt6G3j2WUstHtjfk8FwavcmkOcv_uYua'
+4|fmb-timetracker  | }
+4|fmb-timetracker  | 2025-08-30T03:29:33: 3:29:33 AM [express] POST /api/log/frontend-error 200 in 32ms :: {"success":true}
