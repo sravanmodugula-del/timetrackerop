@@ -1,11 +1,11 @@
-
 # FMB TimeTracker On-Premises Installation Script for Windows Server 2022
 # This script sets up the complete on-premises environment on Windows
 
 param(
     [string]$InstallPath = "C:\fmb-timetracker",
     [string]$ServiceName = "FMBTimeTracker",
-    [string]$ServiceUser = "NetworkService"
+    [string]$ServiceUser = "NetworkService",
+    [string]$SourcePath = "" # Added parameter for specifying source path
 )
 
 Write-Host "🏢 FMB TimeTracker On-Premises Installation (Windows Server 2022)" -ForegroundColor Green
@@ -54,13 +54,131 @@ try {
 # Copy application files
 Write-Host "📋 Copying application files..." -ForegroundColor Yellow
 
-# Get the script's directory and determine source path
-$ScriptPath = Split-Path -Parent $MyInvocation.MyCommand.Path
-$SourcePath = Split-Path -Parent (Split-Path -Parent $ScriptPath)  # Go up two levels to get project root
+# Function to find project root directory
+function Find-ProjectRoot {
+    param([string]$StartPath)
+
+    $CurrentPath = $StartPath
+    $MaxDepth = 10  # Prevent infinite loops
+    $Depth = 0
+
+    while ($Depth -lt $MaxDepth) {
+        # Check if this directory contains the project markers
+        $PackageJsonPath = Join-Path $CurrentPath "package.json"
+        $FmbOnpremPath = Join-Path $CurrentPath "fmb-onprem"
+
+        if ((Test-Path $PackageJsonPath) -and (Test-Path $FmbOnpremPath)) {
+            Write-Host "✅ Found project root at: $CurrentPath" -ForegroundColor Green
+            return $CurrentPath
+        }
+
+        # Move up one directory
+        $ParentPath = Split-Path -Parent $CurrentPath
+        if ($ParentPath -eq $CurrentPath) {
+            # Reached root of drive
+            break
+        }
+        $CurrentPath = $ParentPath
+        $Depth++
+    }
+
+    return $null
+}
+
+# Determine source path with robust detection
+if ($SourcePath -eq "") {
+    Write-Host "🔍 Auto-detecting project directory..." -ForegroundColor Yellow
+
+    # Try multiple methods to find the project root
+    $ProjectRoot = $null
+
+    # Method 1: Use script path if available
+    if ($MyInvocation.MyCommand.Path) {
+        $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+        $ProjectRoot = Find-ProjectRoot $ScriptDir
+        if ($ProjectRoot) {
+            Write-Host "✅ Found project via script path method" -ForegroundColor Green
+        }
+    }
+
+    # Method 2: Search from current directory
+    if (-not $ProjectRoot) {
+        $CurrentDir = Get-Location
+        $ProjectRoot = Find-ProjectRoot $CurrentDir.Path
+        if ($ProjectRoot) {
+            Write-Host "✅ Found project via current directory search" -ForegroundColor Green
+        }
+    }
+
+    # Method 3: Search from common locations if script name is known
+    if (-not $ProjectRoot -and $MyInvocation.MyCommand.Name) {
+        $PossiblePaths = @(
+            (Join-Path (Get-Location) "fmb-onprem\scripts"),
+            (Join-Path (Get-Location) "..\.."),
+            "C:\fmb-timetracker-dev",
+            "C:\projects\fmb-timetracker",
+            "C:\source\fmb-timetracker"
+        )
+
+        foreach ($Path in $PossiblePaths) {
+            if (Test-Path $Path) {
+                $ProjectRoot = Find-ProjectRoot $Path
+                if ($ProjectRoot) {
+                    Write-Host "✅ Found project via search method at: $Path" -ForegroundColor Green
+                    break
+                }
+            }
+        }
+    }
+
+    if (-not $ProjectRoot) {
+        Write-Host "❌ Could not automatically detect project directory!" -ForegroundColor Red
+        Write-Host "💡 The project directory should contain both 'package.json' and 'fmb-onprem' folder" -ForegroundColor Yellow
+        Write-Host "💡 Please run this script with -SourcePath parameter:" -ForegroundColor Yellow
+        Write-Host "💡   .\fmb-install.ps1 -SourcePath `"C:\path\to\your\project`"" -ForegroundColor Yellow
+        Write-Host "" -ForegroundColor Yellow
+        Write-Host "💡 Or navigate to the project root directory and run:" -ForegroundColor Yellow
+        Write-Host "💡   .\fmb-onprem\scripts\fmb-install.ps1" -ForegroundColor Yellow
+        exit 1
+    }
+
+    $SourcePath = $ProjectRoot
+    $ScriptPath = Join-Path $SourcePath "fmb-onprem\scripts"
+} else {
+    Write-Host "✅ Using provided source path: $SourcePath" -ForegroundColor Green
+
+    # Validate the provided source path
+    if (-not (Find-ProjectRoot $SourcePath)) {
+        Write-Host "❌ Provided source path does not appear to be a valid project directory" -ForegroundColor Red
+        Write-Host "❌ Expected to find 'package.json' and 'fmb-onprem' folder in: $SourcePath" -ForegroundColor Red
+        exit 1
+    }
+}
+
+# Normalize paths for comparison
+$NormalizedSourcePath = (Resolve-Path $SourcePath).Path
+$NormalizedInstallPath = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($InstallPath)
 
 Write-Host "📂 Script path: $ScriptPath" -ForegroundColor Yellow
-Write-Host "📂 Source path: $SourcePath" -ForegroundColor Yellow
-Write-Host "📂 Install path: $InstallPath" -ForegroundColor Yellow
+Write-Host "📂 Source path: $NormalizedSourcePath" -ForegroundColor Yellow
+Write-Host "📂 Install path: $NormalizedInstallPath" -ForegroundColor Yellow
+
+# Prevent copying from same location to same location
+if ($NormalizedSourcePath -eq $NormalizedInstallPath) {
+    Write-Host "❌ Source and destination paths are the same!" -ForegroundColor Red
+    Write-Host "❌ Cannot copy from $NormalizedSourcePath to $NormalizedInstallPath" -ForegroundColor Red
+    Write-Host "💡 Please specify a different installation path using -InstallPath parameter" -ForegroundColor Yellow
+    exit 1
+}
+
+# Check if install path is a subdirectory of source path
+if ($NormalizedInstallPath.StartsWith($NormalizedSourcePath + "\")) {
+    Write-Host "❌ Installation path cannot be a subdirectory of the source!" -ForegroundColor Red
+    Write-Host "❌ Source: $NormalizedSourcePath" -ForegroundColor Red
+    Write-Host "❌ Install: $NormalizedInstallPath" -ForegroundColor Red
+    Write-Host "💡 Please choose an installation path outside the project directory" -ForegroundColor Yellow
+    exit 1
+}
 
 # Verify source path exists and contains required files
 if (!(Test-Path $SourcePath)) {
@@ -88,14 +206,26 @@ if (!(Test-Path $InstallPath)) {
 $ExcludeItems = @('.git', 'node_modules', 'dist', '.replit', '.vscode', '.idea', 'logs')
 Write-Host "📋 Copying application files..." -ForegroundColor Yellow
 
-Get-ChildItem -Path $SourcePath -Exclude $ExcludeItems | ForEach-Object {
-    $destPath = Join-Path $InstallPath $_.Name
-    if ($_.PSIsContainer) {
-        Copy-Item -Path $_.FullName -Destination $destPath -Recurse -Force
-    } else {
-        Copy-Item -Path $_.FullName -Destination $destPath -Force
+# Only copy if source and destination are different
+if ($NormalizedSourcePath -ne $NormalizedInstallPath) {
+    Get-ChildItem -Path $SourcePath -Exclude $ExcludeItems | ForEach-Object {
+        $destPath = Join-Path $InstallPath $_.Name
+
+        # Skip if source and destination are the same file/folder
+        if ($_.FullName -eq $destPath) {
+            Write-Host "  ⏭️ Skipped: $($_.Name) (same location)" -ForegroundColor Yellow
+            return
+        }
+
+        if ($_.PSIsContainer) {
+            Copy-Item -Path $_.FullName -Destination $destPath -Recurse -Force
+        } else {
+            Copy-Item -Path $_.FullName -Destination $destPath -Force
+        }
+        Write-Host "  ✅ Copied: $($_.Name)" -ForegroundColor Green
     }
-    Write-Host "  ✅ Copied: $($_.Name)" -ForegroundColor Green
+} else {
+    Write-Host "  ⏭️ Source and destination are the same - skipping file copy" -ForegroundColor Yellow
 }
 
 # Store original location and set working directory to install path
@@ -131,7 +261,7 @@ if (Test-Path $EnvTemplatePath) {
 } else {
     Write-Host "⚠️ Environment template not found at: $EnvTemplatePath" -ForegroundColor Yellow
     Write-Host "⚠️ Creating basic .env file..." -ForegroundColor Yellow
-    
+
     $BasicEnvContent = @"
 # FMB TimeTracker On-Premises Configuration
 FMB_DEPLOYMENT=onprem
@@ -157,7 +287,7 @@ FMB_SAML_CERTIFICATE=YOUR_CERTIFICATE_HERE
 # Session Configuration
 FMB_SESSION_SECRET=CHANGE_THIS_TO_A_SECURE_SECRET
 "@
-    
+
     Set-Content -Path $EnvPath -Value $BasicEnvContent
     Write-Host "✅ Basic .env file created" -ForegroundColor Green
 }
