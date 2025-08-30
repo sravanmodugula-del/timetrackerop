@@ -50,7 +50,7 @@ if (-not (Test-Path ".env")) {
 Write-Host "⏹️ Stopping application..." -ForegroundColor Yellow
 try {
     Set-Location $InstallPath
-    npx pm2 stop ecosystem.config.js
+    npx pm2 stop ecosystem.config.cjs
     Write-Host "✅ Application stopped" -ForegroundColor Green
 } catch {
     Write-Host "⚠️ Could not stop PM2 processes gracefully" -ForegroundColor Yellow
@@ -59,7 +59,8 @@ try {
 # Update application
 Write-Host "📦 Installing all dependencies..." -ForegroundColor Yellow
 try {
-    npm install
+    # Ensure we install all dependencies including dev dependencies
+    npm install --include=dev
     Write-Host "✅ All dependencies installed" -ForegroundColor Green
 } catch {
     Write-Host "❌ Failed to install dependencies" -ForegroundColor Red
@@ -161,7 +162,7 @@ try {
     }
     
     # Start the application
-    npx pm2 start ecosystem.config.js --env production
+    npx pm2 start ecosystem.config.cjs --env production
     
     # Wait a moment for the process to start
     Start-Sleep -Seconds 3
@@ -213,4 +214,4 @@ Write-Host ""
 Write-Host "📋 Post-deployment commands:" -ForegroundColor Cyan
 Write-Host "View status: npx pm2 status" -ForegroundColor White
 Write-Host "View logs: npx pm2 logs" -ForegroundColor White
-Write-Host "Restart if needed: npx pm2 restart ecosystem.config.js" -ForegroundColor White
+Write-Host "Restart if needed: npx pm2 restart ecosystem.config.cjs" -ForegroundColor White
