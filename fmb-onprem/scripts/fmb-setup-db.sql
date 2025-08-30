@@ -229,6 +229,7 @@ IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE name = 'FK_departments_manag
 AND EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[departments]') AND type in (N'U'))
 AND EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[employees]') AND type in (N'U'))
 AND EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[departments]') AND name = 'managerId')
+AND EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[employees]') AND name = 'id')
 BEGIN
     ALTER TABLE [dbo].[departments] ADD CONSTRAINT FK_departments_managerId 
     FOREIGN KEY ([managerId]) REFERENCES [dbo].[employees]([id]);
@@ -253,5 +254,27 @@ IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = 'IDX_projects_enterprise')
 IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = 'IDX_users_email')
     CREATE INDEX IDX_users_email ON [dbo].[users] ([email]);
 GO
+
+-- Final validation of all columns before completing
+PRINT 'Validating database schema...';
+
+-- Check for any missing critical columns
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[users]') AND name = 'id')
+    PRINT 'WARNING: users.id column missing';
+
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[employees]') AND name = 'id')
+    PRINT 'WARNING: employees.id column missing';
+
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[projects]') AND name = 'id')
+    PRINT 'WARNING: projects.id column missing';
+
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[project_employees]') AND name = 'projectId')
+    PRINT 'WARNING: project_employees.projectId column missing';
+
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[project_employees]') AND name = 'employeeId')
+    PRINT 'WARNING: project_employees.employeeId column missing';
+
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[project_employees]') AND name = 'userId')
+    PRINT 'WARNING: project_employees.userId column missing';
 
 PRINT 'FMB TimeTracker database schema created successfully';
