@@ -1,5 +1,4 @@
-# Error Log
-Warning! The maximum key length for a clustered index is 900 bytes. The index Write-Host "📍 Restored original working directory" -ForegroundColor Yellow
+Write-Host "📍 Restored original working directory" -ForegroundColor Yellow
 🏢 FMB TimeTracker On-Premises Installation (Windows Server 2022)
 =================================================================
 📁 Creating application directories...
@@ -7,7 +6,7 @@ Warning! The maximum key length for a clustered index is 900 bytes. The index Wr
 ✅ Node.js is installed: v22.18.0
 🔧 Installing PM2...
 
-changed 440 packages in 57s
+changed 440 packages in 1m
 
 113 packages are looking for funding
   run `npm fund` for details
@@ -23,126 +22,23 @@ npm warn deprecated rimraf@2.7.1: Rimraf versions prior to v4 are no longer supp
 npm warn deprecated glob@7.2.3: Glob versions prior to v9 are no longer supported
 npm warn deprecated pm2-windows-service@0.2.1: NO LONGER SUPPORTED. Use pm2-installer instead.
 
-changed 126 packages in 13s
+changed 126 packages in 16s
 
 5 packages are looking for funding
   run `npm fund` for details
 ✅ PM2 installed successfully
 📋 Copying application files...
-Split-Path : Cannot bind argument to parameter 'Path' because it is null.
-At line:58 char:34
-+ $ScriptPath = Split-Path -Parent $MyInvocation.MyCommand.Path
-+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    + CategoryInfo          : InvalidData: (:) [Split-Path], ParameterBindingValidationException
-    + FullyQualifiedErrorId : ParameterArgumentValidationErrorNullNotAllowed,Microsoft.PowerShell.Commands.SplitPathCommand
- 
-Split-Path : Cannot bind argument to parameter 'Path' because it is null.
-At line:59 char:54
-+ ... urcePath = Split-Path -Parent (Split-Path -Parent $ScriptPath)  # Go  ...
-+                                                       ~~~~~~~~~~~
-    + CategoryInfo          : InvalidData: (:) [Split-Path], ParameterBindingValidationException
-    + FullyQualifiedErrorId : ParameterArgumentValidationErrorNullNotAllowed,Microsoft.PowerShell.Commands.SplitPathCommand
- 
-📂 Script path: 
-📂 Source path: 
+🔍 Auto-detecting project directory...
+✅ Found project root at: C:\fmb-timetracker
+✅ Found project via current directory search
+📂 Script path: C:\fmb-timetracker\fmb-onprem\scripts
+📂 Source path: C:\fmb-timetracker
 📂 Install path: C:\fmb-timetracker
-Test-Path : Cannot bind argument to parameter 'Path' because it is null.
-At line:66 char:17
-+ if (!(Test-Path $SourcePath)) {
-+                 ~~~~~~~~~~~
-    + CategoryInfo          : InvalidData: (:) [Test-Path], ParameterBindingValidationException
-    + FullyQualifiedErrorId : ParameterArgumentValidationErrorNullNotAllowed,Microsoft.PowerShell.Commands.TestPathCommand
- 
-Join-Path : Cannot bind argument to parameter 'Path' because it is null.
-At line:75 char:29
-+     $sourceFile = Join-Path $SourcePath $file
-+                             ~~~~~~~~~~~
-    + CategoryInfo          : InvalidData: (:) [Join-Path], ParameterBindingValidationException
-    + FullyQualifiedErrorId : ParameterArgumentValidationErrorNullNotAllowed,Microsoft.PowerShell.Commands.JoinPathCommand
- 
-Test-Path : Cannot bind argument to parameter 'Path' because it is null.
-At line:76 char:21
-+     if (!(Test-Path $sourceFile)) {
-+                     ~~~~~~~~~~~
-    + CategoryInfo          : InvalidData: (:) [Test-Path], ParameterBindingValidationException
-    + FullyQualifiedErrorId : ParameterArgumentValidationErrorNullNotAllowed,Microsoft.PowerShell.Commands.TestPathCommand
- 
-Join-Path : Cannot bind argument to parameter 'Path' because it is null.
-At line:75 char:29
-+     $sourceFile = Join-Path $SourcePath $file
-+                             ~~~~~~~~~~~
-    + CategoryInfo          : InvalidData: (:) [Join-Path], ParameterBindingValidationException
-    + FullyQualifiedErrorId : ParameterArgumentValidationErrorNullNotAllowed,Microsoft.PowerShell.Commands.JoinPathCommand
- 
-Test-Path : Cannot bind argument to parameter 'Path' because it is null.
-At line:76 char:21
-+     if (!(Test-Path $sourceFile)) {
-+                     ~~~~~~~~~~~
-    + CategoryInfo          : InvalidData: (:) [Test-Path], ParameterBindingValidationException
-    + FullyQualifiedErrorId : ParameterArgumentValidationErrorNullNotAllowed,Microsoft.PowerShell.Commands.TestPathCommand
- 
-Join-Path : Cannot bind argument to parameter 'Path' because it is null.
-At line:75 char:29
-+     $sourceFile = Join-Path $SourcePath $file
-+                             ~~~~~~~~~~~
-    + CategoryInfo          : InvalidData: (:) [Join-Path], ParameterBindingValidationException
-    + FullyQualifiedErrorId : ParameterArgumentValidationErrorNullNotAllowed,Microsoft.PowerShell.Commands.JoinPathCommand
- 
-Test-Path : Cannot bind argument to parameter 'Path' because it is null.
-At line:76 char:21
-+     if (!(Test-Path $sourceFile)) {
-+                     ~~~~~~~~~~~
-    + CategoryInfo          : InvalidData: (:) [Test-Path], ParameterBindingValidationException
-    + FullyQualifiedErrorId : ParameterArgumentValidationErrorNullNotAllowed,Microsoft.PowerShell.Commands.TestPathCommand
- 
-Join-Path : Cannot bind argument to parameter 'Path' because it is null.
-At line:75 char:29
-+     $sourceFile = Join-Path $SourcePath $file
-+                             ~~~~~~~~~~~
-    + CategoryInfo          : InvalidData: (:) [Join-Path], ParameterBindingValidationException
-    + FullyQualifiedErrorId : ParameterArgumentValidationErrorNullNotAllowed,Microsoft.PowerShell.Commands.JoinPathCommand
- 
-Test-Path : Cannot bind argument to parameter 'Path' because it is null.
-At line:76 char:21
-+     if (!(Test-Path $sourceFile)) {
-+                     ~~~~~~~~~~~
-    + CategoryInfo          : InvalidData: (:) [Test-Path], ParameterBindingValidationException
-    + FullyQualifiedErrorId : ParameterArgumentValidationErrorNullNotAllowed,Microsoft.PowerShell.Commands.TestPathCommand
- 
-📋 Copying application files...
-  ✅ Copied: 3D Objects
-  ✅ Copied: Contacts
-  ✅ Copied: Desktop
-Copy-Item : Access to the path 'C:\Users\ADM91381\Documents\My Music' is denied.
-At line:94 char:9
-+         Copy-Item -Path $_.FullName -Destination $destPath -Recurse - ...
-+         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    + CategoryInfo          : PermissionDenied: (My Music:DirectoryInfo) [Copy-Item], UnauthorizedAccessException
-    + FullyQualifiedErrorId : CopyDirectoryInfoItemUnauthorizedAccessError,Microsoft.PowerShell.Commands.CopyItemCommand
- 
-Copy-Item : Access to the path 'C:\Users\ADM91381\Documents\My Pictures' is denied.
-At line:94 char:9
-+         Copy-Item -Path $_.FullName -Destination $destPath -Recurse - ...
-+         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    + CategoryInfo          : PermissionDenied: (My Pictures:DirectoryInfo) [Copy-Item], UnauthorizedAccessException
-    + FullyQualifiedErrorId : CopyDirectoryInfoItemUnauthorizedAccessError,Microsoft.PowerShell.Commands.CopyItemCommand
- 
-Copy-Item : Access to the path 'C:\Users\ADM91381\Documents\My Videos' is denied.
-At line:94 char:9
-+         Copy-Item -Path $_.FullName -Destination $destPath -Recurse - ...
-+         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    + CategoryInfo          : PermissionDenied: (My Videos:DirectoryInfo) [Copy-Item], UnauthorizedAccessException
-    + FullyQualifiedErrorId : CopyDirectoryInfoItemUnauthorizedAccessError,Microsoft.PowerShell.Commands.CopyItemCommand
- 
-  ✅ Copied: Documents
-  ✅ Copied: Downloads
-  ✅ Copied: Favorites
-  ✅ Copied: Links
-  ✅ Copied: Music
-  ✅ Copied: Pictures
-  ✅ Copied: Saved Games
-  ✅ Copied: Searches
-  ✅ Copied: Videos
+📂 Source and destination paths are the same - running in-place installation
+📂 Source: C:\fmb-timetracker
+📂 Install: C:\fmb-timetracker
+⏭️ Skipping file copy operation...
+📋 Skipping file copy (in-place installation)
 📍 Working directory set to: C:\fmb-timetracker
 📦 Installing application dependencies...
 node.exe : npm warn config production Use `--omit=dev` instead.
@@ -174,7 +70,7 @@ npm warn     vite@"^5.0.0 || ^6.0.0 || ^7.0.0-0" from vitest@3.2.4
 npm warn     node_modules/vitest
 npm warn     1 more (@vitest/mocker)
 
-up to date, audited 1263 packages in 6s
+up to date, audited 1263 packages in 3s
 
 188 packages are looking for funding
   run `npm fund` for details
@@ -207,7 +103,7 @@ At line:1 char:1
     + FullyQualifiedErrorId : NativeCommandError
  
 [31merror during build:
-Error [ERR_MODULE_NOT_FOUND]: Cannot find package '@vitejs/plugin-react' imported from C:\fmb-timetracker\vite.config.ts.timestamp-1756515531466-d26624222330e.mjs
+Error [ERR_MODULE_NOT_FOUND]: Cannot find package '@vitejs/plugin-react' imported from C:\fmb-timetracker\vite.config.ts.timestamp-1756516335282-fc80acc16a8af.mjs
     at Object.getPackageJSONURL (node:internal/modules/package_json_reader:255:9)
     at packageResolve (node:internal/modules/esm/resolve:767:81)
     at moduleResolve (node:internal/modules/esm/resolve:853:18)
@@ -224,7 +120,7 @@ Error [ERR_MODULE_NOT_FOUND]: Cannot find package '@vitejs/plugin-react' importe
 🔥 Configuring Windows Firewall...
 
 
-Name                          : {f893d2fa-0317-4f50-bf9d-7e1b59061805}
+Name                          : {c1307530-386c-43e6-9e5d-7ac27a74e562}
 DisplayName                   : FMB TimeTracker
 Description                   : 
 DisplayGroup                  : 
@@ -266,4 +162,4 @@ Restart service: net stop FMBTimeTracker && net start FMBTimeTracker
 
 
 
-PS C:\Users\ADM91381> 
+PS C:\fmb-timetracker> 
