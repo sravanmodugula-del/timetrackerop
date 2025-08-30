@@ -1,4 +1,3 @@
-
 # FMB TimeTracker IIS Reverse Proxy Configuration
 # Configures IIS on Windows Server 2022 to proxy requests to Node.js application
 
@@ -107,13 +106,21 @@ Set-Content -Path "$wwwPath\index.html" -Value $indexContent -Encoding UTF8
 New-Website -Name $SiteName -Port 80 -PhysicalPath $wwwPath -ApplicationPool $ApplicationPool
 Write-Host "Website created successfully" -ForegroundColor Green
 
-# Create web.config with URL Rewrite rules
+# Create web.config with URL Rewrite rules and HTTPS redirect
 $webConfigContent = @"
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
   <system.webServer>
     <rewrite>
       <rules>
+        <rule name="Redirect to HTTPS" stopProcessing="true">
+          <match url=".*" />
+          <conditions>
+            <add input="{HTTPS}" pattern="off" ignoreCase="true" />
+            <add input="{HTTP_HOST}" pattern="localhost" negate="true" />
+          </conditions>
+          <action type="Redirect" url="https://{HTTP_HOST}/{R:0}" redirectType="Permanent" />
+        </rule>
         <rule name="Reverse Proxy to Node.js" stopProcessing="true">
           <match url="(.*)" />
           <conditions>
@@ -131,6 +138,14 @@ $webConfigContent = @"
         <add value="index.html" />
       </files>
     </defaultDocument>
+    <httpProtocol>
+      <customHeaders>
+        <add name="Strict-Transport-Security" value="max-age=31536000; includeSubDomains" />
+        <add name="X-Content-Type-Options" value="nosniff" />
+        <add name="X-Frame-Options" value="DENY" />
+        <add name="X-XSS-Protection" value="1; mode=block" />
+      </customHeaders>
+    </httpProtocol>
   </system.webServer>
 </configuration>
 "@
@@ -145,6 +160,47 @@ $accessRule = New-Object System.Security.AccessControl.FileSystemAccessRule("IIS
 $acl.SetAccessRule($accessRule)
 Set-Acl $wwwPath $acl
 Write-Host "Permissions set successfully" -ForegroundColor Green
+
+# Check for SSL certificate and configure HTTPS binding
+$certPath = "C:\fmb-timetracker\certs"
+$pfxFile = Join-Path $certPath "timetracker.fmb.com.pfx"
+$cerFile = Join-Path $certPath "timetracker.fmb.com.cer"
+$keyFile = Join-Path $certPath "timetracker.fmb.com.key"
+
+if (Test-Path $pfxFile) {
+    Write-Host "Found PFX certificate at: $pfxFile" -ForegroundColor Green
+    Write-Host "To complete SSL setup, run these commands as Administrator:" -ForegroundColor Yellow
+    Write-Host "Import-PfxCertificate -FilePath '$pfxFile' -CertStoreLocation Cert:\LocalMachine\My -Password (Read-Host -AsSecureString)" -ForegroundColor Gray
+    Write-Host "Then bind the certificate to the HTTPS binding using IIS Manager or:" -ForegroundColor Gray
+    Write-Host "Get-WebBinding -Name '$SiteName' -Protocol https | Remove-WebBinding" -ForegroundColor Gray
+    Write-Host "New-WebBinding -Name '$SiteName' -Protocol https -Port 443 -SslFlags 1" -ForegroundColor Gray
+} elseif ((Test-Path $cerFile) -and (Test-Path $keyFile)) {
+    Write-Host "Found separate certificate files:" -ForegroundColor Green
+    Write-Host "  Certificate: $cerFile" -ForegroundColor Gray
+    Write-Host "  Private Key: $keyFile" -ForegroundColor Gray
+    Write-Host ""
+    Write-Host "Option 1: Convert to PFX format (recommended):" -ForegroundColor Yellow
+    Write-Host "openssl pkcs12 -export -out '$pfxFile' -inkey '$keyFile' -in '$cerFile'" -ForegroundColor Gray
+    Write-Host "Then import the PFX file as shown above." -ForegroundColor Gray
+    Write-Host ""
+    Write-Host "Option 2: Import certificate and key separately:" -ForegroundColor Yellow
+    Write-Host "Import-Certificate -FilePath '$cerFile' -CertStoreLocation Cert:\LocalMachine\My" -ForegroundColor Gray
+    Write-Host "# Note: Private key import requires additional steps with certlm.msc" -ForegroundColor Gray
+} else {
+    Write-Host "SSL certificate files not found in: $certPath" -ForegroundColor Yellow
+    Write-Host "Expected files:" -ForegroundColor Yellow
+    Write-Host "  - timetracker.fmb.com.pfx (preferred), OR" -ForegroundColor Gray
+    Write-Host "  - timetracker.fmb.com.cer AND timetracker.fmb.com.key" -ForegroundColor Gray
+}
+
+# Add HTTPS binding (SSL certificate will need to be configured separately)
+try {
+    New-WebBinding -Name $SiteName -Protocol https -Port 443
+    Write-Host "Added HTTPS binding on port 443" -ForegroundColor Green
+    Write-Host "Note: SSL certificate needs to be imported and bound manually" -ForegroundColor Yellow
+} catch {
+    Write-Host "Could not add HTTPS binding - configure manually if needed" -ForegroundColor Yellow
+}
 
 # Start the website
 Write-Host "Starting website..." -ForegroundColor Yellow
@@ -162,9 +218,16 @@ Write-Host "Proxy Target: http://localhost:$NodePort" -ForegroundColor White
 Write-Host ""
 Write-Host "Next Steps:" -ForegroundColor Cyan
 Write-Host "1. Ensure your Node.js application is running on port $NodePort" -ForegroundColor White
-Write-Host "2. Test the proxy: http://localhost or http://$SiteName" -ForegroundColor White
-Write-Host "3. Configure SSL certificate for HTTPS (if needed)" -ForegroundColor White
-Write-Host "4. Update DNS to point $SiteName to this server" -ForegroundColor White
+Write-Host "2. Install SSL certificate from C:\fmb-timetracker\certs:" -ForegroundColor White
+Write-Host "   For PFX file:" -ForegroundColor Gray
+Write-Host "   Import-PfxCertificate -FilePath 'C:\fmb-timetracker\certs\timetracker.fmb.com.pfx' -CertStoreLocation Cert:\LocalMachine\My" -ForegroundColor Gray
+Write-Host "   For CER/KEY files, convert first:" -ForegroundColor Gray
+Write-Host "   openssl pkcs12 -export -out 'C:\fmb-timetracker\certs\timetracker.fmb.com.pfx' -inkey 'C:\fmb-timetracker\certs\timetracker.fmb.com.key' -in 'C:\fmb-timetracker\certs\timetracker.fmb.com.cer'" -ForegroundColor Gray
+Write-Host "   Get-ChildItem -Path Cert:\LocalMachine\My | Where-Object {$_.Subject -like '*timetracker.fmb.com*'}" -ForegroundColor Gray
+Write-Host "   New-WebBinding -Name '$SiteName' -Protocol https -Port 443 -SslFlags 1" -ForegroundColor Gray
+Write-Host "3. Test HTTP redirect: http://$SiteName (should redirect to HTTPS)" -ForegroundColor White
+Write-Host "4. Test HTTPS proxy: https://$SiteName" -ForegroundColor White
+Write-Host "5. Update DNS to point $SiteName to this server" -ForegroundColor White
 Write-Host ""
 Write-Host "Test Commands:" -ForegroundColor Cyan
 Write-Host "curl http://localhost" -ForegroundColor Gray
