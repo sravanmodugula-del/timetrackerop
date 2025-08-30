@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
+import type { RequestHandler } from "express";
 import { storage } from "./storage";
-import { isAuthenticated } from "./replitAuth";
 
 // Import FMB SAML authentication if on-prem
 import { isFmbOnPremEnvironment } from '../fmb-onprem/config/fmb-env.js';
@@ -37,18 +37,23 @@ import { insertProjectSchema, insertTaskSchema, insertTimeEntrySchema, insertEmp
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Dynamic authentication middleware based on environment
+  let isAuthenticated: RequestHandler;
+
   // Conditional SAML setup for on-prem
   if (isFmbOnPremEnvironment()) {
     console.log("🚀 Setting up FMB SAML Authentication for On-Premises environment...");
     // Dynamically import and setup SAML authentication
-    const { setupFmbSamlAuth } = await import('../fmb-onprem/auth/fmb-saml-auth.js');
+    const { setupFmbSamlAuth, isAuthenticated: fmbAuth } = await import('../fmb-onprem/auth/fmb-saml-auth.js');
     await setupFmbSamlAuth(app);
+    isAuthenticated = fmbAuth;
   } else {
     // Setup Replit authentication for Replit environment
     console.log("🚀 Setting up Replit Authentication...");
     // Dynamically import setupAuth only when needed to avoid import errors in on-prem
-    const { setupAuth } = await import("./replitAuth");
+    const { setupAuth, isAuthenticated: replitAuth } = await import("./replitAuth");
     await setupAuth(app);
+    isAuthenticated = replitAuth;
   }
 
   // Auth routes
