@@ -41,7 +41,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   if (isFmbOnPremEnvironment()) {
     console.log("🚀 Setting up FMB SAML Authentication for On-Premises environment...");
     // Dynamically import and setup SAML authentication
-    const { setupFmbSamlAuth } = await import('../fmb-onprem/fmbSamlAuth.js');
+    const { setupFmbSamlAuth } = await import('../fmb-onprem/auth/fmb-saml-auth.js');
     await setupFmbSamlAuth(app);
   } else {
     // Setup Replit authentication for Replit environment
