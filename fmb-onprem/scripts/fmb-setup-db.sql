@@ -1,4 +1,3 @@
-
 -- FMB TimeTracker On-Premises Database Setup Script for MS SQL Server
 -- Run this script to create the necessary database schema
 
@@ -56,7 +55,7 @@ BEGIN
         updatedAt DATETIME2 DEFAULT GETUTCDATE(),
         isActive BIT DEFAULT 1
     );
-    
+
     CREATE INDEX IX_users_email ON timetracker.users(email);
     CREATE INDEX IX_users_role ON timetracker.users(role);
     CREATE INDEX IX_users_isActive ON timetracker.users(isActive);
@@ -74,7 +73,7 @@ BEGIN
         updatedAt DATETIME2 DEFAULT GETUTCDATE(),
         isActive BIT DEFAULT 1
     );
-    
+
     CREATE INDEX IX_organizations_isActive ON timetracker.organizations(isActive);
 END
 GO
@@ -91,11 +90,11 @@ BEGIN
         createdAt DATETIME2 DEFAULT GETUTCDATE(),
         updatedAt DATETIME2 DEFAULT GETUTCDATE(),
         isActive BIT DEFAULT 1,
-        
+
         CONSTRAINT FK_departments_organization FOREIGN KEY (organizationId) REFERENCES timetracker.organizations(id),
         CONSTRAINT FK_departments_manager FOREIGN KEY (managerId) REFERENCES timetracker.users(id)
     );
-    
+
     CREATE INDEX IX_departments_organizationId ON timetracker.departments(organizationId);
     CREATE INDEX IX_departments_managerId ON timetracker.departments(managerId);
     CREATE INDEX IX_departments_isActive ON timetracker.departments(isActive);
@@ -118,12 +117,12 @@ BEGIN
         createdAt DATETIME2 DEFAULT GETUTCDATE(),
         updatedAt DATETIME2 DEFAULT GETUTCDATE(),
         isActive BIT DEFAULT 1,
-        
+
         CONSTRAINT FK_projects_organization FOREIGN KEY (organizationId) REFERENCES timetracker.organizations(id),
         CONSTRAINT FK_projects_department FOREIGN KEY (departmentId) REFERENCES timetracker.departments(id),
         CONSTRAINT FK_projects_manager FOREIGN KEY (managerId) REFERENCES timetracker.users(id)
     );
-    
+
     CREATE INDEX IX_projects_organizationId ON timetracker.projects(organizationId);
     CREATE INDEX IX_projects_departmentId ON timetracker.projects(departmentId);
     CREATE INDEX IX_projects_managerId ON timetracker.projects(managerId);
@@ -147,11 +146,11 @@ BEGIN
         createdAt DATETIME2 DEFAULT GETUTCDATE(),
         updatedAt DATETIME2 DEFAULT GETUTCDATE(),
         isActive BIT DEFAULT 1,
-        
+
         CONSTRAINT FK_tasks_project FOREIGN KEY (projectId) REFERENCES timetracker.projects(id),
         CONSTRAINT FK_tasks_assignedTo FOREIGN KEY (assignedToId) REFERENCES timetracker.users(id)
     );
-    
+
     CREATE INDEX IX_tasks_projectId ON timetracker.tasks(projectId);
     CREATE INDEX IX_tasks_assignedToId ON timetracker.tasks(assignedToId);
     CREATE INDEX IX_tasks_status ON timetracker.tasks(status);
@@ -175,12 +174,12 @@ BEGIN
         createdAt DATETIME2 DEFAULT GETUTCDATE(),
         updatedAt DATETIME2 DEFAULT GETUTCDATE(),
         isActive BIT DEFAULT 1,
-        
+
         CONSTRAINT FK_time_entries_user FOREIGN KEY (userId) REFERENCES timetracker.users(id),
         CONSTRAINT FK_time_entries_project FOREIGN KEY (projectId) REFERENCES timetracker.projects(id),
         CONSTRAINT FK_time_entries_task FOREIGN KEY (taskId) REFERENCES timetracker.tasks(id)
     );
-    
+
     CREATE INDEX IX_time_entries_userId ON timetracker.time_entries(userId);
     CREATE INDEX IX_time_entries_projectId ON timetracker.time_entries(projectId);
     CREATE INDEX IX_time_entries_taskId ON timetracker.time_entries(taskId);
@@ -197,11 +196,11 @@ BEGIN
         userId NVARCHAR(50) NOT NULL,
         departmentId NVARCHAR(50) NOT NULL,
         createdAt DATETIME2 DEFAULT GETUTCDATE(),
-        
+
         CONSTRAINT FK_user_departments_user FOREIGN KEY (userId) REFERENCES timetracker.users(id),
         CONSTRAINT FK_user_departments_department FOREIGN KEY (departmentId) REFERENCES timetracker.departments(id)
     );
-    
+
     CREATE UNIQUE INDEX IX_user_departments_unique ON timetracker.user_departments(userId, departmentId);
 END
 GO
@@ -211,7 +210,7 @@ IF NOT EXISTS (SELECT * FROM timetracker.users WHERE email = 'admin@fmb.com')
 BEGIN
     INSERT INTO timetracker.users (id, email, firstName, lastName, role, createdAt, updatedAt)
     VALUES ('fmb-admin-user', 'admin@fmb.com', 'FMB', 'Administrator', 'admin', GETUTCDATE(), GETUTCDATE());
-    
+
     PRINT 'Default admin user created: admin@fmb.com';
 END
 GO
@@ -221,7 +220,7 @@ IF NOT EXISTS (SELECT * FROM timetracker.organizations WHERE name = 'FMB Corpora
 BEGIN
     INSERT INTO timetracker.organizations (id, name, description, createdAt, updatedAt)
     VALUES ('fmb-organization', 'FMB Corporation', 'Main FMB organization', GETUTCDATE(), GETUTCDATE());
-    
+
     PRINT 'Default organization created: FMB Corporation';
 END
 GO
