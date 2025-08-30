@@ -146,12 +146,19 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 // Skip MS SQL connection when running on Replit (even with FMB env vars set)
 if (isFmbOnPremEnvironment() && process.env.NODE_ENV === 'production') {
   enhancedLog('INFO', 'FMB-ONPREM', 'Initializing on-premises services for production deployment...');
-  try {
-    await initializeFmbDatabase();
-    enhancedLog('INFO', 'FMB-ONPREM', 'On-premises services initialized successfully');
-  } catch (error) {
-    enhancedLog('ERROR', 'FMB-ONPREM', 'Failed to initialize on-premises services:', error);
-    process.exit(1);
+  
+  // Temporary bypass for testing - set FMB_SKIP_DB=true to skip database connection
+  if (process.env.FMB_SKIP_DB === 'true') {
+    enhancedLog('WARN', 'FMB-ONPREM', 'Database connection skipped for testing (FMB_SKIP_DB=true)');
+  } else {
+    try {
+      await initializeFmbDatabase();
+      enhancedLog('INFO', 'FMB-ONPREM', 'On-premises services initialized successfully');
+    } catch (error) {
+      enhancedLog('ERROR', 'FMB-ONPREM', 'Failed to initialize on-premises services:', error);
+      enhancedLog('ERROR', 'FMB-ONPREM', 'Database connection failed - check credentials and network access');
+      process.exit(1);
+    }
   }
 } else if (isFmbOnPremEnvironment() && process.env.NODE_ENV === 'development') {
   enhancedLog('INFO', 'FMB-ONPREM', 'Development mode: Skipping MS SQL connection, using Replit PostgreSQL');

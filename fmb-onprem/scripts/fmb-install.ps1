@@ -46,6 +46,14 @@ try {
     npm install -g pm2
     npm install -g pm2-windows-service
     Write-Host "✅ PM2 installed successfully" -ForegroundColor Green
+    
+    # Verify PM2 is accessible via npx
+    $pm2Version = npx pm2 --version 2>$null
+    if ($pm2Version) {
+        Write-Host "✅ PM2 accessible via npx: $pm2Version" -ForegroundColor Green
+    } else {
+        Write-Host "⚠️ PM2 global installation may have issues, will use npx prefix" -ForegroundColor Yellow
+    }
 } catch {
     Write-Host "❌ Failed to install PM2" -ForegroundColor Red
     exit 1
@@ -367,10 +375,11 @@ Write-Host "✅ PM2 ecosystem configuration created" -ForegroundColor Green
 # Install PM2 as Windows service
 Write-Host "🔧 Installing PM2 as Windows service..." -ForegroundColor Yellow
 try {
-    pm2-service-install -n $ServiceName
+    npx pm2-service-install -n $ServiceName
     Write-Host "✅ PM2 service installed" -ForegroundColor Green
 } catch {
     Write-Host "⚠️ PM2 service installation may have issues - check manually" -ForegroundColor Yellow
+    Write-Host "💡 Try manually: npx pm2-service-install -n $ServiceName" -ForegroundColor Yellow
 }
 
 # Set up Windows Firewall rule for port 3000
@@ -389,14 +398,16 @@ Write-Host "📋 Next steps:" -ForegroundColor Cyan
 Write-Host "1. Edit $InstallPath\.env with your configuration" -ForegroundColor White
 Write-Host "2. Run the database setup script on your MS SQL Server (HUB-SQL1TST-LIS)" -ForegroundColor White
 Write-Host "3. Configure IIS reverse proxy on HUB-DEVAPP01-C3" -ForegroundColor White
-Write-Host "4. Start the application: pm2 start ecosystem.config.js" -ForegroundColor White
-Write-Host "5. View logs: pm2 logs" -ForegroundColor White
-Write-Host "6. Check status: pm2 status" -ForegroundColor White
+Write-Host "4. Start the application: npx pm2 start ecosystem.config.js" -ForegroundColor White
+Write-Host "5. View logs: npx pm2 logs" -ForegroundColor White
+Write-Host "6. Check status: npx pm2 status" -ForegroundColor White
 Write-Host ""
 Write-Host "🔧 Service Management:" -ForegroundColor Cyan
 Write-Host "Start service: net start $ServiceName" -ForegroundColor White
 Write-Host "Stop service: net stop $ServiceName" -ForegroundColor White
 Write-Host "Restart service: net stop $ServiceName && net start $ServiceName" -ForegroundColor White
+Write-Host ""
+Write-Host "💡 Note: All PM2 commands should use 'npx pm2' prefix if global installation has PATH issues" -ForegroundColor Yellow
 
 # Restore original working directory
 Set-Location $OriginalLocation

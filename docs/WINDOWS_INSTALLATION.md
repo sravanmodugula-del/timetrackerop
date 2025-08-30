@@ -155,16 +155,16 @@ module.exports = {
 cd C:\fmb-timetracker
 
 # Start with PM2
-pm2 start ecosystem.config.js
+npx pm2 start ecosystem.config.js
 
 # Save PM2 configuration
-pm2 save
+npx pm2 save
 
 # Check application status
-pm2 status
+npx pm2 status
 
 # View logs
-pm2 logs FMBTimeTracker
+npx pm2 logs FMBTimeTracker
 
 # Start the Windows service (if PM2 service was installed)
 net start PM2
@@ -220,7 +220,7 @@ npm install
 npm run build
 
 # Restart PM2 process
-pm2 restart fmb-timetracker
+npx pm2 restart fmb-timetracker
 ```
 
 ## Health Checks and Monitoring
@@ -235,13 +235,13 @@ pm2 restart fmb-timetracker
 
 ```powershell
 # Check PM2 status
-pm2 status
+npx pm2 status
 
 # View logs
-pm2 logs fmb-timetracker
+npx pm2 logs fmb-timetracker
 
 # Monitor real-time logs
-pm2 logs fmb-timetracker --lines 50 -f
+npx pm2 logs fmb-timetracker --lines 50 -f
 
 # Check Windows service status
 Get-Service FMBTimeTracker

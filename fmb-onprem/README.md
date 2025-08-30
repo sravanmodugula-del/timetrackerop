@@ -1,4 +1,3 @@
-
 # FMB TimeTracker On-Premises Setup
 
 This directory contains all the necessary files and configurations for deploying TimeTracker on FMB's on-premises infrastructure.
@@ -51,7 +50,7 @@ Edit `C:\fmb-timetracker\.env` with your environment-specific values:
 cd C:\fmb-timetracker
 
 # Start with PM2
-pm2 start ecosystem.config.js
+npx pm2 start ecosystem.config.js
 
 # Or start Windows service (if installed)
 net start FMBTimeTracker
@@ -62,7 +61,7 @@ net start FMBTimeTracker
 ### Viewing Logs
 ```powershell
 # PM2 logs
-pm2 logs
+npx pm2 logs
 
 # Log files location
 Get-Content C:\fmb-timetracker\logs\combined.log -Tail 50 -Wait
@@ -77,10 +76,10 @@ Get-Content C:\fmb-timetracker\logs\combined.log -Tail 50 -Wait
 ### Service Management
 ```powershell
 # PM2 Status
-pm2 status
+npx pm2 status
 
 # Restart application
-pm2 restart ecosystem.config.js
+npx pm2 restart ecosystem.config.js
 
 # Windows Service (if using service mode)
 net start FMBTimeTracker

@@ -256,10 +256,10 @@ Start-Sleep -Seconds 15
 # Verify deployment
 Write-Host "🔍 Verifying deployment..." -ForegroundColor Yellow
 try {
-    $response = Invoke-WebRequest -Uri "http://localhost:3000/api/health" -TimeoutSec 30
+    $response = Invoke-WebRequest -Uri "http://localhost:8181/api/health" -TimeoutSec 30
     if ($response.StatusCode -eq 200) {
         Write-Host "✅ Deployment successful!" -ForegroundColor Green
-        Write-Host "🌐 Application is running on port 3000" -ForegroundColor Green
+        Write-Host "🌐 Application is running on port 8181" -ForegroundColor Green
     } else {
         Write-Host "❌ Health check failed - HTTP Status: $($response.StatusCode)" -ForegroundColor Red
         exit 1

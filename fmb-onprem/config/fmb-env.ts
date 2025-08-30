@@ -71,7 +71,7 @@ export function loadFmbOnPremConfig(): FmbOnPremConfig {
       acsUrl: process.env.FMB_SAML_ACS_URL || 'https://timetracker.fmb.com/saml/acs'
     },
     app: {
-      port: parseInt(process.env.PORT || '3000', 10),
+      port: parseInt(process.env.PORT || '8181', 10),
       host: process.env.HOST || '0.0.0.0',
       sessionSecret: process.env.FMB_SESSION_SECRET!,
       nodeEnv: process.env.NODE_ENV || 'production'
