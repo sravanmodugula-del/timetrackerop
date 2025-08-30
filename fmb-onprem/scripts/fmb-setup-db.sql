@@ -1,4 +1,5 @@
 
+
 -- FMB TimeTracker Database Setup for MS SQL Server
 -- Run this script on HUB-SQL1TST-LIS
 
@@ -70,6 +71,13 @@ BEGIN
 END
 GO
 
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[users]') AND name = 'employeeId')
+BEGIN
+    ALTER TABLE [dbo].[users] ADD [employeeId] NVARCHAR(255);
+    PRINT '✅ Added employeeId column to users table';
+END
+GO
+
 IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[users]') AND name = 'isActive')
 BEGIN
     ALTER TABLE [dbo].[users] ADD [isActive] BIT NOT NULL DEFAULT 1;
@@ -81,6 +89,20 @@ IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[us
 BEGIN
     ALTER TABLE [dbo].[users] ADD [lastLoginAt] DATETIME2;
     PRINT '✅ Added lastLoginAt column to users table';
+END
+GO
+
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[users]') AND name = 'createdAt')
+BEGIN
+    ALTER TABLE [dbo].[users] ADD [createdAt] DATETIME2 DEFAULT GETUTCDATE();
+    PRINT '✅ Added createdAt column to users table';
+END
+GO
+
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[users]') AND name = 'updatedAt')
+BEGIN
+    ALTER TABLE [dbo].[users] ADD [updatedAt] DATETIME2 DEFAULT GETUTCDATE();
+    PRINT '✅ Added updatedAt column to users table';
 END
 GO
 
@@ -346,6 +368,63 @@ BEGIN
 END
 GO
 
+IF NOT EXISTS (SELECT * FROM sys.triggers WHERE name = 'trg_tasks_updatedAt')
+BEGIN
+    EXEC('
+    CREATE TRIGGER [dbo].[trg_tasks_updatedAt]
+    ON [dbo].[tasks]
+    AFTER UPDATE
+    AS
+    BEGIN
+        SET NOCOUNT ON;
+        UPDATE [dbo].[tasks]
+        SET [updatedAt] = GETUTCDATE()
+        FROM [dbo].[tasks] t
+        INNER JOIN inserted i ON t.id = i.id;
+    END
+    ');
+    PRINT '✅ Created tasks update trigger';
+END
+GO
+
+IF NOT EXISTS (SELECT * FROM sys.triggers WHERE name = 'trg_time_entries_updatedAt')
+BEGIN
+    EXEC('
+    CREATE TRIGGER [dbo].[trg_time_entries_updatedAt]
+    ON [dbo].[time_entries]
+    AFTER UPDATE
+    AS
+    BEGIN
+        SET NOCOUNT ON;
+        UPDATE [dbo].[time_entries]
+        SET [updatedAt] = GETUTCDATE()
+        FROM [dbo].[time_entries] te
+        INNER JOIN inserted i ON te.id = i.id;
+    END
+    ');
+    PRINT '✅ Created time_entries update trigger';
+END
+GO
+
+IF NOT EXISTS (SELECT * FROM sys.triggers WHERE name = 'trg_project_employees_updatedAt')
+BEGIN
+    EXEC('
+    CREATE TRIGGER [dbo].[trg_project_employees_updatedAt]
+    ON [dbo].[project_employees]
+    AFTER UPDATE
+    AS
+    BEGIN
+        SET NOCOUNT ON;
+        UPDATE [dbo].[project_employees]
+        SET [updatedAt] = GETUTCDATE()
+        FROM [dbo].[project_employees] pe
+        INNER JOIN inserted i ON pe.id = i.id;
+    END
+    ');
+    PRINT '✅ Created project_employees update trigger';
+END
+GO
+
 -- Final validation
 PRINT '';
 PRINT '🔍 Validating database schema...';
@@ -363,3 +442,4 @@ PRINT '🎉 FMB TimeTracker database schema created successfully!';
 PRINT 'Database: ' + DB_NAME();
 PRINT 'Server: ' + @@SERVERNAME;
 PRINT 'Completion time: ' + CONVERT(VARCHAR, GETDATE(), 120);
+
