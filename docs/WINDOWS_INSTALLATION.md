@@ -16,8 +16,8 @@ This guide covers the complete installation of FMB TimeTracker on Windows Server
 - **Application Server**: HUB-DEVAPP01-C3 (Windows Server 2022)
 - **Database**: MS SQL Server on HUB-SQL1TST-LIS
 - **Authentication**: RSA SAML Identity Provider
-- **Domain**: https://timetracker.fmb.com
-- **Internal Port**: 3000 (proxied through IIS to 443)
+- **Domain**: https://timetracker.fmb.com (HTTPS-only)
+- **Internal Port**: 3000 (proxied through IIS from 80→443 and 443)
 
 ## Installation Steps
 
@@ -178,6 +178,24 @@ New-NetFirewallRule -DisplayName "FMB TimeTracker Internal" -Direction Inbound -
 
 # Allow HTTPS traffic (should already be configured)
 New-NetFirewallRule -DisplayName "FMB TimeTracker HTTPS" -Direction Inbound -Protocol TCP -LocalPort 443 -Action Allow
+
+# Allow HTTP for redirect to HTTPS
+New-NetFirewallRule -DisplayName "FMB TimeTracker HTTP Redirect" -Direction Inbound -Protocol TCP -LocalPort 80 -Action Allow
+```
+
+### 10. Validate HTTPS Configuration
+
+```powershell
+# Test HTTP to HTTPS redirect
+curl -I http://timetracker.fmb.com
+# Should return 301 redirect to https://
+
+# Test HTTPS endpoint
+curl -I https://timetracker.fmb.com
+# Should return 200 with security headers
+
+# Verify SSL certificate
+openssl s_client -connect timetracker.fmb.com:443 -servername timetracker.fmb.com
 ```
 
 ## Deployment and Updates
