@@ -173,10 +173,30 @@ BEGIN
         [employeeId] NVARCHAR(255) NOT NULL,
         [userId] NVARCHAR(255) NOT NULL,
         [createdAt] DATETIME2 DEFAULT GETUTCDATE(),
-        FOREIGN KEY ([projectId]) REFERENCES [dbo].[projects]([id]) ON DELETE CASCADE,
-        FOREIGN KEY ([employeeId]) REFERENCES [dbo].[employees]([id]) ON DELETE CASCADE,
-        FOREIGN KEY ([userId]) REFERENCES [dbo].[users]([id]) ON DELETE CASCADE
+        [updatedAt] DATETIME2 DEFAULT GETUTCDATE()
     );
+END
+GO
+
+-- Add foreign key constraints for project_employees after table creation
+IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE name = 'FK_project_employees_projectId')
+BEGIN
+    ALTER TABLE [dbo].[project_employees] ADD CONSTRAINT FK_project_employees_projectId 
+    FOREIGN KEY ([projectId]) REFERENCES [dbo].[projects]([id]) ON DELETE CASCADE;
+END
+GO
+
+IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE name = 'FK_project_employees_employeeId')
+BEGIN
+    ALTER TABLE [dbo].[project_employees] ADD CONSTRAINT FK_project_employees_employeeId 
+    FOREIGN KEY ([employeeId]) REFERENCES [dbo].[employees]([id]) ON DELETE CASCADE;
+END
+GO
+
+IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE name = 'FK_project_employees_userId')
+BEGIN
+    ALTER TABLE [dbo].[project_employees] ADD CONSTRAINT FK_project_employees_userId 
+    FOREIGN KEY ([userId]) REFERENCES [dbo].[users]([id]) ON DELETE CASCADE;
 END
 GO
 
