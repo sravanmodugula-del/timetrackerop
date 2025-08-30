@@ -87,7 +87,7 @@ function validateProductionEnvironment() {
 
   if (isFmbOnPremEnvironment()) {
     // FMB on-premises environment validation
-    required = ['NODE_ENV', 'FMB_SESSION_SECRET', 'FMB_DB_SERVER', 'FMB_DB_NAME', 'FMB_SAML_ENTITY_ID', 'FMB_SAML_PRIVATE_KEY_PATH', 'FMB_SAML_CERTIFICATE_PATH'];
+    required = ['NODE_ENV', 'FMB_SESSION_SECRET', 'FMB_DB_SERVER', 'FMB_DB_NAME', 'FMB_SAML_ENTITY_ID', 'FMB_SAML_SSO_URL', 'FMB_SAML_CERTIFICATE'];
     enhancedLog('INFO', 'ENV', '🏢 Running in FMB on-premises mode');
   } else {
     // Replit environment validation
@@ -124,14 +124,7 @@ function validateProductionEnvironment() {
     enhancedLog('WARN', 'ENV', '⚠️  WARNING: SESSION_SECRET should be at least 32 characters for production');
   }
 
-  // Validate SAML specific environment variables for on-prem
-  if (isFmbOnPremEnvironment()) {
-    if (!process.env.FMB_SAML_PRIVATE_KEY_PATH || !process.env.FMB_SAML_CERTIFICATE_PATH) {
-      enhancedLog('ERROR', 'ENV', 'FMB_SAML_PRIVATE_KEY_PATH and FMB_SAML_CERTIFICATE_PATH must be set for on-premises SAML authentication');
-      process.exit(1);
-    }
-    // Further validation for key/cert existence can be added here if needed
-  }
+  // Additional on-prem validation can be added here if needed
 
   enhancedLog('INFO', 'ENV', 'Environment validation completed successfully');
 }
