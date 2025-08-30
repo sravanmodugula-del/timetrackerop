@@ -379,10 +379,7 @@ BEGIN
     PRINT '✅ Added updatedAt column to users table';
 END
 
--- Fix other tables systematically
-DECLARE @sql NVARCHAR(MAX);
-
--- Organizations table
+-- Fix Organizations table columns
 IF EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[organizations]') AND name = 'user_id')
 AND NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[organizations]') AND name = 'userId')
 BEGIN
@@ -390,8 +387,328 @@ BEGIN
     PRINT '✅ Renamed user_id to userId in organizations table';
 END
 
--- Continue with all remaining tables...
--- (Similar pattern for all other tables and columns)
+IF EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[organizations]') AND name = 'created_at')
+AND NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[organizations]') AND name = 'createdAt')
+BEGIN
+    EXEC sp_rename 'organizations.created_at', 'createdAt', 'COLUMN';
+    PRINT '✅ Renamed created_at to createdAt in organizations table';
+END
+
+IF EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[organizations]') AND name = 'updated_at')
+AND NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[organizations]') AND name = 'updatedAt')
+BEGIN
+    EXEC sp_rename 'organizations.updated_at', 'updatedAt', 'COLUMN';
+    PRINT '✅ Renamed updated_at to updatedAt in organizations table';
+END
+
+-- Fix Departments table columns
+IF EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[departments]') AND name = 'organization_id')
+AND NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[departments]') AND name = 'organizationId')
+BEGIN
+    EXEC sp_rename 'departments.organization_id', 'organizationId', 'COLUMN';
+    PRINT '✅ Renamed organization_id to organizationId';
+END
+
+IF EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[departments]') AND name = 'manager_id')
+AND NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[departments]') AND name = 'managerId')
+BEGIN
+    EXEC sp_rename 'departments.manager_id', 'managerId', 'COLUMN';
+    PRINT '✅ Renamed manager_id to managerId';
+END
+
+IF EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[departments]') AND name = 'user_id')
+AND NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[departments]') AND name = 'userId')
+BEGIN
+    EXEC sp_rename 'departments.user_id', 'userId', 'COLUMN';
+    PRINT '✅ Renamed user_id to userId in departments table';
+END
+
+IF EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[departments]') AND name = 'created_at')
+AND NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[departments]') AND name = 'createdAt')
+BEGIN
+    EXEC sp_rename 'departments.created_at', 'createdAt', 'COLUMN';
+    PRINT '✅ Renamed created_at to createdAt in departments table';
+END
+
+IF EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[departments]') AND name = 'updated_at')
+AND NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[departments]') AND name = 'updatedAt')
+BEGIN
+    EXEC sp_rename 'departments.updated_at', 'updatedAt', 'COLUMN';
+    PRINT '✅ Renamed updated_at to updatedAt in departments table';
+END
+
+-- Fix Employees table columns
+IF EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[employees]') AND name = 'employee_id')
+AND NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[employees]') AND name = 'employeeId')
+BEGIN
+    EXEC sp_rename 'employees.employee_id', 'employeeId', 'COLUMN';
+    PRINT '✅ Renamed employee_id to employeeId in employees table';
+END
+
+IF EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[employees]') AND name = 'first_name')
+AND NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[employees]') AND name = 'firstName')
+BEGIN
+    EXEC sp_rename 'employees.first_name', 'firstName', 'COLUMN';
+    PRINT '✅ Renamed first_name to firstName in employees table';
+END
+
+IF EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[employees]') AND name = 'last_name')
+AND NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[employees]') AND name = 'lastName')
+BEGIN
+    EXEC sp_rename 'employees.last_name', 'lastName', 'COLUMN';
+    PRINT '✅ Renamed last_name to lastName in employees table';
+END
+
+IF EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[employees]') AND name = 'user_id')
+AND NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[employees]') AND name = 'userId')
+BEGIN
+    EXEC sp_rename 'employees.user_id', 'userId', 'COLUMN';
+    PRINT '✅ Renamed user_id to userId in employees table';
+END
+
+IF EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[employees]') AND name = 'created_at')
+AND NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[employees]') AND name = 'createdAt')
+BEGIN
+    EXEC sp_rename 'employees.created_at', 'createdAt', 'COLUMN';
+    PRINT '✅ Renamed created_at to createdAt in employees table';
+END
+
+IF EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[employees]') AND name = 'updated_at')
+AND NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[employees]') AND name = 'updatedAt')
+BEGIN
+    EXEC sp_rename 'employees.updated_at', 'updatedAt', 'COLUMN';
+    PRINT '✅ Renamed updated_at to updatedAt in employees table';
+END
+
+-- Fix Projects table columns
+IF EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[projects]') AND name = 'project_number')
+AND NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[projects]') AND name = 'projectNumber')
+BEGIN
+    EXEC sp_rename 'projects.project_number', 'projectNumber', 'COLUMN';
+    PRINT '✅ Renamed project_number to projectNumber';
+END
+
+IF EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[projects]') AND name = 'start_date')
+AND NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[projects]') AND name = 'startDate')
+BEGIN
+    EXEC sp_rename 'projects.start_date', 'startDate', 'COLUMN';
+    PRINT '✅ Renamed start_date to startDate';
+END
+
+IF EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[projects]') AND name = 'end_date')
+AND NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[projects]') AND name = 'endDate')
+BEGIN
+    EXEC sp_rename 'projects.end_date', 'endDate', 'COLUMN';
+    PRINT '✅ Renamed end_date to endDate';
+END
+
+IF EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[projects]') AND name = 'is_enterprise_wide')
+AND NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[projects]') AND name = 'isEnterpriseWide')
+BEGIN
+    EXEC sp_rename 'projects.is_enterprise_wide', 'isEnterpriseWide', 'COLUMN';
+    PRINT '✅ Renamed is_enterprise_wide to isEnterpriseWide';
+END
+
+IF EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[projects]') AND name = 'user_id')
+AND NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[projects]') AND name = 'userId')
+BEGIN
+    EXEC sp_rename 'projects.user_id', 'userId', 'COLUMN';
+    PRINT '✅ Renamed user_id to userId in projects table';
+END
+
+IF EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[projects]') AND name = 'created_at')
+AND NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[projects]') AND name = 'createdAt')
+BEGIN
+    EXEC sp_rename 'projects.created_at', 'createdAt', 'COLUMN';
+    PRINT '✅ Renamed created_at to createdAt in projects table';
+END
+
+IF EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[projects]') AND name = 'updated_at')
+AND NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[projects]') AND name = 'updatedAt')
+BEGIN
+    EXEC sp_rename 'projects.updated_at', 'updatedAt', 'COLUMN';
+    PRINT '✅ Renamed updated_at to updatedAt in projects table';
+END
+
+-- Fix all project boolean columns
+IF EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[projects]') AND name = 'is_template')
+AND NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[projects]') AND name = 'isTemplate')
+BEGIN
+    EXEC sp_rename 'projects.is_template', 'isTemplate', 'COLUMN';
+    PRINT '✅ Renamed is_template to isTemplate';
+END
+
+IF EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[projects]') AND name = 'allow_time_tracking')
+AND NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[projects]') AND name = 'allowTimeTracking')
+BEGIN
+    EXEC sp_rename 'projects.allow_time_tracking', 'allowTimeTracking', 'COLUMN';
+    PRINT '✅ Renamed allow_time_tracking to allowTimeTracking';
+END
+
+IF EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[projects]') AND name = 'require_task_selection')
+AND NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[projects]') AND name = 'requireTaskSelection')
+BEGIN
+    EXEC sp_rename 'projects.require_task_selection', 'requireTaskSelection', 'COLUMN';
+    PRINT '✅ Renamed require_task_selection to requireTaskSelection';
+END
+
+IF EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[projects]') AND name = 'enable_budget_tracking')
+AND NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[projects]') AND name = 'enableBudgetTracking')
+BEGIN
+    EXEC sp_rename 'projects.enable_budget_tracking', 'enableBudgetTracking', 'COLUMN';
+    PRINT '✅ Renamed enable_budget_tracking to enableBudgetTracking';
+END
+
+IF EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[projects]') AND name = 'enable_billing')
+AND NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[projects]') AND name = 'enableBilling')
+BEGIN
+    EXEC sp_rename 'projects.enable_billing', 'enableBilling', 'COLUMN';
+    PRINT '✅ Renamed enable_billing to enableBilling';
+END
+
+-- Fix Tasks table columns
+IF EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[tasks]') AND name = 'project_id')
+AND NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[tasks]') AND name = 'projectId')
+BEGIN
+    EXEC sp_rename 'tasks.project_id', 'projectId', 'COLUMN';
+    PRINT '✅ Renamed project_id to projectId in tasks table';
+END
+
+IF EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[tasks]') AND name = 'created_at')
+AND NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[tasks]') AND name = 'createdAt')
+BEGIN
+    EXEC sp_rename 'tasks.created_at', 'createdAt', 'COLUMN';
+    PRINT '✅ Renamed created_at to createdAt in tasks table';
+END
+
+IF EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[tasks]') AND name = 'updated_at')
+AND NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[tasks]') AND name = 'updatedAt')
+BEGIN
+    EXEC sp_rename 'tasks.updated_at', 'updatedAt', 'COLUMN';
+    PRINT '✅ Renamed updated_at to updatedAt in tasks table';
+END
+
+-- Fix Time Entries table columns
+IF EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[time_entries]') AND name = 'user_id')
+AND NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[time_entries]') AND name = 'userId')
+BEGIN
+    EXEC sp_rename 'time_entries.user_id', 'userId', 'COLUMN';
+    PRINT '✅ Renamed user_id to userId in time_entries table';
+END
+
+IF EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[time_entries]') AND name = 'project_id')
+AND NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[time_entries]') AND name = 'projectId')
+BEGIN
+    EXEC sp_rename 'time_entries.project_id', 'projectId', 'COLUMN';
+    PRINT '✅ Renamed project_id to projectId in time_entries table';
+END
+
+IF EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[time_entries]') AND name = 'task_id')
+AND NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[time_entries]') AND name = 'taskId')
+BEGIN
+    EXEC sp_rename 'time_entries.task_id', 'taskId', 'COLUMN';
+    PRINT '✅ Renamed task_id to taskId in time_entries table';
+END
+
+IF EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[time_entries]') AND name = 'start_time')
+AND NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[time_entries]') AND name = 'startTime')
+BEGIN
+    EXEC sp_rename 'time_entries.start_time', 'startTime', 'COLUMN';
+    PRINT '✅ Renamed start_time to startTime';
+END
+
+IF EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[time_entries]') AND name = 'end_time')
+AND NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[time_entries]') AND name = 'endTime')
+BEGIN
+    EXEC sp_rename 'time_entries.end_time', 'endTime', 'COLUMN';
+    PRINT '✅ Renamed end_time to endTime';
+END
+
+IF EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[time_entries]') AND name = 'created_at')
+AND NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[time_entries]') AND name = 'createdAt')
+BEGIN
+    EXEC sp_rename 'time_entries.created_at', 'createdAt', 'COLUMN';
+    PRINT '✅ Renamed created_at to createdAt in time_entries table';
+END
+
+IF EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[time_entries]') AND name = 'updated_at')
+AND NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[time_entries]') AND name = 'updatedAt')
+BEGIN
+    EXEC sp_rename 'time_entries.updated_at', 'updatedAt', 'COLUMN';
+    PRINT '✅ Renamed updated_at to updatedAt in time_entries table';
+END
+
+-- Fix all time_entries boolean columns
+IF EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[time_entries]') AND name = 'is_template')
+AND NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[time_entries]') AND name = 'isTemplate')
+BEGIN
+    EXEC sp_rename 'time_entries.is_template', 'isTemplate', 'COLUMN';
+    PRINT '✅ Renamed is_template to isTemplate in time_entries';
+END
+
+IF EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[time_entries]') AND name = 'is_billable')
+AND NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[time_entries]') AND name = 'isBillable')
+BEGIN
+    EXEC sp_rename 'time_entries.is_billable', 'isBillable', 'COLUMN';
+    PRINT '✅ Renamed is_billable to isBillable';
+END
+
+IF EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[time_entries]') AND name = 'is_approved')
+AND NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[time_entries]') AND name = 'isApproved')
+BEGIN
+    EXEC sp_rename 'time_entries.is_approved', 'isApproved', 'COLUMN';
+    PRINT '✅ Renamed is_approved to isApproved';
+END
+
+IF EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[time_entries]') AND name = 'is_manual_entry')
+AND NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[time_entries]') AND name = 'isManualEntry')
+BEGIN
+    EXEC sp_rename 'time_entries.is_manual_entry', 'isManualEntry', 'COLUMN';
+    PRINT '✅ Renamed is_manual_entry to isManualEntry';
+END
+
+IF EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[time_entries]') AND name = 'is_timer_entry')
+AND NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[time_entries]') AND name = 'isTimerEntry')
+BEGIN
+    EXEC sp_rename 'time_entries.is_timer_entry', 'isTimerEntry', 'COLUMN';
+    PRINT '✅ Renamed is_timer_entry to isTimerEntry';
+END
+
+-- Fix Project Employees table columns
+IF EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[project_employees]') AND name = 'project_id')
+AND NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[project_employees]') AND name = 'projectId')
+BEGIN
+    EXEC sp_rename 'project_employees.project_id', 'projectId', 'COLUMN';
+    PRINT '✅ Renamed project_id to projectId in project_employees table';
+END
+
+IF EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[project_employees]') AND name = 'employee_id')
+AND NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[project_employees]') AND name = 'employeeId')
+BEGIN
+    EXEC sp_rename 'project_employees.employee_id', 'employeeId', 'COLUMN';
+    PRINT '✅ Renamed employee_id to employeeId in project_employees table';
+END
+
+IF EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[project_employees]') AND name = 'user_id')
+AND NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[project_employees]') AND name = 'userId')
+BEGIN
+    EXEC sp_rename 'project_employees.user_id', 'userId', 'COLUMN';
+    PRINT '✅ Renamed user_id to userId in project_employees table';
+END
+
+IF EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[project_employees]') AND name = 'created_at')
+AND NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[project_employees]') AND name = 'createdAt')
+BEGIN
+    EXEC sp_rename 'project_employees.created_at', 'createdAt', 'COLUMN';
+    PRINT '✅ Renamed created_at to createdAt in project_employees table';
+END
+
+IF EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[project_employees]') AND name = 'updated_at')
+AND NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[project_employees]') AND name = 'updatedAt')
+BEGIN
+    EXEC sp_rename 'project_employees.updated_at', 'updatedAt', 'COLUMN';
+    PRINT '✅ Renamed updated_at to updatedAt in project_employees table';
+END
 
 PRINT '✅ Column name conversion completed';
 PRINT '';
@@ -472,9 +789,9 @@ PRINT '✅ Performance indexes created';
 GO
 
 -- ================================================================
--- STEP 6: Database validation
+-- STEP 6: Database validation and test data insertion
 -- ================================================================
-PRINT '🔧 STEP 6: Validating database schema...';
+PRINT '🔧 STEP 6: Validating database schema and inserting test data...';
 
 DECLARE @tableCount INT = 0;
 DECLARE @missingTables NVARCHAR(MAX) = '';
@@ -525,18 +842,43 @@ IF EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[projec
 ELSE
     SET @missingTables = @missingTables + 'project_employees, ';
 
--- Test basic CRUD operations
+-- Test basic CRUD operations and insert test data
 BEGIN TRY
-    INSERT INTO users (id, email, firstName, lastName, role) 
-    VALUES ('test-validation-user', 'validation@test.com', 'Test', 'User', 'employee');
+    -- Insert test admin user for authentication
+    IF NOT EXISTS (SELECT 1 FROM users WHERE id = 'test-admin-user')
+    BEGIN
+        INSERT INTO users (id, email, firstName, lastName, role, isActive, createdAt, updatedAt) 
+        VALUES ('test-admin-user', 'admin@test.com', 'Test', 'Admin', 'admin', 1, GETUTCDATE(), GETUTCDATE());
+        PRINT '✅ Inserted test admin user';
+    END
+    ELSE
+        PRINT '✅ Test admin user already exists';
     
-    IF EXISTS (SELECT 1 FROM users WHERE id = 'test-validation-user')
+    -- Insert test organization
+    IF NOT EXISTS (SELECT 1 FROM organizations WHERE name = 'Test Organization')
+    BEGIN
+        INSERT INTO organizations (id, name, description, userId, createdAt, updatedAt)
+        VALUES (NEWID(), 'Test Organization', 'Default test organization', 'test-admin-user', GETUTCDATE(), GETUTCDATE());
+        PRINT '✅ Inserted test organization';
+    END
+    ELSE
+        PRINT '✅ Test organization already exists';
+    
+    -- Insert test project
+    IF NOT EXISTS (SELECT 1 FROM projects WHERE name = 'Default Project')
+    BEGIN
+        INSERT INTO projects (id, name, description, userId, isEnterpriseWide, createdAt, updatedAt)
+        VALUES (NEWID(), 'Default Project', 'Default project for testing', 'test-admin-user', 1, GETUTCDATE(), GETUTCDATE());
+        PRINT '✅ Inserted test project';
+    END
+    ELSE
+        PRINT '✅ Test project already exists';
+    
+    IF EXISTS (SELECT 1 FROM users WHERE id = 'test-admin-user')
         PRINT '✅ Database operations: INSERT/SELECT works';
     ELSE
         PRINT '❌ Database operations: INSERT/SELECT failed';
     
-    DELETE FROM users WHERE id = 'test-validation-user';
-    PRINT '✅ Database operations: DELETE works';
 END TRY
 BEGIN CATCH
     PRINT '❌ Database operations failed: ' + ERROR_MESSAGE();
@@ -556,6 +898,7 @@ BEGIN
     PRINT '✅ All column names converted to camelCase';
     PRINT '✅ Foreign key constraints established';
     PRINT '✅ Performance indexes created';
+    PRINT '✅ Test data inserted for authentication';
     PRINT '✅ Database validation passed';
     PRINT '';
     PRINT 'Your FMB TimeTracker database is ready for deployment!';
@@ -577,3 +920,7 @@ PRINT 'Setup completed: ' + CONVERT(VARCHAR, GETDATE(), 120);
 PRINT '';
 PRINT 'Note: Triggers removed to avoid conflicts with Drizzle ORM OUTPUT clauses.';
 PRINT 'The application will handle updatedAt timestamps programmatically.';
+PRINT '';
+PRINT '🔑 AUTHENTICATION SETUP:';
+PRINT 'Test admin user created: admin@test.com (ID: test-admin-user)';
+PRINT 'This user will be used for development authentication bypass.';
