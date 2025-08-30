@@ -386,6 +386,51 @@ export class FmbStorage {
     await request.query('DELETE FROM tasks WHERE id = @id');
   }
 
+  // Project employee management
+  async addProjectEmployee(projectId: string, employeeId: string, userId: string): Promise<void> {
+    const pool = this.getPool();
+    const request = pool.request();
+
+    const id = randomUUID();
+    request.input('id', sql.VarChar(255), id);
+    request.input('projectId', sql.VarChar(255), projectId);
+    request.input('employeeId', sql.VarChar(255), employeeId);
+    request.input('userId', sql.VarChar(255), userId);
+
+    await request.query(`
+      INSERT INTO project_employees (id, projectId, employeeId, userId, createdAt)
+      VALUES (@id, @projectId, @employeeId, @userId, GETUTCDATE())
+    `);
+  }
+
+  async removeProjectEmployee(projectId: string, employeeId: string): Promise<void> {
+    const pool = this.getPool();
+    const request = pool.request();
+
+    request.input('projectId', sql.VarChar(255), projectId);
+    request.input('employeeId', sql.VarChar(255), employeeId);
+
+    await request.query(`
+      DELETE FROM project_employees 
+      WHERE projectId = @projectId AND employeeId = @employeeId
+    `);
+  }
+
+  async getProjectEmployees(projectId: string): Promise<any[]> {
+    const pool = this.getPool();
+    const request = pool.request();
+
+    request.input('projectId', sql.VarChar(255), projectId);
+    const result = await request.query(`
+      SELECT pe.*, e.firstName, e.lastName, e.employeeId
+      FROM project_employees pe
+      JOIN employees e ON pe.employeeId = e.id
+      WHERE pe.projectId = @projectId
+    `);
+
+    return result.recordset;
+  }
+
   // Dashboard stats
   async getDashboardStats(userId: string, userRole: string, startDate: string, endDate: string): Promise<any> {
     const pool = this.getPool();
