@@ -4,14 +4,14 @@ import { FmbStorage } from '../storage/fmb-storage.js';
 
 let pool: sql.ConnectionPool | null = null;
 let db: any = null;
-let fmbStorage: FmbStorage | null = null;
+let fmbStorageInstance: FmbStorage | null = null;
 
 export async function initializeFmbDatabase() {
   console.log('🔧 Initializing FMB on-premises MS SQL database...');
 
   const config = loadFmbOnPremConfig();
 
-  fmbStorage = new FmbStorage({
+  fmbStorageInstance = new FmbStorage({
     server: config.database.server,
     database: config.database.database,
     user: config.database.user,
@@ -27,7 +27,7 @@ export async function initializeFmbDatabase() {
   });
 
   try {
-    await fmbStorage.connect();
+    await fmbStorageInstance.connect();
     console.log('✅ FMB MS SQL database connected successfully');
   } catch (error) {
     console.error('❌ Failed to connect to FMB database:', error);
@@ -35,15 +35,36 @@ export async function initializeFmbDatabase() {
   }
 }
 
-export function getFmbStorage(): FmbStorage {
-  if (!fmbStorage) {
-    throw new Error('FMB database not initialized. Call initializeFmbDatabase() first.');
+export function getFmbStorage(): import('../../server/storage.js').IStorage {
+  if (!fmbStorageInstance) {
+    console.log('🔧 [FMB-DATABASE] Creating new FMB storage instance...');
+    const config = loadFmbOnPremConfig();
+    fmbStorageInstance = new FmbStorage({
+      server: config.FMB_DB_SERVER,
+      database: config.FMB_DB_NAME,
+      user: config.FMB_DB_USER,
+      password: config.FMB_DB_PASSWORD,
+      options: {
+        port: config.FMB_DB_PORT,
+        enableArithAbort: true,
+        connectTimeout: 30000,
+        requestTimeout: 30000,
+      },
+      encrypt: config.FMB_DB_ENCRYPT,
+      trustServerCertificate: config.FMB_DB_TRUST_CERT,
+    });
+
+    // Auto-connect to database
+    fmbStorageInstance.connect().catch(error => {
+      console.error('❌ [FMB-DATABASE] Failed to connect to FMB database:', error);
+    });
   }
-  return fmbStorage;
+
+  return fmbStorageInstance as import('../../server/storage.js').IStorage;
 }
 
 // Export the storage instance directly for compatibility
-export { fmbStorage as activeStorage };
+export { fmbStorageInstance as activeStorage };
 
 export async function closeFmbDatabase() {
   if (pool) {
@@ -52,9 +73,9 @@ export async function closeFmbDatabase() {
     db = null;
     console.log('✅ [FMB-DATABASE] MS SQL Server connection closed');
   }
-  if (fmbStorage) {
-    await fmbStorage.disconnect();
-    fmbStorage = null;
+  if (fmbStorageInstance) {
+    await fmbStorageInstance.disconnect();
+    fmbStorageInstance = null;
     console.log('✅ [FMB-DATABASE] FMB database connection closed');
   }
 }
@@ -64,13 +85,13 @@ export { pool as fmbPool, db as fmbDb };
 // Database health check for on-prem
 export async function checkFmbDatabaseHealth(): Promise<boolean> {
   try {
-    if (!fmbStorage) {
+    if (!fmbStorageInstance) {
       await initializeFmbDatabase();
     }
 
     // Assuming FmbStorage has a method to check health, e.g., execute a simple query
     // This is a placeholder and should be adapted based on FmbStorage implementation
-    const result = await fmbStorage!.execute('SELECT 1 as health');
+    const result = await fmbStorageInstance!.execute('SELECT 1 as health');
     return result.length > 0;
   } catch (error) {
     console.error('🔴 [FMB-DATABASE] Health check failed:', error);
@@ -81,13 +102,13 @@ export async function checkFmbDatabaseHealth(): Promise<boolean> {
 // Raw SQL query helper for MS SQL
 export async function executeFmbQuery(query: string, params: any[] = []): Promise<any> {
   try {
-    if (!fmbStorage) {
+    if (!fmbStorageInstance) {
       await initializeFmbDatabase();
     }
 
     // Assuming FmbStorage has an execute method that accepts query and parameters
     // This is a placeholder and should be adapted based on FmbStorage implementation
-    const result = await fmbStorage!.execute(query, params);
+    const result = await fmbStorageInstance!.execute(query, params);
     return result;
   } catch (error) {
     console.error('🔴 [FMB-DATABASE] Query execution failed:', error);
