@@ -1,76 +1,8 @@
-PS C:\fmb-timetracker> npm install
-node.exe : npm warn ERESOLVE overriding peer dependency
+PS C:\fmb-timetracker> pm2 start ecosystem.config.js
+pm2 : The term 'pm2' is not recognized as the name of a cmdlet, function, script file, or operable program. Check the spelling of the name, or if a path was included, verify that the path is correct and 
+try again.
 At line:1 char:1
-+ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
-+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    + CategoryInfo          : NotSpecified: (npm warn ERESOL...peer dependency:String) [], RemoteException
-    + FullyQualifiedErrorId : NativeCommandError
- 
-npm warn While resolving: vite@7.1.3
-npm warn Found: @types/node@20.16.11
-npm warn node_modules/@types/node
-npm warn   dev @types/node@"20.16.11" from the root project
-npm warn   16 more (@types/pg, @types/body-parser, @types/connect, ...)
-npm warn
-npm warn Could not resolve dependency:
-npm warn peerOptional @types/node@"^20.19.0 || >=22.12.0" from vite@7.1.3
-npm warn node_modules/vitest/node_modules/vite
-npm warn   vite@"^5.0.0 || ^6.0.0 || ^7.0.0-0" from vitest@3.2.4
-npm warn   node_modules/vitest
-npm warn   1 more (@vitest/mocker)
-npm warn
-npm warn Conflicting peer dependency: @types/node@24.3.0
-npm warn node_modules/@types/node
-npm warn   peerOptional @types/node@"^20.19.0 || >=22.12.0" from vite@7.1.3
-npm warn   node_modules/vitest/node_modules/vite
-npm warn     vite@"^5.0.0 || ^6.0.0 || ^7.0.0-0" from vitest@3.2.4
-npm warn     node_modules/vitest
-npm warn     1 more (@vitest/mocker)
-
-up to date, audited 1335 packages in 4s
-
-196 packages are looking for funding
-  run `npm fund` for details
-
-8 vulnerabilities (1 low, 6 moderate, 1 critical)
-
-To address all issues possible (including breaking changes), run:
-  npm audit fix --force
-
-Some issues need review, and may require choosing
-a different dependency.
-
-Run `npm audit` for details.
-
-PS C:\fmb-timetracker> npm run build
-
-> rest-express@1.0.0 build
-> vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
-
-[36mvite v5.4.19 [32mbuilding for production...[36m[39m
-transforming...
-node.exe : Browserslist: browsers data (caniuse-lite) is 10 months old. Please run:
-At line:1 char:1
-+ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
-+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    + CategoryInfo          : NotSpecified: (Browserslist: b...ld. Please run::String) [], RemoteException
-    + FullyQualifiedErrorId : NativeCommandError
- 
-  npx update-browserslist-db@latest
-  Why you should do it regularly: https://github.com/browserslist/update-db#readme
-[32mâœ“[39m 2188 modules transformed.
-rendering chunks...
-computing gzip size...
-[2m../dist/public/[22m[32mindex.html                 [39m[1m[2m  0.86 kB[22m[1m[22m[2m â”‚ gzip:   0.44 kB[22m
-[2m../dist/public/[22m[35massets/index-TxekZ2R9.css  [39m[1m[2m 70.40 kB[22m[1m[22m[2m â”‚ gzip:  12.52 kB[22m
-[2m../dist/public/[22m[36massets/index-3ykus8Y9.js   [39m[1m[33m711.01 kB[39m[22m[2m â”‚ gzip: 201.77 kB[22m
-[33m
-(!) Some chunks are larger than 500 kB after minification. Consider:
-- Using dynamic import() to code-split the application
-- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
-- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.[39m
-[32mâœ“ built in 7.63s[39m
-  dist\index.js  119.9kb
-Done in 25ms
-
-PS C:\fmb-timetracker> 
++ pm2 start ecosystem.config.js
++ ~~~
+    + CategoryInfo          : ObjectNotFound: (pm2:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
