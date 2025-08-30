@@ -19,6 +19,9 @@ export class FmbStorage {
     database: string;
     user: string;
     password: string;
+    port?: number;
+    encrypt?: boolean;
+    trustServerCertificate?: boolean;
     options?: any;
   }) {}
 
@@ -29,9 +32,13 @@ export class FmbStorage {
         database: this.config.database,
         user: this.config.user,
         password: this.config.password,
+        port: this.config.port || 1433,
         options: {
-          encrypt: true,
-          trustServerCertificate: true,
+          encrypt: this.config.encrypt !== false,
+          trustServerCertificate: this.config.trustServerCertificate !== false,
+          enableArithAbort: true,
+          connectionTimeout: 30000,
+          requestTimeout: 30000,
           ...this.config.options
         }
       });
