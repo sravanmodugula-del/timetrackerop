@@ -163,16 +163,18 @@ Write-Host "📂 Script path: $ScriptPath" -ForegroundColor Yellow
 Write-Host "📂 Source path: $NormalizedSourcePath" -ForegroundColor Yellow
 Write-Host "📂 Install path: $NormalizedInstallPath" -ForegroundColor Yellow
 
-# Prevent copying from same location to same location
+# Check if source and destination are the same - skip copy but continue installation
+$SkipFileCopy = $false
 if ($NormalizedSourcePath -eq $NormalizedInstallPath) {
-    Write-Host "❌ Source and destination paths are the same!" -ForegroundColor Red
-    Write-Host "❌ Cannot copy from $NormalizedSourcePath to $NormalizedInstallPath" -ForegroundColor Red
-    Write-Host "💡 Please specify a different installation path using -InstallPath parameter" -ForegroundColor Yellow
-    exit 1
+    Write-Host "📂 Source and destination paths are the same - running in-place installation" -ForegroundColor Yellow
+    Write-Host "📂 Source: $NormalizedSourcePath" -ForegroundColor Yellow
+    Write-Host "📂 Install: $NormalizedInstallPath" -ForegroundColor Yellow
+    Write-Host "⏭️ Skipping file copy operation..." -ForegroundColor Yellow
+    $SkipFileCopy = $true
 }
 
 # Check if install path is a subdirectory of source path
-if ($NormalizedInstallPath.StartsWith($NormalizedSourcePath + "\")) {
+if (-not $SkipFileCopy -and $NormalizedInstallPath.StartsWith($NormalizedSourcePath + "\")) {
     Write-Host "❌ Installation path cannot be a subdirectory of the source!" -ForegroundColor Red
     Write-Host "❌ Source: $NormalizedSourcePath" -ForegroundColor Red
     Write-Host "❌ Install: $NormalizedInstallPath" -ForegroundColor Red
@@ -203,11 +205,10 @@ if (!(Test-Path $InstallPath)) {
 }
 
 # Copy application files excluding unnecessary directories
-$ExcludeItems = @('.git', 'node_modules', 'dist', '.replit', '.vscode', '.idea', 'logs')
-Write-Host "📋 Copying application files..." -ForegroundColor Yellow
+if (-not $SkipFileCopy) {
+    $ExcludeItems = @('.git', 'node_modules', 'dist', '.replit', '.vscode', '.idea', 'logs')
+    Write-Host "📋 Copying application files..." -ForegroundColor Yellow
 
-# Only copy if source and destination are different
-if ($NormalizedSourcePath -ne $NormalizedInstallPath) {
     Get-ChildItem -Path $SourcePath -Exclude $ExcludeItems | ForEach-Object {
         $destPath = Join-Path $InstallPath $_.Name
 
@@ -225,7 +226,7 @@ if ($NormalizedSourcePath -ne $NormalizedInstallPath) {
         Write-Host "  ✅ Copied: $($_.Name)" -ForegroundColor Green
     }
 } else {
-    Write-Host "  ⏭️ Source and destination are the same - skipping file copy" -ForegroundColor Yellow
+    Write-Host "📋 Skipping file copy (in-place installation)" -ForegroundColor Yellow
 }
 
 # Store original location and set working directory to install path
