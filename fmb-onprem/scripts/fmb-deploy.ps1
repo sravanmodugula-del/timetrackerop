@@ -50,7 +50,7 @@ if (-not (Test-Path ".env")) {
 Write-Host "⏹️ Stopping application..." -ForegroundColor Yellow
 try {
     Set-Location $InstallPath
-    pm2 stop ecosystem.config.js
+    npx pm2 stop ecosystem.config.js
     Write-Host "✅ Application stopped" -ForegroundColor Green
 } catch {
     Write-Host "⚠️ Could not stop PM2 processes gracefully" -ForegroundColor Yellow
@@ -158,21 +158,21 @@ try {
 Write-Host "▶️ Starting application..." -ForegroundColor Yellow
 try {
     # Check if PM2 is available
-    $pm2Version = pm2 --version 2>$null
+    $pm2Version = npx pm2 --version 2>$null
     if (-not $pm2Version) {
-        Write-Host "❌ PM2 is not installed or not in PATH" -ForegroundColor Red
+        Write-Host "❌ PM2 is not available" -ForegroundColor Red
         Write-Host "Installing PM2 globally..." -ForegroundColor Yellow
         npm install -g pm2
     }
     
     # Start the application
-    pm2 start ecosystem.config.js --env production
+    npx pm2 start ecosystem.config.js --env production
     
     # Wait a moment for the process to start
     Start-Sleep -Seconds 3
     
     # Check if the process is running
-    $processStatus = pm2 jlist | ConvertFrom-Json
+    $processStatus = npx pm2 jlist | ConvertFrom-Json
     $appProcess = $processStatus | Where-Object { $_.name -eq "fmb-timetracker" }
     
     if ($appProcess -and $appProcess.pm2_env.status -eq "online") {
@@ -180,16 +180,16 @@ try {
     } else {
         Write-Host "❌ Application failed to start properly" -ForegroundColor Red
         Write-Host "📝 PM2 Status:" -ForegroundColor Yellow
-        pm2 status
+        npx pm2 status
         Write-Host "📝 Recent logs:" -ForegroundColor Yellow
-        pm2 logs --lines 10
+        npx pm2 logs --lines 10
         exit 1
     }
 } catch {
     Write-Host "❌ Failed to start application" -ForegroundColor Red
     Write-Host "Error: $($_.Exception.Message)" -ForegroundColor Red
     Write-Host "📝 PM2 Status:" -ForegroundColor Yellow
-    pm2 status
+    npx pm2 status
     exit 1
 }
 
@@ -216,6 +216,6 @@ try {
 
 Write-Host ""
 Write-Host "📋 Post-deployment commands:" -ForegroundColor Cyan
-Write-Host "View status: pm2 status" -ForegroundColor White
-Write-Host "View logs: pm2 logs" -ForegroundColor White
-Write-Host "Restart if needed: pm2 restart ecosystem.config.js" -ForegroundColor White
+Write-Host "View status: npx pm2 status" -ForegroundColor White
+Write-Host "View logs: npx pm2 logs" -ForegroundColor White
+Write-Host "Restart if needed: npx pm2 restart ecosystem.config.js" -ForegroundColor White
