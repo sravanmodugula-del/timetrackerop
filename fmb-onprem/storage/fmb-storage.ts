@@ -6,7 +6,7 @@ import type {
   Employee, InsertEmployee,
   Organization, InsertOrganization,
   Department, InsertDepartment,
-  Task, InsertTask
+  Task, InsertTask, TimeEntryWithProject
 } from '../../shared/schema.js';
 
 import { randomUUID } from 'crypto';
@@ -458,5 +458,153 @@ export class FmbStorage {
 
     const result = await request.query(query);
     return result.recordset[0] || { todayHours: 0, weekHours: 0, monthHours: 0, activeProjects: 0 };
+  }
+
+  async getProjectTimeBreakdown(userId: string, startDate?: string, endDate?: string): Promise<Array<{
+    project: Project;
+    totalHours: number;
+    percentage: number;
+  }>> {
+    const pool = this.getPool();
+
+    // Get user role to determine access level
+    const user = await this.getUser(userId);
+    const userRole = user?.role || 'employee';
+
+    let whereConditions = [];
+    let parameters: any = {};
+
+    // Role-based access control
+    if (userRole === 'admin') {
+      // Admin sees everything
+    } else if (userRole === 'project_manager') {
+      // Project managers see enterprise-wide projects
+      whereConditions.push('p.isEnterpriseWide = 1');
+    } else {
+      // Employees see enterprise-wide projects only
+      whereConditions.push('p.isEnterpriseWide = 1');
+      whereConditions.push('te.userId = @userId');
+      parameters.userId = userId;
+    }
+
+    if (startDate) {
+      whereConditions.push('te.date >= @startDate');
+      parameters.startDate = startDate;
+    }
+
+    if (endDate) {
+      whereConditions.push('te.date <= @endDate');
+      parameters.endDate = endDate;
+    }
+
+    const whereClause = whereConditions.length > 0 ? `WHERE ${whereConditions.join(' AND ')}` : '';
+
+    const request = pool.request();
+    Object.keys(parameters).forEach(key => {
+      request.input(key, sql.NVarChar, parameters[key]);
+    });
+
+    const result = await request.query(`
+      SELECT 
+        p.id, p.name, p.description, p.userId, p.isEnterpriseWide, p.createdAt, p.updatedAt,
+        COALESCE(SUM(CAST(te.duration AS DECIMAL(10,2))), 0) as totalHours
+      FROM projects p
+      LEFT JOIN time_entries te ON p.id = te.projectId
+      ${whereClause}
+      GROUP BY p.id, p.name, p.description, p.userId, p.isEnterpriseWide, p.createdAt, p.updatedAt
+      HAVING COALESCE(SUM(CAST(te.duration AS DECIMAL(10,2))), 0) > 0
+      ORDER BY totalHours DESC
+    `);
+
+    const totalHours = result.recordset.reduce((sum, row) => sum + Number(row.totalHours), 0);
+
+    return result.recordset.map(row => ({
+      project: {
+        id: row.id,
+        name: row.name,
+        description: row.description,
+        userId: row.userId,
+        isEnterpriseWide: row.isEnterpriseWide,
+        createdAt: row.createdAt,
+        updatedAt: row.updatedAt,
+      },
+      totalHours: Number(row.totalHours),
+      percentage: totalHours > 0 ? Math.round((Number(row.totalHours) / totalHours) * 100) : 0,
+    }));
+  }
+
+  async getRecentActivity(userId: string, limit = 10, startDate?: string, endDate?: string): Promise<TimeEntryWithProject[]> {
+    const pool = this.getPool();
+    const request = pool.request();
+
+    let query = `
+      SELECT 
+        te.id, te.userId, te.projectId, te.taskId, te.description, te.date, te.startTime, te.endTime, te.duration,
+        te.isTemplate, te.isBillable, te.isApproved, te.isManualEntry, te.isTimerEntry, te.createdAt, te.updatedAt,
+        p.name as projectName
+      FROM time_entries te
+      JOIN projects p ON te.projectId = p.id
+      WHERE te.userId = @userId
+    `;
+
+    if (startDate) {
+      query += ' AND te.date >= @startDate';
+      request.input('startDate', sql.Date, startDate);
+    }
+    if (endDate) {
+      query += ' AND te.date <= @endDate';
+      request.input('endDate', sql.Date, endDate);
+    }
+
+    query += ' ORDER BY te.date DESC, te.createdAt DESC';
+    query += ` OFFSET 0 ROWS FETCH NEXT ${limit} ROWS ONLY`;
+
+    request.input('userId', sql.VarChar(255), userId);
+
+    const result = await request.query(query);
+
+    return result.recordset.map(row => ({
+      id: row.id,
+      userId: row.userId,
+      projectId: row.projectId,
+      taskId: row.taskId,
+      description: row.description,
+      date: row.date,
+      startTime: row.startTime,
+      endTime: row.endTime,
+      duration: row.duration,
+      isTemplate: row.isTemplate,
+      isBillable: row.isBillable,
+      isApproved: row.isApproved,
+      isManualEntry: row.isManualEntry,
+      isTimerEntry: row.isTimerEntry,
+      createdAt: row.createdAt,
+      updatedAt: row.updatedAt,
+      projectName: row.projectName,
+    }));
+  }
+
+  async getTestUsers(): Promise<User[]> {
+    const pool = this.getPool();
+    const result = await pool.request()
+      .query(`
+        SELECT id, email, firstName, lastName, role, profileImageUrl, isActive, lastLoginAt, createdAt, updatedAt
+        FROM users 
+        WHERE email LIKE '%timetracker.test'
+        ORDER BY created_at ASC
+      `);
+
+    return result.recordset.map(row => ({
+      id: row.id,
+      email: row.email,
+      firstName: row.firstName,
+      lastName: row.lastName,
+      role: row.role,
+      profileImageUrl: row.profileImageUrl,
+      isActive: row.isActive,
+      lastLoginAt: row.lastLoginAt,
+      createdAt: row.createdAt,
+      updatedAt: row.updatedAt,
+    }));
   }
 }
