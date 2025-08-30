@@ -46,7 +46,7 @@ IF OBJECT_ID('users', 'U') IS NOT NULL DROP TABLE users;
 GO
 
 -- =============================================================================
--- Core Tables (in dependency order with NO ACTION to prevent cycles)
+-- Core Tables (in dependency order)
 -- =============================================================================
 
 -- Users (base table with no dependencies)
@@ -185,7 +185,7 @@ CREATE TABLE time_entries (
 GO
 
 -- =============================================================================
--- Add Foreign Key Constraints (with NO ACTION to prevent cascade cycles)
+-- Add Foreign Key Constraints (NO ACTION to prevent cascade cycles)
 -- =============================================================================
 
 -- Organizations foreign keys
@@ -193,15 +193,10 @@ ALTER TABLE organizations
 ADD CONSTRAINT FK_organizations_user 
 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
--- Update users with organization reference (nullable, no constraint to avoid cycle)
--- ALTER TABLE users 
--- ADD CONSTRAINT FK_users_organization 
--- FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE NO ACTION ON UPDATE NO ACTION;
-
--- Employees foreign keys
+-- Employees foreign keys  
 ALTER TABLE employees 
 ADD CONSTRAINT FK_employees_user 
-FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL ON UPDATE NO ACTION;
+FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 -- Departments foreign keys
 ALTER TABLE departments 
@@ -210,7 +205,7 @@ FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE NO ACTION O
 
 ALTER TABLE departments 
 ADD CONSTRAINT FK_departments_manager 
-FOREIGN KEY (manager_id) REFERENCES employees(id) ON DELETE SET NULL ON UPDATE NO ACTION;
+FOREIGN KEY (manager_id) REFERENCES employees(id) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 ALTER TABLE departments 
 ADD CONSTRAINT FK_departments_user 
@@ -219,32 +214,32 @@ FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE NO ACTION ON UPDATE NO ACTI
 -- Projects foreign keys
 ALTER TABLE projects 
 ADD CONSTRAINT FK_projects_org 
-FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE SET NULL ON UPDATE NO ACTION;
+FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 ALTER TABLE projects 
 ADD CONSTRAINT FK_projects_dept 
-FOREIGN KEY (department_id) REFERENCES departments(id) ON DELETE SET NULL ON UPDATE NO ACTION;
+FOREIGN KEY (department_id) REFERENCES departments(id) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 ALTER TABLE projects 
 ADD CONSTRAINT FK_projects_manager 
-FOREIGN KEY (manager_id) REFERENCES users(id) ON DELETE SET NULL ON UPDATE NO ACTION;
+FOREIGN KEY (manager_id) REFERENCES users(id) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 ALTER TABLE projects 
 ADD CONSTRAINT FK_projects_user 
 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
--- Tasks foreign keys
+-- Tasks foreign keys (CASCADE only for project deletion, NO ACTION for user references)
 ALTER TABLE tasks 
 ADD CONSTRAINT FK_tasks_project 
 FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE ON UPDATE NO ACTION;
 
 ALTER TABLE tasks 
 ADD CONSTRAINT FK_tasks_assigned 
-FOREIGN KEY (assigned_to) REFERENCES users(id) ON DELETE SET NULL ON UPDATE NO ACTION;
+FOREIGN KEY (assigned_to) REFERENCES users(id) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 ALTER TABLE tasks 
 ADD CONSTRAINT FK_tasks_creator 
-FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL ON UPDATE NO ACTION;
+FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 -- Project employees foreign keys
 ALTER TABLE project_employees 
@@ -259,18 +254,18 @@ ALTER TABLE project_employees
 ADD CONSTRAINT FK_projempl_user 
 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
--- Time entries foreign keys
+-- Time entries foreign keys (NO ACTION for all to prevent cycles)
 ALTER TABLE time_entries 
 ADD CONSTRAINT FK_timeentry_user 
 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 ALTER TABLE time_entries 
 ADD CONSTRAINT FK_timeentry_project 
-FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE SET NULL ON UPDATE NO ACTION;
+FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 ALTER TABLE time_entries 
 ADD CONSTRAINT FK_timeentry_task 
-FOREIGN KEY (task_id) REFERENCES tasks(id) ON DELETE SET NULL ON UPDATE NO ACTION;
+FOREIGN KEY (task_id) REFERENCES tasks(id) ON DELETE NO ACTION ON UPDATE NO ACTION;
 GO
 
 -- =============================================================================
