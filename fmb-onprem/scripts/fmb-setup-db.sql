@@ -1,4 +1,3 @@
-
 -- FMB TimeTracker Database Setup for MS SQL Server
 -- Complete one-file setup for HUB-SQL1TST-LIS
 -- This script handles: table creation, column name fixes, trigger removal, and validation
@@ -721,43 +720,43 @@ PRINT '🔧 STEP 4: Adding foreign key constraints...';
 BEGIN TRY
     IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE name = 'FK_organizations_userId')
         ALTER TABLE [dbo].[organizations] ADD CONSTRAINT FK_organizations_userId FOREIGN KEY ([userId]) REFERENCES [dbo].[users]([id]) ON DELETE CASCADE;
-    
+
     IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE name = 'FK_departments_organizationId')
         ALTER TABLE [dbo].[departments] ADD CONSTRAINT FK_departments_organizationId FOREIGN KEY ([organizationId]) REFERENCES [dbo].[organizations]([id]) ON DELETE CASCADE;
-    
+
     IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE name = 'FK_departments_userId')
         ALTER TABLE [dbo].[departments] ADD CONSTRAINT FK_departments_userId FOREIGN KEY ([userId]) REFERENCES [dbo].[users]([id]) ON DELETE CASCADE;
-    
+
     IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE name = 'FK_departments_managerId')
         ALTER TABLE [dbo].[departments] ADD CONSTRAINT FK_departments_managerId FOREIGN KEY ([managerId]) REFERENCES [dbo].[employees]([id]) ON DELETE SET NULL;
-    
+
     IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE name = 'FK_employees_userId')
         ALTER TABLE [dbo].[employees] ADD CONSTRAINT FK_employees_userId FOREIGN KEY ([userId]) REFERENCES [dbo].[users]([id]) ON DELETE CASCADE;
-    
+
     IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE name = 'FK_projects_userId')
         ALTER TABLE [dbo].[projects] ADD CONSTRAINT FK_projects_userId FOREIGN KEY ([userId]) REFERENCES [dbo].[users]([id]) ON DELETE CASCADE;
-    
+
     IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE name = 'FK_tasks_projectId')
         ALTER TABLE [dbo].[tasks] ADD CONSTRAINT FK_tasks_projectId FOREIGN KEY ([projectId]) REFERENCES [dbo].[projects]([id]) ON DELETE CASCADE;
-    
+
     IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE name = 'FK_time_entries_userId')
         ALTER TABLE [dbo].[time_entries] ADD CONSTRAINT FK_time_entries_userId FOREIGN KEY ([userId]) REFERENCES [dbo].[users]([id]) ON DELETE CASCADE;
-    
+
     IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE name = 'FK_time_entries_projectId')
         ALTER TABLE [dbo].[time_entries] ADD CONSTRAINT FK_time_entries_projectId FOREIGN KEY ([projectId]) REFERENCES [dbo].[projects]([id]) ON DELETE CASCADE;
-    
+
     IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE name = 'FK_time_entries_taskId')
         ALTER TABLE [dbo].[time_entries] ADD CONSTRAINT FK_time_entries_taskId FOREIGN KEY ([taskId]) REFERENCES [dbo].[tasks]([id]) ON DELETE SET NULL;
-    
+
     IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE name = 'FK_project_employees_projectId')
         ALTER TABLE [dbo].[project_employees] ADD CONSTRAINT FK_project_employees_projectId FOREIGN KEY ([projectId]) REFERENCES [dbo].[projects]([id]) ON DELETE CASCADE;
-    
+
     IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE name = 'FK_project_employees_employeeId')
         ALTER TABLE [dbo].[project_employees] ADD CONSTRAINT FK_project_employees_employeeId FOREIGN KEY ([employeeId]) REFERENCES [dbo].[employees]([id]) ON DELETE CASCADE;
-    
+
     IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE name = 'FK_project_employees_userId')
         ALTER TABLE [dbo].[project_employees] ADD CONSTRAINT FK_project_employees_userId FOREIGN KEY ([userId]) REFERENCES [dbo].[users]([id]) ON DELETE NO ACTION;
-    
+
     PRINT '✅ Foreign key constraints added successfully';
 END TRY
 BEGIN CATCH
@@ -853,7 +852,7 @@ BEGIN TRY
     END
     ELSE
         PRINT '✅ Test admin user already exists';
-    
+
     -- Insert test organization
     IF NOT EXISTS (SELECT 1 FROM organizations WHERE name = 'Test Organization')
     BEGIN
@@ -863,7 +862,7 @@ BEGIN TRY
     END
     ELSE
         PRINT '✅ Test organization already exists';
-    
+
     -- Insert test project
     IF NOT EXISTS (SELECT 1 FROM projects WHERE name = 'Default Project')
     BEGIN
@@ -873,12 +872,12 @@ BEGIN TRY
     END
     ELSE
         PRINT '✅ Test project already exists';
-    
+
     IF EXISTS (SELECT 1 FROM users WHERE id = 'test-admin-user')
         PRINT '✅ Database operations: INSERT/SELECT works';
     ELSE
         PRINT '❌ Database operations: INSERT/SELECT failed';
-    
+
 END TRY
 BEGIN CATCH
     PRINT '❌ Database operations failed: ' + ERROR_MESSAGE();

@@ -98,8 +98,9 @@ export function loadFmbOnPremConfig(): FmbOnPremConfig {
 export function isFmbOnPremEnvironment(): boolean {
   // Check if we're running in FMB on-premises environment
   // Only use FMB when explicitly configured
-  return process.env.FMB_ONPREM === 'true' ||
-         !!process.env.FMB_SAML_ENTRY_POINT;
+  return process.env.FMB_DEPLOYMENT === 'onprem' ||
+         process.env.FMB_ONPREM === 'true' ||
+         !!process.env.FMB_SAML_ENTITY_ID;
 }
 
 export function isActualOnPremDeployment(): boolean {

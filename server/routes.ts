@@ -59,14 +59,19 @@ function extractUserId(user: any): string {
 // Helper function to get user by ID, handling both Replit and SAML user IDs
 async function getUserById(userId: string) {
   const activeStorage = getStorage();
-  // Attempt to get user using the provided ID, which could be from Replit (sub) or SAML (id/email)
-  const user = await activeStorage.getUser(userId);
-  // If not found with the direct ID, and it looks like an email (from SAML), try searching by email
-  if (!user && userId.includes('@')) {
-    const userByEmail = await activeStorage.getUserByEmail(userId);
-    return userByEmail;
+  try {
+    // Attempt to get user using the provided ID, which could be from Replit (sub) or SAML (id/email)
+    const user = await activeStorage.getUser(userId);
+    // If not found with the direct ID, and it looks like an email (from SAML), try searching by email
+    if (!user && userId.includes('@') && activeStorage.getUserByEmail) {
+      const userByEmail = await activeStorage.getUserByEmail(userId);
+      return userByEmail;
+    }
+    return user;
+  } catch (error) {
+    console.error("Error getting user by ID:", error);
+    return null;
   }
-  return user;
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {

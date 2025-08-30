@@ -79,12 +79,13 @@ export class FmbStorage {
         request.input(`param${index}`, param);
       });
 
+      this.storageLog('EXECUTE', `Running query: ${query.substring(0, 100)}...`, { paramCount: params.length });
       const result = await request.query(query);
-      return result.recordset || result.recordsets || [];
+      this.storageLog('EXECUTE', `Query completed successfully`, { recordCount: result.recordset?.length || 0 });
+      return result.recordset || result.recordsets;
     } catch (error) {
+      this.storageLog('EXECUTE', `Query execution failed: ${query.substring(0, 100)}...`, error);
       console.error('❌ [FMB-STORAGE] Query execution failed:', error);
-      console.error('Query:', query);
-      console.error('Params:', params);
       throw error;
     }
   }
@@ -106,7 +107,7 @@ export class FmbStorage {
     try {
       this.storageLog('GET_USER', `Fetching user with id: ${id}`);
       const result = await this.execute(
-        'SELECT id, email, firstName, lastName, profileImageUrl, role, isActive, lastLoginAt, createdAt, updatedAt FROM users WHERE id = @param0',
+        'SELECT id, email, first_name, last_name, profile_image_url, role, is_active, last_login_at, created_at, updated_at FROM users WHERE id = @param0',
         [id]
       );
       const user = result[0];
@@ -129,13 +130,13 @@ export class FmbStorage {
         // Update existing user
         await this.execute(`
           UPDATE users 
-          SET email = @param0, firstName = @param1, lastName = @param2, 
-              profileImageUrl = @param3, lastLoginAt = GETUTCDATE(), updatedAt = GETUTCDATE()
+          SET email = @param0, first_name = @param1, last_name = @param2, 
+              profile_image_url = @param3, last_login_at = GETDATE(), updated_at = GETDATE()
           WHERE id = @param4
         `, [user.email, user.firstName, user.lastName, user.profileImageUrl, user.id]);
 
         const result = await this.execute(`
-          SELECT id, email, firstName, lastName, profileImageUrl, role, isActive, lastLoginAt, createdAt, updatedAt 
+          SELECT id, email, first_name, last_name, profile_image_url, role, is_active, last_login_at, created_at, updated_at 
           FROM users WHERE id = @param0
         `, [user.id]);
 
@@ -144,12 +145,12 @@ export class FmbStorage {
       } else {
         // Insert new user
         await this.execute(`
-          INSERT INTO users (id, email, firstName, lastName, profileImageUrl, role, isActive, lastLoginAt, createdAt, updatedAt)
-          VALUES (@param0, @param1, @param2, @param3, @param4, 'employee', 1, GETUTCDATE(), GETUTCDATE(), GETUTCDATE())
-        `, [user.id, user.email, user.firstName, user.lastName, user.profileImageUrl]);
+          INSERT INTO users (id, email, first_name, last_name, profile_image_url, role, is_active, last_login_at, created_at, updated_at)
+          VALUES (@param0, @param1, @param2, @param3, @param4, @param5, @param6, GETDATE(), GETDATE(), GETDATE())
+        `, [user.id, user.email, user.firstName, user.lastName, user.profileImageUrl, 'employee', 1]);
 
         const result = await this.execute(`
-          SELECT id, email, firstName, lastName, profileImageUrl, role, isActive, lastLoginAt, createdAt, updatedAt 
+          SELECT id, email, first_name, last_name, profile_image_url, role, is_active, last_login_at, created_at, updated_at 
           FROM users WHERE id = @param0
         `, [user.id]);
 
@@ -168,7 +169,7 @@ export class FmbStorage {
     try {
       await this.execute(`
         UPDATE users 
-        SET role = @param0, updatedAt = GETUTCDATE()
+        SET role = @param0, updated_at = GETDATE()
         WHERE id = @param1
       `, [role, id]);
 
@@ -723,23 +724,23 @@ export class FmbStorage {
   async getTestUsers(): Promise<User[]> {
     this.storageLog('GET_TEST_USERS', 'Fetching test users');
     const result = await this.execute(`
-      SELECT id, email, firstName, lastName, role, profileImageUrl, isActive, lastLoginAt, createdAt, updatedAt
+      SELECT id, email, first_name, last_name, role, profile_image_url, is_active, last_login_at, created_at, updated_at
       FROM users 
       WHERE email LIKE '%timetracker.test'
-      ORDER BY createdAt ASC
+      ORDER BY created_at ASC
     `);
 
     return result.map((row: any) => ({
       id: row.id,
       email: row.email,
-      firstName: row.firstName,
-      lastName: row.lastName,
+      firstName: row.first_name,
+      lastName: row.last_name,
       role: row.role,
-      profileImageUrl: row.profileImageUrl,
-      isActive: row.isActive,
-      lastLoginAt: row.lastLoginAt,
-      createdAt: row.createdAt,
-      updatedAt: row.updatedAt,
+      profileImageUrl: row.profile_image_url,
+      isActive: row.is_active,
+      lastLoginAt: row.last_login_at,
+      createdAt: row.created_at,
+      updatedAt: row.updated_at,
     }));
   }
 }

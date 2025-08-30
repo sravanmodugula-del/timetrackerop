@@ -7,8 +7,10 @@ import type { Express, RequestHandler } from "express";
 import memoize from "memoizee";
 import connectPg from "connect-pg-simple";
 import { storage } from "./storage";
+import { isFmbOnPremEnvironment } from "../fmb-onprem/config/fmb-env.js";
 
-if (!process.env.REPLIT_DOMAINS) {
+// Only check for REPLIT_DOMAINS in Replit environments
+if (!isFmbOnPremEnvironment() && !process.env.REPLIT_DOMAINS) {
   throw new Error("Environment variable REPLIT_DOMAINS not provided");
 }
 
