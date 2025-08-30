@@ -83,6 +83,22 @@ BEGIN
 END
 ELSE
     PRINT '✅ Sessions table already exists';
+
+-- Clean up expired sessions periodically
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[CleanupExpiredSessions]') AND type in (N'P'))
+BEGIN
+    EXEC('
+    CREATE PROCEDURE [dbo].[CleanupExpiredSessions]
+    AS
+    BEGIN
+        DELETE FROM [dbo].[sessions] WHERE [expire] < GETUTCDATE();
+        PRINT ''Cleaned up expired sessions'';
+    END
+    ');
+    PRINT '✅ Created session cleanup procedure';
+END
+ELSE
+    PRINT '✅ Session cleanup procedure already exists';
 GO
 
 -- Users table (consolidated with employee information)
