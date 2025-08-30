@@ -1,6 +1,5 @@
 
-import pkg from 'mssql';
-const { sql } = pkg;
+import sql from 'mssql';
 import type { 
   User, 
   Project, 
