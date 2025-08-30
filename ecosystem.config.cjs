@@ -1,7 +1,7 @@
 module.exports = {
   apps: [{
     name: 'fmb-timetracker',
-    script: './dist/server/index.js',
+    script: 'dist/index.js',
     env: {
       NODE_ENV: 'production',
       PORT: 3000,
