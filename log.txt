@@ -1,9 +1,5 @@
-Msg 1769, Level 16, State 1, Line 185
-Foreign key 'FK_departments_managerId' references invalid column 'managerId' in referencing table 'departments'.
-Msg 1750, Level 16, State 0, Line 185
-Could not create constraint or index. See previous errors.
-Msg 1911, Level 16, State 1, Line 193
+Msg 1911, Level 16, State 1, Line 197
 Column name 'userId' does not exist in the target table or view.
 FMB TimeTracker database schema created successfully
 
-Completion time: 2025-08-30T02:25:33.0152006-07:00
+Completion time: 2025-08-30T02:32:16.5066306-07:00
