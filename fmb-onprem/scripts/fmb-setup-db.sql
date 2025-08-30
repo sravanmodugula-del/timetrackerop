@@ -178,40 +178,65 @@ BEGIN
 END
 GO
 
--- Add foreign key constraints for project_employees after table creation
+-- Add foreign key constraints for project_employees after all tables are created
 IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE name = 'FK_project_employees_projectId')
+AND EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[project_employees]') AND type in (N'U'))
+AND EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[projects]') AND type in (N'U'))
+AND EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[project_employees]') AND name = 'projectId')
 BEGIN
     ALTER TABLE [dbo].[project_employees] ADD CONSTRAINT FK_project_employees_projectId 
     FOREIGN KEY ([projectId]) REFERENCES [dbo].[projects]([id]) ON DELETE CASCADE;
+    PRINT 'Added FK_project_employees_projectId constraint';
+END
+ELSE
+BEGIN
+    PRINT 'FK_project_employees_projectId constraint already exists or prerequisites not met';
 END
 GO
 
 IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE name = 'FK_project_employees_employeeId')
+AND EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[project_employees]') AND type in (N'U'))
+AND EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[employees]') AND type in (N'U'))
+AND EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[project_employees]') AND name = 'employeeId')
 BEGIN
     ALTER TABLE [dbo].[project_employees] ADD CONSTRAINT FK_project_employees_employeeId 
     FOREIGN KEY ([employeeId]) REFERENCES [dbo].[employees]([id]) ON DELETE CASCADE;
+    PRINT 'Added FK_project_employees_employeeId constraint';
+END
+ELSE
+BEGIN
+    PRINT 'FK_project_employees_employeeId constraint already exists or prerequisites not met';
 END
 GO
 
 IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE name = 'FK_project_employees_userId')
+AND EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[project_employees]') AND type in (N'U'))
+AND EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[users]') AND type in (N'U'))
+AND EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[project_employees]') AND name = 'userId')
 BEGIN
     ALTER TABLE [dbo].[project_employees] ADD CONSTRAINT FK_project_employees_userId 
     FOREIGN KEY ([userId]) REFERENCES [dbo].[users]([id]) ON DELETE CASCADE;
+    PRINT 'Added FK_project_employees_userId constraint';
+END
+ELSE
+BEGIN
+    PRINT 'FK_project_employees_userId constraint already exists or prerequisites not met';
 END
 GO
 
 -- Add foreign key for departments managerId now that employees table exists
 IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE name = 'FK_departments_managerId')
+AND EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[departments]') AND type in (N'U'))
+AND EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[employees]') AND type in (N'U'))
+AND EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[departments]') AND name = 'managerId')
 BEGIN
-    IF EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[employees]') AND type in (N'U'))
-    BEGIN
-        -- Only add the constraint if managerId column exists and is not null
-        IF EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[departments]') AND name = 'managerId')
-        BEGIN
-            ALTER TABLE [dbo].[departments] ADD CONSTRAINT FK_departments_managerId 
-            FOREIGN KEY ([managerId]) REFERENCES [dbo].[employees]([id]);
-        END
-    END
+    ALTER TABLE [dbo].[departments] ADD CONSTRAINT FK_departments_managerId 
+    FOREIGN KEY ([managerId]) REFERENCES [dbo].[employees]([id]);
+    PRINT 'Added FK_departments_managerId constraint';
+END
+ELSE
+BEGIN
+    PRINT 'FK_departments_managerId constraint already exists or prerequisites not met';
 END
 GO
 
