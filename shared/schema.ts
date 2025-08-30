@@ -35,7 +35,7 @@ export const users = pgTable("users", {
   lastName: varchar("last_name"),
   profileImageUrl: varchar("profile_image_url"),
   role: varchar("role", { length: 50 }).default("employee"), // admin, manager, employee, viewer
-  isActive: boolean("is_active").default(true),
+  isActive: boolean("is_active").default(true).notNull(),
   lastLoginAt: timestamp("last_login_at"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
@@ -53,6 +53,14 @@ export const projects = pgTable("projects", {
   userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
+  // Project settings
+  isTemplate: boolean('is_template').default(false).notNull(),
+  allowTimeTracking: boolean('allow_time_tracking').default(true).notNull(),
+  requireTaskSelection: boolean('require_task_selection').default(false).notNull(),
+
+  // Budget and billing
+  enableBudgetTracking: boolean('enable_budget_tracking').default(false).notNull(),
+  enableBilling: boolean('enable_billing').default(false).notNull(),
 });
 
 // Project tasks table
@@ -78,6 +86,14 @@ export const timeEntries = pgTable("time_entries", {
   duration: decimal("duration", { precision: 5, scale: 2 }).notNull(), // Hours with 2 decimal places
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
+  // Entry metadata
+  isTemplate: boolean('is_template').default(false).notNull(),
+  isBillable: boolean('is_billable').default(false).notNull(),
+  isApproved: boolean('is_approved').default(false).notNull(),
+
+  // Time tracking settings
+  isManualEntry: boolean('is_manual_entry').default(true).notNull(),
+  isTimerEntry: boolean('is_timer_entry').default(false).notNull(),
 });
 
 // Relations
@@ -255,16 +271,16 @@ export const departmentsRelations = relations(departments, ({ one }) => ({
   }),
 }));
 
-export const insertOrganizationSchema = createInsertSchema(organizations).omit({ 
-  id: true, 
-  createdAt: true, 
-  updatedAt: true 
+export const insertOrganizationSchema = createInsertSchema(organizations).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true
 });
 
-export const insertDepartmentSchema = createInsertSchema(departments).omit({ 
-  id: true, 
-  createdAt: true, 
-  updatedAt: true 
+export const insertDepartmentSchema = createInsertSchema(departments).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true
 });
 
 export type Organization = typeof organizations.$inferSelect;
