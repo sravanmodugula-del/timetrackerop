@@ -16,14 +16,14 @@ export async function initializeFmbDatabase() {
     database: config.database.database,
     user: config.database.user,
     password: config.database.password,
-    port: config.database.port,
-    encrypt: config.database.encrypt,
-    trustServerCertificate: config.database.trustServerCertificate,
     options: {
+      port: parseInt(config.database.port),
       enableArithAbort: true,
       connectTimeout: 30000,
       requestTimeout: 30000
-    }
+    },
+    encrypt: config.database.encrypt,
+    trustServerCertificate: config.database.trustServerCertificate,
   });
 
   try {
