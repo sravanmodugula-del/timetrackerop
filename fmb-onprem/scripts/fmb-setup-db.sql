@@ -1,4 +1,3 @@
-
 -- FMB TimeTracker Database Setup for MS SQL Server
 -- Run this script on HUB-SQL1TST-LIS
 
@@ -181,11 +180,14 @@ BEGIN
 END
 GO
 
--- Add foreign key for departments managerId if it doesn't exist
+-- Add foreign key for departments managerId now that employees table exists
 IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE name = 'FK_departments_managerId')
 BEGIN
-    ALTER TABLE [dbo].[departments] ADD CONSTRAINT FK_departments_managerId 
-    FOREIGN KEY ([managerId]) REFERENCES [dbo].[employees]([id]);
+    IF EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[employees]') AND type in (N'U'))
+    BEGIN
+        ALTER TABLE [dbo].[departments] ADD CONSTRAINT FK_departments_managerId 
+        FOREIGN KEY ([managerId]) REFERENCES [dbo].[employees]([id]);
+    END
 END
 GO
 
