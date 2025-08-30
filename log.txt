@@ -1,18 +1,14 @@
 You have triggered an unhandledRejection, you may have forgotten to catch a Promise rejection:
-Error: Environment variable REPLIT_DOMAINS not provided
-    at file:///C:/fmb-timetracker/dist/index.js:1492:9
-    at ModuleJob.run (node:internal/modules/esm/module_job:343:25)
+file:///C:/fmb-timetracker/dist/index.js:61
+import { sql } from "mssql";
+         ^^^
+SyntaxError: Named export 'sql' not found. The requested module 'mssql' is a CommonJS module, which may not support all module.exports as named exports.
+CommonJS modules can always be imported via the default export, for example using:
+
+import pkg from 'mssql';
+const { sql } = pkg;
+
+    at ModuleJob._instantiate (node:internal/modules/esm/module_job:228:21)
     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:647:26)
-You have triggered an unhandledRejection, you may have forgotten to catch a Promise rejection:
-Error: Environment variable REPLIT_DOMAINS not provided
-    at file:///C:/fmb-timetracker/dist/index.js:1492:9
-    at ModuleJob.run (node:internal/modules/esm/module_job:343:25)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:647:26)
-You have triggered an unhandledRejection, you may have forgotten to catch a Promise rejection:
-Error: Environment variable REPLIT_DOMAINS not provided
-    at file:///C:/fmb-timetracker/dist/index.js:1492:9
-    at ModuleJob.run (node:internal/modules/esm/module_job:343:25)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async ModuleJob.run (node:internal/modules/esm/module_job:335:5)
     at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:647:26)
