@@ -1,56 +1,6 @@
-2025-08-29T20:28:29: [dotenv@17.2.1] injecting env (17) from .env -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
-2025-08-29T20:28:29: 2025-08-30T03:28:29.556Z 🔵 INFO [TIMEZONE] Set timezone to America/Los_Angeles
-2025-08-29T20:28:29: 2025-08-30T03:28:29.557Z 🔵 INFO [ENV] 🏢 Running in FMB on-premises mode
-2025-08-29T20:28:29: 2025-08-30T03:28:29.557Z 🔵 INFO [ENV] ✅ Production mode enabled - authentication bypass disabled
-2025-08-29T20:28:29: 2025-08-30T03:28:29.557Z 🔵 INFO [ENV] Environment validation completed successfully
-2025-08-29T20:28:29: 2025-08-30T03:28:29.561Z 🔵 INFO [FMB-ONPREM] Initializing on-premises services...
-2025-08-29T20:28:29: 🔧 Initializing FMB on-premises MS SQL database...
-2025-08-29T20:28:29: ❌ Failed to connect to FMB database: ConnectionError: Login failed for user 'timetracker'.
-    at C:\fmb-timetracker\node_modules\mssql\lib\tedious\connection-pool.js:85:17
-    at Connection.onConnect (C:\fmb-timetracker\node_modules\tedious\lib\connection.js:849:9)
-    at Object.onceWrapper (node:events:633:26)
-    at Connection.emit (node:events:518:28)
-    at Connection.emit (C:\fmb-timetracker\node_modules\tedious\lib\connection.js:970:18)
-    at C:\fmb-timetracker\node_modules\tedious\lib\connection.js:2369:18
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
-  code: 'ELOGIN',
-  originalError: ConnectionError: Login failed for user 'timetracker'.
-      at Login7TokenHandler.onErrorMessage (C:\fmb-timetracker\node_modules\tedious\lib\token\handler.js:186:19)
-      at Readable.<anonymous> (C:\fmb-timetracker\node_modules\tedious\lib\token\token-stream-parser.js:19:33)
-      at Readable.emit (node:events:518:28)
-      at addChunk (node:internal/streams/readable:561:12)
-      at readableAddChunkPushObjectMode (node:internal/streams/readable:538:3)
-      at Readable.push (node:internal/streams/readable:393:5)
-      at nextAsync (node:internal/streams/from:194:22)
-      at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
-    code: 'ELOGIN'
-  }
-}
-2025-08-29T20:28:36: [dotenv@17.2.1] injecting env (17) from .env -- tip: ⚙️  override existing env vars with { override: true }
-2025-08-29T20:28:36: 2025-08-30T03:28:36.840Z 🔵 INFO [TIMEZONE] Set timezone to America/Los_Angeles
-2025-08-29T20:28:36: 2025-08-30T03:28:36.841Z 🔵 INFO [ENV] 🏢 Running in FMB on-premises mode
-2025-08-29T20:28:36: 2025-08-30T03:28:36.841Z 🔵 INFO [ENV] ✅ Production mode enabled - authentication bypass disabled
-2025-08-29T20:28:36: 2025-08-30T03:28:36.841Z 🔵 INFO [ENV] Environment validation completed successfully
-2025-08-29T20:28:36: 2025-08-30T03:28:36.845Z 🔵 INFO [FMB-ONPREM] Initializing on-premises services...
-2025-08-29T20:28:36: 🔧 Initializing FMB on-premises MS SQL database...
-2025-08-29T20:28:37: ❌ Failed to connect to FMB database: ConnectionError: Login failed for user 'timetracker'.
-    at C:\fmb-timetracker\node_modules\mssql\lib\tedious\connection-pool.js:85:17
-    at Connection.onConnect (C:\fmb-timetracker\node_modules\tedious\lib\connection.js:849:9)
-    at Object.onceWrapper (node:events:633:26)
-    at Connection.emit (node:events:518:28)
-    at Connection.emit (C:\fmb-timetracker\node_modules\tedious\lib\connection.js:970:18)
-    at C:\fmb-timetracker\node_modules\tedious\lib\connection.js:2369:18
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
-  code: 'ELOGIN',
-  originalError: ConnectionError: Login failed for user 'timetracker'.
-      at Login7TokenHandler.onErrorMessage (C:\fmb-timetracker\node_modules\tedious\lib\token\handler.js:186:19)
-      at Readable.<anonymous> (C:\fmb-timetracker\node_modules\tedious\lib\token\token-stream-parser.js:19:33)
-      at Readable.emit (node:events:518:28)
-      at addChunk (node:internal/streams/readable:561:12)
-      at readableAddChunkPushObjectMode (node:internal/streams/readable:538:3)
-      at Readable.push (node:internal/streams/readable:393:5)
-      at nextAsync (node:internal/streams/from:194:22)
-      at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
-    code: 'ELOGIN'
-  }
-}
+-- Connect to SQL Server as an admin and run:
+USE master;
+CREATE LOGIN timetracker WITH PASSWORD = 'iTT!$Lo7gm"i''JAg~5Y\';
+USE timetracker;
+CREATE USER timetracker FOR LOGIN timetracker;
+ALTER ROLE db_owner ADD MEMBER timetracker;
