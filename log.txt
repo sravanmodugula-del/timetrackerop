@@ -1,6 +1,103 @@
--- Connect to SQL Server as an admin and run:
-USE master;
-CREATE LOGIN timetracker WITH PASSWORD = 'iTT!$Lo7gm"i''JAg~5Y\';
-USE timetracker;
-CREATE USER timetracker FOR LOGIN timetracker;
-ALTER ROLE db_owner ADD MEMBER timetracker;
+🚀 FMB TimeTracker Deployment (Windows)
+======================================
+⏹️ Stopping application...
+⚠️ Could not stop PM2 processes gracefully
+📦 Updating application...
+node.exe : npm warn config production Use `--omit=dev` instead.
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (npm warn config...t=dev` instead.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+npm warn ERESOLVE overriding peer dependency
+npm warn While resolving: vite@7.1.3
+npm warn Found: @types/node@20.16.11
+npm warn node_modules/@types/node
+npm warn   dev @types/node@"20.16.11" from the root project
+npm warn   16 more (@types/pg, @types/body-parser, @types/connect, ...)
+npm warn
+npm warn Could not resolve dependency:
+npm warn peerOptional @types/node@"^20.19.0 || >=22.12.0" from vite@7.1.3
+npm warn node_modules/vitest/node_modules/vite
+npm warn   vite@"^5.0.0 || ^6.0.0 || ^7.0.0-0" from vitest@3.2.4
+npm warn   node_modules/vitest
+npm warn   1 more (@vitest/mocker)
+npm warn
+npm warn Conflicting peer dependency: @types/node@24.3.0
+npm warn node_modules/@types/node
+npm warn   peerOptional @types/node@"^20.19.0 || >=22.12.0" from vite@7.1.3
+npm warn   node_modules/vitest/node_modules/vite
+npm warn     vite@"^5.0.0 || ^6.0.0 || ^7.0.0-0" from vitest@3.2.4
+npm warn     node_modules/vitest
+npm warn     1 more (@vitest/mocker)
+
+changed 1 package, and audited 678 packages in 3s
+
+100 packages are looking for funding
+  run `npm fund` for details
+
+4 vulnerabilities (3 moderate, 1 critical)
+
+To address all issues possible (including breaking changes), run:
+  npm audit fix --force
+
+Some issues need review, and may require choosing
+a different dependency.
+
+Run `npm audit` for details.
+✅ Dependencies updated
+🔨 Building application...
+
+> rest-express@1.0.0 build
+> vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
+
+node.exe : [31mfailed to load config from C:\fmb-timetracker\vite.config.ts[39m
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ([31mfailed to ....config.ts[39m:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+[31merror during build:
+Error [ERR_MODULE_NOT_FOUND]: Cannot find package '@vitejs/plugin-react' imported from C:\fmb-timetracker\vite.config.ts.timestamp-1756532174094-d6422020856af.mjs
+    at Object.getPackageJSONURL (node:internal/modules/package_json_reader:255:9)
+    at packageResolve (node:internal/modules/esm/resolve:767:81)
+    at moduleResolve (node:internal/modules/esm/resolve:853:18)
+    at defaultResolve (node:internal/modules/esm/resolve:983:11)
+    at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:783:12)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:707:25)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:690:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:307:38)
+    at ModuleJob._link (node:internal/modules/esm/module_job:183:49)[39m
+✅ Application built
+🔍 Running configuration health check...
+node : node:internal/modules/cjs/loader:1368
+At line:55 char:5
++     node -e "
++     ~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (node:internal/modules/cjs/loader:1368:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+  throw err;
+  ^
+Error: Cannot find module './fmb-onprem/config/fmb-env'
+Require stack:
+- C:\fmb-timetracker\[eval]
+    at Function._resolveFilename (node:internal/modules/cjs/loader:1365:15)
+    at defaultResolveImpl (node:internal/modules/cjs/loader:1021:19)
+    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1026:22)
+    at Function._load (node:internal/modules/cjs/loader:1175:37)
+    at TracingChannel.traceSync (node:diagnostics_channel:322:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:235:24)
+    at Module.require (node:internal/modules/cjs/loader:1445:12)
+    at require (node:internal/modules/helpers:135:16)
+    at [eval]:2:20
+    at runScriptInThisContext (node:internal/vm:209:10) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [ 'C:\\fmb-timetracker\\[eval]' ]
+}
+Node.js v22.18.0
+✅ Configuration validation passed
+▶️ Starting application...
+❌ Failed to start application
