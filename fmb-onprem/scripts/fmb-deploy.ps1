@@ -24,6 +24,13 @@ if (Test-Path $InstallPath) {
     Write-Host "✅ Backup created" -ForegroundColor Green
 }
 
+# Ensure required directories exist
+Write-Host "📁 Creating required directories..." -ForegroundColor Yellow
+if (-not (Test-Path "$InstallPath\logs")) {
+    New-Item -ItemType Directory -Path "$InstallPath\logs" -Force | Out-Null
+}
+Write-Host "✅ Directories created" -ForegroundColor Green
+
 # Stop PM2 processes
 Write-Host "⏹️ Stopping application..." -ForegroundColor Yellow
 try {
@@ -35,12 +42,12 @@ try {
 }
 
 # Update application
-Write-Host "📦 Updating application..." -ForegroundColor Yellow
+Write-Host "📦 Installing all dependencies..." -ForegroundColor Yellow
 try {
-    npm install --production
-    Write-Host "✅ Dependencies updated" -ForegroundColor Green
+    npm install
+    Write-Host "✅ All dependencies installed" -ForegroundColor Green
 } catch {
-    Write-Host "❌ Failed to update dependencies" -ForegroundColor Red
+    Write-Host "❌ Failed to install dependencies" -ForegroundColor Red
     exit 1
 }
 
@@ -48,21 +55,48 @@ try {
 Write-Host "🔨 Building application..." -ForegroundColor Yellow
 try {
     npm run build
-    Write-Host "✅ Application built" -ForegroundColor Green
+    
+    # Verify build artifacts exist
+    if (-not (Test-Path "dist")) {
+        Write-Host "❌ Build directory not found" -ForegroundColor Red
+        exit 1
+    }
+    
+    if (-not (Test-Path "dist/index.js")) {
+        Write-Host "❌ Server build not found" -ForegroundColor Red
+        exit 1
+    }
+    
+    Write-Host "✅ Application built successfully" -ForegroundColor Green
 } catch {
     Write-Host "❌ Build failed" -ForegroundColor Red
+    Write-Host "Error: $($_.Exception.Message)" -ForegroundColor Red
     exit 1
+}
+
+# Clean up dev dependencies for production
+Write-Host "🧹 Cleaning up dev dependencies..." -ForegroundColor Yellow
+try {
+    npm prune --production
+    Write-Host "✅ Dev dependencies removed" -ForegroundColor Green
+} catch {
+    Write-Host "⚠️ Could not prune dev dependencies" -ForegroundColor Yellow
 }
 
 # Health check
 Write-Host "🔍 Running configuration health check..." -ForegroundColor Yellow
 try {
     $env:FMB_DEPLOYMENT = "onprem"
+    $env:NODE_ENV = "production"
     node -e "
-    const config = require('./fmb-onprem/config/fmb-env');
-    config.loadFmbOnPremConfig();
-    console.log('✅ Configuration valid');
-    "
+    import('./fmb-onprem/config/fmb-env.js').then(config => {
+      config.loadFmbOnPremConfig();
+      console.log('✅ Configuration valid');
+    }).catch(err => {
+      console.error('❌ Config error:', err.message);
+      process.exit(1);
+    });
+    " --input-type=module
     Write-Host "✅ Configuration validation passed" -ForegroundColor Green
 } catch {
     Write-Host "❌ Configuration validation failed" -ForegroundColor Red
