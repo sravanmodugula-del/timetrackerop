@@ -100,14 +100,9 @@ try {
     exit 1
 }
 
-# Clean up dev dependencies for production
-Write-Host "🧹 Cleaning up dev dependencies..." -ForegroundColor Yellow
-try {
-    npm prune --production
-    Write-Host "✅ Dev dependencies removed" -ForegroundColor Green
-} catch {
-    Write-Host "⚠️ Could not prune dev dependencies" -ForegroundColor Yellow
-}
+# Skip cleaning dev dependencies to avoid missing Vite plugin errors
+Write-Host "📦 Keeping all dependencies for Vite compatibility..." -ForegroundColor Yellow
+Write-Host "✅ Dependencies preserved for production build" -ForegroundColor Green
 
 # Health check
 Write-Host "🔍 Running configuration health check..." -ForegroundColor Yellow
