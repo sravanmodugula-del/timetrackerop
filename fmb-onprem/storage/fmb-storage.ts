@@ -27,11 +27,12 @@ export class FmbStorage {
 
   async connect() {
     if (!this.pool) {
-      this.pool = new sql.ConnectionPool({
+      // Ensure password is properly handled for special characters
+      const connectionConfig = {
         server: this.config.server,
         database: this.config.database,
         user: this.config.user,
-        password: this.config.password,
+        password: this.config.password, // mssql library handles special characters internally
         port: this.config.port || 1433,
         options: {
           encrypt: this.config.encrypt !== false,
@@ -41,7 +42,9 @@ export class FmbStorage {
           requestTimeout: 30000,
           ...this.config.options
         }
-      });
+      };
+
+      this.pool = new sql.ConnectionPool(connectionConfig);
       await this.pool.connect();
     }
     return this.pool;
