@@ -27,20 +27,32 @@ export async function setupFmbSamlAuth(app: Express) {
   // Setup session management with MS SQL session store
   const sessionTtl = 7 * 24 * 60 * 60 * 1000; // 1 week
 
-  const MSSQLStore = connectSQLServer(session);
-  const sessionStore = new MSSQLStore({
-    server: config.database.server,
-    user: config.database.user,
-    password: config.database.password,
-    database: config.database.database,
-    port: parseInt(config.database.port),
-    options: {
-      encrypt: config.database.encrypt,
-      trustServerCertificate: config.database.trustServerCertificate,
-      enableArithAbort: true
-    },
-    table: 'sessions'
-  });
+  let sessionStore: any = undefined;
+  
+  try {
+    const MSSQLStore = connectSQLServer(session);
+    sessionStore = new MSSQLStore({
+      server: config.database.server,
+      user: config.database.user,
+      password: config.database.password,
+      database: config.database.database,
+      port: parseInt(config.database.port),
+      options: {
+        encrypt: config.database.encrypt,
+        trustServerCertificate: config.database.trustServerCertificate,
+        enableArithAbort: true,
+        requestTimeout: 30000,
+        connectionTimeout: 30000
+      },
+      table: 'sessions'
+    });
+    
+    authLog('INFO', 'MS SQL session store configured successfully');
+  } catch (error) {
+    authLog('ERROR', 'Failed to configure MS SQL session store, falling back to memory store:', error);
+    // Fall back to memory store if SQL store fails
+    sessionStore = undefined;
+  }
 
   app.use(session({
     store: sessionStore,
@@ -68,8 +80,9 @@ export async function setupFmbSamlAuth(app: Express) {
       cert: config.saml.certificate,
       validateInResponseTo: false,
       disableRequestedAuthnContext: true,
+      passReqToCallback: true, // Enable req parameter in callback
     },
-    async (profile: any, done: any) => {
+    async (req: any, profile: any, done: any) => {
       try {
         // Extract user data from SAML response
         const userData = {
@@ -89,12 +102,12 @@ export async function setupFmbSamlAuth(app: Express) {
           lastName: userData.lastName
         });
 
-        // Import upsertUser to ensure user exists in database
-        const { upsertUser } = await import('../../server/storage.js');
-
         try {
+          // Import storage functions
+          const fmbStorage = getFmbStorage();
+          
           // Ensure user exists in database
-          await upsertUser({
+          await fmbStorage.upsertUser({
             id: userData.id,
             email: userData.email,
             firstName: userData.firstName,
@@ -105,15 +118,18 @@ export async function setupFmbSamlAuth(app: Express) {
           });
 
           authLog('INFO', `User upserted in database: ${userData.email}`);
+          
+          // Store user data in session
+          if (req.session) {
+            req.session.user = userData;
+          }
+
+          return done(null, userData);
         } catch (dbError) {
           authLog('ERROR', `Failed to upsert user in database:`, dbError);
           // Continue with authentication even if database upsert fails
+          return done(null, userData);
         }
-
-        // Store user data in session
-        req.session.user = userData;
-
-        return done(null, user);
       } catch (error) {
         authLog('ERROR', 'Error processing SAML profile:', error);
         return done(error);
@@ -147,20 +163,49 @@ export async function setupFmbSamlAuth(app: Express) {
   });
 
   // SAML routes
-  app.get('/api/login', passport.authenticate('saml', {
-    failureRedirect: '/login-error',
-    failureFlash: true
-  }));
+  app.get('/api/login', (req, res, next) => {
+    authLog('INFO', 'SAML login initiated', { ip: req.ip, userAgent: req.get('User-Agent') });
+    passport.authenticate('saml', {
+      failureRedirect: '/login-error',
+      failureFlash: true
+    })(req, res, next);
+  });
 
-  app.post('/saml/acs', passport.authenticate('saml', {
-    failureRedirect: '/login-error',
-    successRedirect: '/'
-  }));
+  app.post('/saml/acs', (req, res, next) => {
+    authLog('INFO', 'SAML ACS callback received', { ip: req.ip, userAgent: req.get('User-Agent') });
+    passport.authenticate('saml', {
+      failureRedirect: '/login-error',
+      successRedirect: '/'
+    })(req, res, next);
+  });
 
   app.get('/api/logout', (req, res) => {
+    authLog('INFO', 'User logout initiated', { sessionId: req.sessionID });
     req.logout(() => {
-      res.redirect('/');
+      if (req.session) {
+        req.session.destroy(() => {
+          res.redirect('/');
+        });
+      } else {
+        res.redirect('/');
+      }
     });
+  });
+
+  // Error handling route for SAML failures
+  app.get('/login-error', (req, res) => {
+    authLog('ERROR', 'SAML authentication error page accessed', { ip: req.ip });
+    res.status(401).send(`
+      <!DOCTYPE html>
+      <html>
+      <head><title>Authentication Error</title></head>
+      <body>
+        <h1>Authentication Failed</h1>
+        <p>There was an error during the SAML authentication process.</p>
+        <p><a href="/api/login">Try Again</a></p>
+      </body>
+      </html>
+    `);
   });
 
   authLog('INFO', 'FMB SAML Authentication configured successfully');
