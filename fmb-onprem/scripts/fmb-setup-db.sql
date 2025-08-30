@@ -33,7 +33,7 @@ BEGIN
         [email] NVARCHAR(255) UNIQUE,
         [firstName] NVARCHAR(255),
         [lastName] NVARCHAR(255),
-        [employee_id] NVARCHAR(255) UNIQUE,
+        [employeeId] NVARCHAR(255) UNIQUE,
         [department] NVARCHAR(255),
         [profileImageUrl] NVARCHAR(255),
         [role] NVARCHAR(50) DEFAULT 'employee',
@@ -46,6 +46,42 @@ BEGIN
 END
 ELSE
     PRINT '✅ Users table already exists';
+GO
+
+-- Add missing columns if they don't exist (for existing installations)
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[users]') AND name = 'profileImageUrl')
+BEGIN
+    ALTER TABLE [dbo].[users] ADD [profileImageUrl] NVARCHAR(255);
+    PRINT '✅ Added profileImageUrl column to users table';
+END
+GO
+
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[users]') AND name = 'firstName')
+BEGIN
+    ALTER TABLE [dbo].[users] ADD [firstName] NVARCHAR(255);
+    PRINT '✅ Added firstName column to users table';
+END
+GO
+
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[users]') AND name = 'lastName')
+BEGIN
+    ALTER TABLE [dbo].[users] ADD [lastName] NVARCHAR(255);
+    PRINT '✅ Added lastName column to users table';
+END
+GO
+
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[users]') AND name = 'isActive')
+BEGIN
+    ALTER TABLE [dbo].[users] ADD [isActive] BIT NOT NULL DEFAULT 1;
+    PRINT '✅ Added isActive column to users table';
+END
+GO
+
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[users]') AND name = 'lastLoginAt')
+BEGIN
+    ALTER TABLE [dbo].[users] ADD [lastLoginAt] DATETIME2;
+    PRINT '✅ Added lastLoginAt column to users table';
+END
 GO
 
 -- Organizations table
@@ -161,10 +197,10 @@ IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[pr
 BEGIN
     CREATE TABLE [dbo].[project_employees] (
         [id] UNIQUEIDENTIFIER NOT NULL PRIMARY KEY DEFAULT NEWID(),
-        [project_id] UNIQUEIDENTIFIER NOT NULL,
-        [user_id] UNIQUEIDENTIFIER NOT NULL,
-        [created_at] DATETIME2 DEFAULT GETUTCDATE(),
-        [updated_at] DATETIME2 DEFAULT GETUTCDATE()
+        [projectId] UNIQUEIDENTIFIER NOT NULL,
+        [userId] UNIQUEIDENTIFIER NOT NULL,
+        [createdAt] DATETIME2 DEFAULT GETUTCDATE(),
+        [updatedAt] DATETIME2 DEFAULT GETUTCDATE()
     );
     PRINT '✅ Created project_employees table';
 END
@@ -201,11 +237,11 @@ BEGIN TRY
     IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE name = 'FK_time_entries_taskId')
         ALTER TABLE [dbo].[time_entries] ADD CONSTRAINT FK_time_entries_taskId FOREIGN KEY ([taskId]) REFERENCES [dbo].[tasks]([id]) ON DELETE SET NULL;
     
-    IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE name = 'FK_project_employees_project_id')
-        ALTER TABLE [dbo].[project_employees] ADD CONSTRAINT FK_project_employees_project_id FOREIGN KEY ([project_id]) REFERENCES [dbo].[projects]([id]) ON DELETE CASCADE;
+    IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE name = 'FK_project_employees_projectId')
+        ALTER TABLE [dbo].[project_employees] ADD CONSTRAINT FK_project_employees_projectId FOREIGN KEY ([projectId]) REFERENCES [dbo].[projects]([id]) ON DELETE CASCADE;
     
-    IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE name = 'FK_project_employees_user_id')
-        ALTER TABLE [dbo].[project_employees] ADD CONSTRAINT FK_project_employees_user_id FOREIGN KEY ([user_id]) REFERENCES [dbo].[users]([id]) ON DELETE CASCADE;
+    IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE name = 'FK_project_employees_userId')
+        ALTER TABLE [dbo].[project_employees] ADD CONSTRAINT FK_project_employees_userId FOREIGN KEY ([userId]) REFERENCES [dbo].[users]([id]) ON DELETE CASCADE;
     
     PRINT '✅ Foreign key constraints added successfully';
 END TRY
@@ -227,8 +263,8 @@ IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = 'IDX_projects_enterprise')
 IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = 'IDX_users_email')
     CREATE INDEX IDX_users_email ON [dbo].[users] ([email]);
 
-IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = 'IDX_users_employee_id')
-    CREATE INDEX IDX_users_employee_id ON [dbo].[users] ([employee_id]);
+IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = 'IDX_users_employeeId')
+    CREATE INDEX IDX_users_employeeId ON [dbo].[users] ([employeeId]);
 
 PRINT '✅ Performance indexes created';
 GO
