@@ -179,31 +179,73 @@ try {
         npm install -g pm2
     }
     
-    # Start the application
-    npx pm2 start ecosystem.config.cjs --env production
+    # Stop any existing processes first
+    Write-Host "🛑 Stopping any existing processes..." -ForegroundColor Yellow
+    npx pm2 delete fmb-timetracker 2>$null
     
-    # Wait a moment for the process to start
-    Start-Sleep -Seconds 3
+    # Start the application with explicit production environment
+    Write-Host "🚀 Starting application with PM2..." -ForegroundColor Yellow
+    npx pm2 start ecosystem.config.cjs --env production --no-daemon
     
-    # Check if the process is running
-    $processStatus = npx pm2 jlist | ConvertFrom-Json
-    $appProcess = $processStatus | Where-Object { $_.name -eq "fmb-timetracker" }
+    # Wait for the process to initialize
+    Start-Sleep -Seconds 5
     
-    if ($appProcess -and $appProcess.pm2_env.status -eq "online") {
-        Write-Host "✅ Application started successfully" -ForegroundColor Green
-    } else {
-        Write-Host "❌ Application failed to start properly" -ForegroundColor Red
+    # Check process status multiple times with retries
+    $maxRetries = 6
+    $retryCount = 0
+    $processOnline = $false
+    
+    while ($retryCount -lt $maxRetries -and -not $processOnline) {
+        $retryCount++
+        Write-Host "🔍 Checking process status (attempt $retryCount/$maxRetries)..." -ForegroundColor Yellow
+        
+        try {
+            $processStatus = npx pm2 jlist | ConvertFrom-Json
+            $appProcess = $processStatus | Where-Object { $_.name -eq "fmb-timetracker" }
+            
+            if ($appProcess) {
+                $status = $appProcess.pm2_env.status
+                Write-Host "📊 Process status: $status" -ForegroundColor Cyan
+                
+                if ($status -eq "online") {
+                    $processOnline = $true
+                    Write-Host "✅ Application started successfully" -ForegroundColor Green
+                } elseif ($status -eq "errored" -or $status -eq "stopped") {
+                    Write-Host "❌ Application process failed with status: $status" -ForegroundColor Red
+                    Write-Host "📝 Recent error logs:" -ForegroundColor Yellow
+                    npx pm2 logs fmb-timetracker --lines 20 --err
+                    exit 1
+                } else {
+                    Write-Host "⏳ Application still starting (status: $status)..." -ForegroundColor Yellow
+                    Start-Sleep -Seconds 5
+                }
+            } else {
+                Write-Host "❌ No process found with name 'fmb-timetracker'" -ForegroundColor Red
+                npx pm2 status
+                exit 1
+            }
+        } catch {
+            Write-Host "⚠️ Error checking process status: $($_.Exception.Message)" -ForegroundColor Yellow
+            Start-Sleep -Seconds 5
+        }
+    }
+    
+    if (-not $processOnline) {
+        Write-Host "❌ Application failed to start within expected time" -ForegroundColor Red
         Write-Host "📝 PM2 Status:" -ForegroundColor Yellow
         npx pm2 status
         Write-Host "📝 Recent logs:" -ForegroundColor Yellow
-        npx pm2 logs --lines 10
+        npx pm2 logs fmb-timetracker --lines 20
         exit 1
     }
+    
 } catch {
     Write-Host "❌ Failed to start application" -ForegroundColor Red
     Write-Host "Error: $($_.Exception.Message)" -ForegroundColor Red
     Write-Host "📝 PM2 Status:" -ForegroundColor Yellow
     npx pm2 status
+    Write-Host "📝 Recent logs:" -ForegroundColor Yellow
+    npx pm2 logs fmb-timetracker --lines 20
     exit 1
 }
 
