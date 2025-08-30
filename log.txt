@@ -1,88 +1,89 @@
-7|fmb-timetracker  | 2025-08-30T03:54:40: 2025-08-30T10:54:40.964Z ðŸ”µ [FMB-SAML] SAML ACS callback received {
-7|fmb-timetracker  |   "ip": "192.168.209.51:53495",
-7|fmb-timetracker  |   "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36 Edg/139.0.0.0"
-7|fmb-timetracker  | }
-7|fmb-timetracker  | 2025-08-30T03:54:41: 2025-08-30T10:54:41.018Z ðŸ”µ [FMB-SAML] SAML authentication successful {
-7|fmb-timetracker  |   "nameID": "Sravan.Modugula@fmb.com",
-7|fmb-timetracker  |   "email": "Sravan.Modugula@fmb.com",
-7|fmb-timetracker  |   "firstName": "Sravan",
-7|fmb-timetracker  |   "lastName": "Modugula"
-7|fmb-timetracker  | }
-7|fmb-timetracker  | 2025-08-30T03:54:41: 2025-08-30T10:54:41.242Z ðŸ”µ [FMB-SAML] User upserted in database: Sravan.Modugula@fmb.com
-7|fmb-timetracker  | 2025-08-30T03:54:41: 2025-08-30T10:54:41.691Z ðŸŸ¢ DEBUG [REQUEST] Incoming GET /api/auth/user {
-7|fmb-timetracker  |   "ip": "192.168.209.51:53495",
-7|fmb-timetracker  |   "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36 Edg/139.0.0.0",
-7|fmb-timetracker  |   "query": {},
-7|fmb-timetracker  |   "authenticated": false
-7|fmb-timetracker  | }
-7|fmb-timetracker  | 2025-08-30T03:54:41: 2025-08-30T10:54:41.723Z ðŸŸ¢ [FMB-SAML] Authentication check for GET /api/auth/user {
-7|fmb-timetracker  |   "ip": "192.168.209.51:53495",
-7|fmb-timetracker  |   "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36 Edg/139.0.0.0",
-7|fmb-timetracker  |   "sessionId": "C-rGQaQ6q4Vwx2pR5VfSsVEfqUAhKEnI",
-7|fmb-timetracker  |   "hasSession": true,
-7|fmb-timetracker  |   "isAuthenticated": true
-7|fmb-timetracker  | }
-7|fmb-timetracker  | 2025-08-30T03:54:41: 2025-08-30T10:54:41.723Z ðŸŸ¢ [FMB-SAML] User authenticated {
-7|fmb-timetracker  |   "userId": "Sravan.Modugula@fmb.com",
-7|fmb-timetracker  |   "email": "Sravan.Modugula@fmb.com",
-7|fmb-timetracker  |   "sessionId": "C-rGQaQ6q4Vwx2pR5VfSsVEfqUAhKEnI"
-7|fmb-timetracker  | }
-7|fmb-timetracker  | 2025-08-30T03:54:41: 2025-08-30T10:54:41.723Z ðŸŸ¢ [FMB-SAML] Authentication successful, proceeding to next middleware
-7|fmb-timetracker  | 2025-08-30T03:54:41: Error fetching user: TypeError: Cannot read properties of undefined (reading 'sub')
-7|fmb-timetracker  |     at file:///C:/fmb-timetracker/dist/index.js:2395:38
-7|fmb-timetracker  |     at Layer.handle [as handle_request] (C:\fmb-timetracker\node_modules\express\lib\router\layer.js:95:5)
-7|fmb-timetracker  |     at next (C:\fmb-timetracker\node_modules\express\lib\router\route.js:149:13)
-7|fmb-timetracker  |     at isAuthenticated (file:///C:/fmb-timetracker/dist/index.js:2009:16)
-7|fmb-timetracker  |     at Layer.handle [as handle_request] (C:\fmb-timetracker\node_modules\express\lib\router\layer.js:95:5)
-7|fmb-timetracker  |     at next (C:\fmb-timetracker\node_modules\express\lib\router\route.js:149:13)
-7|fmb-timetracker  |     at Route.dispatch (C:\fmb-timetracker\node_modules\express\lib\router\route.js:119:3)
-7|fmb-timetracker  |     at Layer.handle [as handle_request] (C:\fmb-timetracker\node_modules\express\lib\router\layer.js:95:5)
-7|fmb-timetracker  |     at C:\fmb-timetracker\node_modules\express\lib\router\index.js:284:15
-7|fmb-timetracker  |     at Function.process_params (C:\fmb-timetracker\node_modules\express\lib\router\index.js:346:12)
-7|fmb-timetracker  | 2025-08-30T03:54:41: 3:54:41 AM [express] GET /api/auth/user 500 in 35ms :: {"message":"Failed to fetch user"}
-7|fmb-timetracker  | 2025-08-30T03:54:41: 2025-08-30T10:54:41.726Z ðŸ”´ ERROR [RESPONSE] Error response for GET /api/auth/user {
-7|fmb-timetracker  |   "status": 500,
-7|fmb-timetracker  |   "duration": "35ms",
-7|fmb-timetracker  |   "response": {
-7|fmb-timetracker  |     "message": "Failed to fetch user"
-7|fmb-timetracker  |   },
-7|fmb-timetracker  |   "request": {
-7|fmb-timetracker  |     "query": {},
-7|fmb-timetracker  |     "body": {},
-7|fmb-timetracker  |     "ip": "192.168.209.51:53495",
-7|fmb-timetracker  |     "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36 Edg/139.0.0.0"
-7|fmb-timetracker  |   }
-7|fmb-timetracker  | }
-7|fmb-timetracker  | 2025-08-30T03:54:41: 2025-08-30T10:54:41.763Z ðŸŸ¢ DEBUG [REQUEST] Incoming POST /api/log/frontend-error {
-7|fmb-timetracker  |   "ip": "192.168.209.51:53495",
-7|fmb-timetracker  |   "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36 Edg/139.0.0.0",
-7|fmb-timetracker  |   "query": {},
-7|fmb-timetracker  |   "body": {
-7|fmb-timetracker  |     "timestamp": "2025-08-30T10:54:41.744Z",
-7|fmb-timetracker  |     "level": "ERROR",
-7|fmb-timetracker  |     "category": "API",
-7|fmb-timetracker  |     "message": "HTTP 500 error on https://timetracker.fmb.com/api/auth/user",
-7|fmb-timetracker  |     "data": {
-7|fmb-timetracker  |       "status": 500,
-7|fmb-timetracker  |       "statusText": "",
-7|fmb-timetracker  |       "responseText": "{\"message\":\"Failed to fetch user\"}",
-7|fmb-timetracker  |       "url": "https://timetracker.fmb.com/api/auth/user"
-7|fmb-timetracker  |     },
-7|fmb-timetracker  |     "url": "https://timetracker.fmb.com/",
-7|fmb-timetracker  |     "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36 Edg/139.0.0.0"
-7|fmb-timetracker  |   },
-7|fmb-timetracker  |   "authenticated": false
-7|fmb-timetracker  | }
-7|fmb-timetracker  | 2025-08-30T03:54:41: 2025-08-30T10:54:41.744Z ðŸ”´ [FRONTEND-API] HTTP 500 error on https://timetracker.fmb.com/api/auth/user {
-7|fmb-timetracker  |   data: {
-7|fmb-timetracker  |     status: 500,
-7|fmb-timetracker  |     statusText: '',
-7|fmb-timetracker  |     responseText: '{"message":"Failed to fetch user"}',
-7|fmb-timetracker  |     url: 'https://timetracker.fmb.com/api/auth/user'
-7|fmb-timetracker  |   },
-7|fmb-timetracker  |   url: 'https://timetracker.fmb.com/',
-7|fmb-timetracker  |   userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36 Edg/139.0.0.0',
-7|fmb-timetracker  |   ip: '192.168.209.51:53495',
-7|fmb-timetracker  |   sessionId: 'C-rGQaQ6q4Vwx2pR5VfSsVEfqUAhKEnI'
-7|fmb-timetracker  | }
-7|fmb-timetracker  | 2025-08-30T03:54:41: 3:54:41 AM [express] POST /api/log/frontend-error 200 in 32ms :: {"success":true}
+
+8|fmb-timetracker  | 2025-08-30T04:00:08: 2025-08-30T11:00:08.853Z ðŸ”µ [FMB-SAML] SAML ACS callback received {
+8|fmb-timetracker  |   "ip": "192.168.209.51:53734",
+8|fmb-timetracker  |   "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36 Edg/139.0.0.0"
+8|fmb-timetracker  | }
+8|fmb-timetracker  | 2025-08-30T04:00:08: 2025-08-30T11:00:08.942Z ðŸ”µ [FMB-SAML] SAML authentication successful {
+8|fmb-timetracker  |   "nameID": "Sravan.Modugula@fmb.com",
+8|fmb-timetracker  |   "email": "Sravan.Modugula@fmb.com",
+8|fmb-timetracker  |   "firstName": "Sravan",
+8|fmb-timetracker  |   "lastName": "Modugula"
+8|fmb-timetracker  | }
+8|fmb-timetracker  | 2025-08-30T04:00:09: 2025-08-30T11:00:09.230Z ðŸ”µ [FMB-SAML] User upserted in database: Sravan.Modugula@fmb.com
+8|fmb-timetracker  | 2025-08-30T04:00:09: 2025-08-30T11:00:09.727Z ðŸŸ¢ DEBUG [REQUEST] Incoming GET /api/auth/user {
+8|fmb-timetracker  |   "ip": "192.168.209.51:53734",
+8|fmb-timetracker  |   "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36 Edg/139.0.0.0",
+8|fmb-timetracker  |   "query": {},
+8|fmb-timetracker  |   "authenticated": false
+8|fmb-timetracker  | }
+8|fmb-timetracker  | 2025-08-30T04:00:09: 2025-08-30T11:00:09.762Z ðŸŸ¢ [FMB-SAML] Authentication check for GET /api/auth/user {
+8|fmb-timetracker  |   "ip": "192.168.209.51:53734",
+8|fmb-timetracker  |   "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36 Edg/139.0.0.0",
+8|fmb-timetracker  |   "sessionId": "SCKOKBQbgE5nJyr4Wix4V2HFAbc5fDCN",
+8|fmb-timetracker  |   "hasSession": true,
+8|fmb-timetracker  |   "isAuthenticated": true
+8|fmb-timetracker  | }
+8|fmb-timetracker  | 2025-08-30T04:00:09: 2025-08-30T11:00:09.763Z ðŸŸ¢ [FMB-SAML] User authenticated {
+8|fmb-timetracker  |   "userId": "Sravan.Modugula@fmb.com",
+8|fmb-timetracker  |   "email": "Sravan.Modugula@fmb.com",
+8|fmb-timetracker  |   "sessionId": "SCKOKBQbgE5nJyr4Wix4V2HFAbc5fDCN"
+8|fmb-timetracker  | }
+8|fmb-timetracker  | 2025-08-30T04:00:09: 2025-08-30T11:00:09.763Z ðŸŸ¢ [FMB-SAML] Authentication successful, proceeding to next middleware
+8|fmb-timetracker  | 2025-08-30T04:00:09: Error fetching user: TypeError: Cannot read properties of undefined (reading 'sub')
+8|fmb-timetracker  |     at file:///C:/fmb-timetracker/dist/index.js:2395:38
+8|fmb-timetracker  |     at Layer.handle [as handle_request] (C:\fmb-timetracker\node_modules\express\lib\router\layer.js:95:5)
+8|fmb-timetracker  |     at next (C:\fmb-timetracker\node_modules\express\lib\router\route.js:149:13)
+8|fmb-timetracker  |     at isAuthenticated (file:///C:/fmb-timetracker/dist/index.js:2009:16)
+8|fmb-timetracker  |     at Layer.handle [as handle_request] (C:\fmb-timetracker\node_modules\express\lib\router\layer.js:95:5)
+8|fmb-timetracker  |     at next (C:\fmb-timetracker\node_modules\express\lib\router\route.js:149:13)
+8|fmb-timetracker  |     at Route.dispatch (C:\fmb-timetracker\node_modules\express\lib\router\route.js:119:3)
+8|fmb-timetracker  |     at Layer.handle [as handle_request] (C:\fmb-timetracker\node_modules\express\lib\router\layer.js:95:5)
+8|fmb-timetracker  |     at C:\fmb-timetracker\node_modules\express\lib\router\index.js:284:15
+8|fmb-timetracker  |     at Function.process_params (C:\fmb-timetracker\node_modules\express\lib\router\index.js:346:12)
+8|fmb-timetracker  | 2025-08-30T04:00:09: 4:00:09 AM [express] GET /api/auth/user 500 in 40ms :: {"message":"Failed to fetch user"}
+8|fmb-timetracker  | 2025-08-30T04:00:09: 2025-08-30T11:00:09.768Z ðŸ”´ ERROR [RESPONSE] Error response for GET /api/auth/user {
+8|fmb-timetracker  |   "status": 500,
+8|fmb-timetracker  |   "duration": "40ms",
+8|fmb-timetracker  |   "response": {
+8|fmb-timetracker  |     "message": "Failed to fetch user"
+8|fmb-timetracker  |   },
+8|fmb-timetracker  |   "request": {
+8|fmb-timetracker  |     "query": {},
+8|fmb-timetracker  |     "body": {},
+8|fmb-timetracker  |     "ip": "192.168.209.51:53734",
+8|fmb-timetracker  |     "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36 Edg/139.0.0.0"
+8|fmb-timetracker  |   }
+8|fmb-timetracker  | }
+8|fmb-timetracker  | 2025-08-30T04:00:09: 2025-08-30T11:00:09.803Z ðŸŸ¢ DEBUG [REQUEST] Incoming POST /api/log/frontend-error {
+8|fmb-timetracker  |   "ip": "192.168.209.51:53734",
+8|fmb-timetracker  |   "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36 Edg/139.0.0.0",
+8|fmb-timetracker  |   "query": {},
+8|fmb-timetracker  |   "body": {
+8|fmb-timetracker  |     "timestamp": "2025-08-30T11:00:09.786Z",
+8|fmb-timetracker  |     "level": "ERROR",
+8|fmb-timetracker  |     "category": "API",
+8|fmb-timetracker  |     "message": "HTTP 500 error on https://timetracker.fmb.com/api/auth/user",
+8|fmb-timetracker  |     "data": {
+8|fmb-timetracker  |       "status": 500,
+8|fmb-timetracker  |       "statusText": "",
+8|fmb-timetracker  |       "responseText": "{\"message\":\"Failed to fetch user\"}",
+8|fmb-timetracker  |       "url": "https://timetracker.fmb.com/api/auth/user"
+8|fmb-timetracker  |     },
+8|fmb-timetracker  |     "url": "https://timetracker.fmb.com/",
+8|fmb-timetracker  |     "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36 Edg/139.0.0.0"
+8|fmb-timetracker  |   },
+8|fmb-timetracker  |   "authenticated": false
+8|fmb-timetracker  | }
+8|fmb-timetracker  | 2025-08-30T04:00:09: 2025-08-30T11:00:09.786Z ðŸ”´ [FRONTEND-API] HTTP 500 error on https://timetracker.fmb.com/api/auth/user {
+8|fmb-timetracker  |   data: {
+8|fmb-timetracker  |     status: 500,
+8|fmb-timetracker  |     statusText: '',
+8|fmb-timetracker  |     responseText: '{"message":"Failed to fetch user"}',
+8|fmb-timetracker  |     url: 'https://timetracker.fmb.com/api/auth/user'
+8|fmb-timetracker  |   },
+8|fmb-timetracker  |   url: 'https://timetracker.fmb.com/',
+8|fmb-timetracker  |   userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36 Edg/139.0.0.0',
+8|fmb-timetracker  |   ip: '192.168.209.51:53734',
+8|fmb-timetracker  |   sessionId: 'SCKOKBQbgE5nJyr4Wix4V2HFAbc5fDCN'
+8|fmb-timetracker  | }
+8|fmb-timetracker  | 2025-08-30T04:00:09: 4:00:09 AM [express] POST /api/log/frontend-error 200 in 39ms :: {"success":true}
