@@ -46,7 +46,7 @@ try {
     npm install -g pm2
     npm install -g pm2-windows-service
     Write-Host "✅ PM2 installed successfully" -ForegroundColor Green
-    
+
     # Verify PM2 is accessible via npx
     $pm2Version = npx pm2 --version 2>$null
     if ($pm2Version) {
@@ -243,15 +243,12 @@ Set-Location $InstallPath
 Write-Host "📍 Working directory set to: $InstallPath" -ForegroundColor Yellow
 
 # Install application dependencies
-Write-Host "📦 Installing application dependencies..." -ForegroundColor Yellow
-try {
-    # Install all dependencies first (including dev dependencies needed for build)
-    npm install
-    Write-Host "✅ Dependencies installed" -ForegroundColor Green
-} catch {
-    Write-Host "❌ Failed to install dependencies" -ForegroundColor Red
-    exit 1
-}
+Write-Host "📦 Installing application dependencies..." -ForegroundColor Cyan
+npm install
+
+Write-Host "Installing FMB-specific dependencies..." -ForegroundColor Cyan
+npm install connect-mssql-v2
+
 
 # Set up environment configuration
 $EnvTemplatePath = "$InstallPath\fmb-onprem\.env.fmb-onprem"
@@ -325,7 +322,7 @@ try {
         exit 1
     }
     Write-Host "✅ Application built successfully" -ForegroundColor Green
-    
+
     # Clean up dev dependencies after build for production
     Write-Host "🧹 Cleaning up development dependencies..." -ForegroundColor Yellow
     npm prune --production
