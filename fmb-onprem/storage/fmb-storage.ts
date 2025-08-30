@@ -1,6 +1,6 @@
 import sql from 'mssql';
-import type { 
-  User, UpsertUser, 
+import type {
+  User, UpsertUser,
   Project, InsertProject,
   TimeEntry, InsertTimeEntry,
   Employee, InsertEmployee,
@@ -8,16 +8,17 @@ import type {
   Department, InsertDepartment
 } from '../../shared/schema.js';
 
-// Added missing import types
-import { 
-  InsertProject, 
-  InsertTask, 
+import {
+  InsertProject,
+  InsertTask,
   InsertTimeEntry,
   Project,
   Task,
   TimeEntry,
   User
 } from '../../shared/schema.js';
+
+import { randomUUID } from 'crypto';
 
 interface FmbDatabaseConfig {
   server: string;
@@ -81,20 +82,19 @@ export class FmbStorage {
 
     const query = `
       MERGE users AS target
-      USING (VALUES (@id, @email, @firstName, @lastName, @profileImageUrl, @role, @isActive)) 
+      USING (VALUES (@id, @email, @firstName, @lastName, @profileImageUrl, @role, @isActive))
       AS source (id, email, firstName, lastName, profileImageUrl, role, isActive)
       ON target.id = source.id
       WHEN MATCHED THEN
-        UPDATE SET 
+        UPDATE SET
           email = source.email,
           firstName = source.firstName,
           lastName = source.lastName,
-          profileImageUrl = source.profileImageUrl,
-          updatedAt = GETUTCDATE()
+          profileImageUrl = source.profileImageUrl
       WHEN NOT MATCHED THEN
-        INSERT (id, email, firstName, lastName, profileImageUrl, role, isActive, createdAt, updatedAt)
-        VALUES (source.id, source.email, source.firstName, source.lastName, source.profileImageUrl, 
-                COALESCE(source.role, 'employee'), COALESCE(source.isActive, 1), GETUTCDATE(), GETUTCDATE())
+        INSERT (id, email, firstName, lastName, profileImageUrl, role, isActive, createdAt)
+        VALUES (source.id, source.email, source.firstName, source.lastName, source.profileImageUrl,
+                COALESCE(source.role, 'employee'), COALESCE(source.isActive, 1), GETUTCDATE())
       OUTPUT INSERTED.*;
     `;
 
@@ -127,7 +127,7 @@ export class FmbStorage {
     request.input('id', sql.VarChar(255), id);
     request.input('role', sql.VarChar(50), role);
 
-    await request.query('UPDATE users SET role = @role, updatedAt = GETUTCDATE() WHERE id = @id');
+    await request.query('UPDATE users SET role = @role WHERE id = @id');
   }
 
   // Project management
@@ -137,15 +137,15 @@ export class FmbStorage {
     const pool = this.getPool();
     const request = pool.request();
 
-    const id = crypto.randomUUID();
+    const id = randomUUID();
     const query = `
-      INSERT INTO projects (id, name, projectNumber, description, color, startDate, endDate, 
+      INSERT INTO projects (id, name, projectNumber, description, color, startDate, endDate,
                           isEnterpriseWide, userId, isTemplate, allowTimeTracking, requireTaskSelection,
-                          enableBudgetTracking, enableBilling, createdAt, updatedAt)
+                          enableBudgetTracking, enableBilling, createdAt)
       OUTPUT INSERTED.*
       VALUES (@id, @name, @projectNumber, @description, @color, @startDate, @endDate,
               @isEnterpriseWide, @userId, @isTemplate, @allowTimeTracking, @requireTaskSelection,
-              @enableBudgetTracking, @enableBilling, GETUTCDATE(), GETUTCDATE())
+              @enableBudgetTracking, @enableBilling, GETUTCDATE())
     `;
 
     request.input('id', sql.VarChar(255), id);
@@ -173,8 +173,8 @@ export class FmbStorage {
 
     request.input('userId', sql.VarChar(255), userId);
     const result = await request.query(`
-      SELECT * FROM projects 
-      WHERE isEnterpriseWide = 1 OR userId = @userId 
+      SELECT * FROM projects
+      WHERE isEnterpriseWide = 1 OR userId = @userId
       ORDER BY createdAt DESC
     `);
 
@@ -188,15 +188,15 @@ export class FmbStorage {
     const pool = this.getPool();
     const request = pool.request();
 
-    const id = crypto.randomUUID();
+    const id = randomUUID();
     const query = `
       INSERT INTO time_entries (id, userId, projectId, taskId, description, date, startTime, endTime,
                                duration, isTemplate, isBillable, isApproved, isManualEntry, isTimerEntry,
-                               createdAt, updatedAt)
+                               createdAt)
       OUTPUT INSERTED.*
       VALUES (@id, @userId, @projectId, @taskId, @description, @date, @startTime, @endTime,
               @duration, @isTemplate, @isBillable, @isApproved, @isManualEntry, @isTimerEntry,
-              GETUTCDATE(), GETUTCDATE())
+              GETUTCDATE())
     `;
 
     request.input('id', sql.VarChar(255), id);
@@ -240,11 +240,11 @@ export class FmbStorage {
     const pool = this.getPool();
     const request = pool.request();
 
-    const id = crypto.randomUUID();
+    const id = randomUUID();
     const query = `
-      INSERT INTO organizations (id, name, description, userId, createdAt, updatedAt)
+      INSERT INTO organizations (id, name, description, userId, createdAt)
       OUTPUT INSERTED.*
-      VALUES (@id, @name, @description, @userId, GETUTCDATE(), GETUTCDATE())
+      VALUES (@id, @name, @description, @userId, GETUTCDATE())
     `;
 
     request.input('id', sql.VarChar(255), id);
@@ -277,7 +277,7 @@ export class FmbStorage {
     request.input('endDate', sql.Date, endDate);
 
     const query = `
-      SELECT 
+      SELECT
         COALESCE(SUM(CASE WHEN te.date = CAST(GETUTCDATE() AS DATE) THEN te.duration ELSE 0 END), 0) as todayHours,
         COALESCE(SUM(CASE WHEN te.date >= @startDate AND te.date <= @endDate THEN te.duration ELSE 0 END), 0) as weekHours,
         COALESCE(SUM(CASE WHEN te.date >= DATEADD(month, DATEDIFF(month, 0, GETUTCDATE()), 0) THEN te.duration ELSE 0 END), 0) as monthHours,
