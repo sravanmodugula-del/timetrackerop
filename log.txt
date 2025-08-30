@@ -1,41 +1,16 @@
-Run `npm audit` for details.
-PS C:\fmb-timetracker> node dist/index.js
-[dotenv@17.2.1] injecting env (19) from .env -- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`
-2025-08-30T06:14:03.656Z 🔵 INFO [TIMEZONE] Set timezone to America/Los_Angeles
-2025-08-30T06:14:03.684Z 🔵 INFO [ENV] 🏢 Running in FMB on-premises mode
-2025-08-30T06:14:03.685Z 🔵 INFO [ENV] ✅ Production mode enabled - authentication bypass disabled
-2025-08-30T06:14:03.685Z 🔵 INFO [ENV] Environment validation completed successfully
-2025-08-30T06:14:03.690Z 🔵 INFO [FMB-ONPREM] Initializing on-premises services for production deployment...
-🔧 Initializing FMB on-premises MS SQL database...
-Database password: *********************
-❌ Failed to connect to FMB database: ConnectionError: Login failed for user 'timetracker'.
-    at C:\fmb-timetracker\node_modules\mssql\lib\tedious\connection-pool.js:85:17
-    at Connection.onConnect (C:\fmb-timetracker\node_modules\tedious\lib\connection.js:849:9)
-    at Object.onceWrapper (node:events:633:26)
-    at Connection.emit (node:events:518:28)
-    at Connection.emit (C:\fmb-timetracker\node_modules\tedious\lib\connection.js:970:18)
-    at C:\fmb-timetracker\node_modules\tedious\lib\connection.js:2369:18
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
-  code: 'ELOGIN',
-  originalError: ConnectionError: Login failed for user 'timetracker'.
-      at Login7TokenHandler.onErrorMessage (C:\fmb-timetracker\node_modules\tedious\lib\token\handler.js:186:19)
-      at Readable.<anonymous> (C:\fmb-timetracker\node_modules\tedious\lib\token\token-stream-parser.js:19:33)
-      at Readable.emit (node:events:518:28)
-      at addChunk (node:internal/streams/readable:561:12)
-      at readableAddChunkPushObjectMode (node:internal/streams/readable:538:3)
-      at Readable.push (node:internal/streams/readable:393:5)
-      at nextAsync (node:internal/streams/from:194:22)
-      at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
-    code: 'ELOGIN'
-  }
+✅ FMB MS SQL database connected successfully
+2025-08-30T06:20:07.332Z 🔵 INFO [FMB-ONPREM] On-premises services initialized successfully
+🚀 Setting up FMB SAML Authentication for On-Premises production environment...
+2025-08-30T06:20:07.338Z 🔵 [FMB-SAML] Initializing FMB SAML Authentication...
+Database password: ********************
+Warning: connect.session() MemoryStore is not
+designed for a production environment, as it will leak
+memory, and will not scale past a single process.
+2025-08-30T06:20:07.341Z 🔵 [FMB-SAML] FMB SAML Authentication configured successfully
+2025-08-30T06:20:07.345Z 🔴 ERROR [PROCESS] Uncaught Exception: {
+  "message": "listen ENOTSUP: operation not supported on socket 0.0.0.0:3000",
+  "stack": "Error: listen ENOTSUP: operation not supported on socket 0.0.0.0:3000\n    at Server.setupListenHandle [as _listen2] (node:net:1918:21)\n    at listenInCluster (node:net:1997:12)\n    at node:net:2206:7\n    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)",
+  "name": "Error"
 }
-2025-08-30T06:14:03.888Z 🔴 ERROR [FMB-ONPREM] Failed to initialize on-premises services: {
-  "code": "ELOGIN",
-  "originalError": {
-    "code": "ELOGIN"
-  },
-  "name": "ConnectionError"
-}
+2025-08-30T06:20:07.346Z 🔴 ERROR [PROCESS] Critical error - shutting down server
 PS C:\fmb-timetracker>
-
-
