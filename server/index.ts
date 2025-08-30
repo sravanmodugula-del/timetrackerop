@@ -142,9 +142,10 @@ const app = express();
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Initialize FMB on-premises services if needed
-if (isFmbOnPremEnvironment()) {
-  enhancedLog('INFO', 'FMB-ONPREM', 'Initializing on-premises services...');
+// Initialize FMB on-premises services ONLY when actually deployed on-premises
+// Skip MS SQL connection when running on Replit (even with FMB env vars set)
+if (isFmbOnPremEnvironment() && process.env.NODE_ENV === 'production') {
+  enhancedLog('INFO', 'FMB-ONPREM', 'Initializing on-premises services for production deployment...');
   try {
     await initializeFmbDatabase();
     enhancedLog('INFO', 'FMB-ONPREM', 'On-premises services initialized successfully');
@@ -152,6 +153,8 @@ if (isFmbOnPremEnvironment()) {
     enhancedLog('ERROR', 'FMB-ONPREM', 'Failed to initialize on-premises services:', error);
     process.exit(1);
   }
+} else if (isFmbOnPremEnvironment() && process.env.NODE_ENV === 'development') {
+  enhancedLog('INFO', 'FMB-ONPREM', 'Development mode: Skipping MS SQL connection, using Replit PostgreSQL');
 }
 
 // Security middleware (production-ready)
