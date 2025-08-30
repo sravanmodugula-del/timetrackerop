@@ -5,17 +5,8 @@ import type {
   TimeEntry, InsertTimeEntry,
   Employee, InsertEmployee,
   Organization, InsertOrganization,
-  Department, InsertDepartment
-} from '../../shared/schema.js';
-
-import {
-  InsertProject,
-  InsertTask,
-  InsertTimeEntry,
-  Project,
-  Task,
-  TimeEntry,
-  User
+  Department, InsertDepartment,
+  Task, InsertTask
 } from '../../shared/schema.js';
 
 import { randomUUID } from 'crypto';
