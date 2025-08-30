@@ -243,6 +243,7 @@ GO
 
 -- Create indexes for performance
 IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = 'IDX_time_entries_user_date')
+AND EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[time_entries]') AND name = 'userId')
     CREATE INDEX IDX_time_entries_user_date ON [dbo].[time_entries] ([userId], [date]);
 
 IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = 'IDX_time_entries_project_date')
@@ -268,13 +269,20 @@ IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[em
 IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[projects]') AND name = 'id')
     PRINT 'WARNING: projects.id column missing';
 
+-- Check project_employees table columns (using underscore naming)
 IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[project_employees]') AND name = 'project_id')
     PRINT 'WARNING: project_employees.project_id column missing';
+ELSE
+    PRINT '✅ project_employees.project_id column exists';
 
 IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[project_employees]') AND name = 'employee_id')
     PRINT 'WARNING: project_employees.employee_id column missing';
+ELSE
+    PRINT '✅ project_employees.employee_id column exists';
 
 IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[project_employees]') AND name = 'user_id')
     PRINT 'WARNING: project_employees.user_id column missing';
+ELSE
+    PRINT '✅ project_employees.user_id column exists';
 
 PRINT 'FMB TimeTracker database schema created successfully';
