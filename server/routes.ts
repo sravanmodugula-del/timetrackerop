@@ -41,16 +41,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   let isAuthenticated: RequestHandler;
 
   // Conditional SAML setup for on-prem
-  if (isFmbOnPremEnvironment()) {
-    console.log("🚀 Setting up FMB SAML Authentication for On-Premises environment...");
-    // Dynamically import and setup SAML authentication
+  // Use SAML only when actually deployed on-premises in production
+  if (isFmbOnPremEnvironment() && process.env.NODE_ENV === 'production') {
+    console.log('🚀 Setting up FMB SAML Authentication for On-Premises production environment...');
     const { setupFmbSamlAuth, isAuthenticated: fmbAuth } = await import('../fmb-onprem/auth/fmb-saml-auth.js');
     await setupFmbSamlAuth(app);
     isAuthenticated = fmbAuth;
   } else {
-    // Setup Replit authentication for Replit environment
-    console.log("🚀 Setting up Replit Authentication...");
-    // Dynamically import setupAuth only when needed to avoid import errors in on-prem
+    console.log('🚀 Setting up Replit Authentication for development...');
     const { setupAuth, isAuthenticated: replitAuth } = await import("./replitAuth");
     await setupAuth(app);
     isAuthenticated = replitAuth;
