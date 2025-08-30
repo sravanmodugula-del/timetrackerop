@@ -31,69 +31,69 @@ export const sessions = pgTable(
 export const users = pgTable("users", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   email: varchar("email").unique(),
-  firstName: varchar("first_name"),
-  lastName: varchar("last_name"),
-  profileImageUrl: varchar("profile_image_url"),
+  firstName: varchar("firstName"),
+  lastName: varchar("lastName"),
+  profileImageUrl: varchar("profileImageUrl"),
   role: varchar("role", { length: 50 }).default("employee"), // admin, manager, employee, viewer
-  isActive: boolean("is_active").default(true).notNull(),
-  lastLoginAt: timestamp("last_login_at"),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
+  isActive: boolean("isActive").default(true).notNull(),
+  lastLoginAt: timestamp("lastLoginAt"),
+  createdAt: timestamp("createdAt").defaultNow(),
+  updatedAt: timestamp("updatedAt").defaultNow(),
 });
 
 export const projects = pgTable("projects", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   name: varchar("name", { length: 255 }).notNull(),
-  projectNumber: varchar("project_number", { length: 50 }), // Optional alphanumeric project number
+  projectNumber: varchar("projectNumber", { length: 50 }), // Optional alphanumeric project number
   description: text("description"),
   color: varchar("color", { length: 7 }).default("#1976D2"), // Hex color code
-  startDate: timestamp("start_date"),
-  endDate: timestamp("end_date"),
-  isEnterpriseWide: boolean("is_enterprise_wide").default(true).notNull(), // true = enterprise-wide, false = restricted
-  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
+  startDate: timestamp("startDate"),
+  endDate: timestamp("endDate"),
+  isEnterpriseWide: boolean("isEnterpriseWide").default(true).notNull(), // true = enterprise-wide, false = restricted
+  userId: varchar("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
+  createdAt: timestamp("createdAt").defaultNow(),
+  updatedAt: timestamp("updatedAt").defaultNow(),
   // Project settings
-  isTemplate: boolean('is_template').default(false).notNull(),
-  allowTimeTracking: boolean('allow_time_tracking').default(true).notNull(),
-  requireTaskSelection: boolean('require_task_selection').default(false).notNull(),
+  isTemplate: boolean('isTemplate').default(false).notNull(),
+  allowTimeTracking: boolean('allowTimeTracking').default(true).notNull(),
+  requireTaskSelection: boolean('requireTaskSelection').default(false).notNull(),
 
   // Budget and billing
-  enableBudgetTracking: boolean('enable_budget_tracking').default(false).notNull(),
-  enableBilling: boolean('enable_billing').default(false).notNull(),
+  enableBudgetTracking: boolean('enableBudgetTracking').default(false).notNull(),
+  enableBilling: boolean('enableBilling').default(false).notNull(),
 });
 
 // Project tasks table
 export const tasks = pgTable("tasks", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  projectId: varchar("project_id").notNull().references(() => projects.id, { onDelete: "cascade" }),
+  projectId: varchar("projectId").notNull().references(() => projects.id, { onDelete: "cascade" }),
   name: varchar("name", { length: 255 }).notNull(),
   description: text("description"),
   status: varchar("status", { length: 50 }).notNull().default("active"), // active, completed, archived
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
+  createdAt: timestamp("createdAt").defaultNow(),
+  updatedAt: timestamp("updatedAt").defaultNow(),
 });
 
 export const timeEntries = pgTable("time_entries", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
-  projectId: varchar("project_id").notNull().references(() => projects.id, { onDelete: "cascade" }),
-  taskId: varchar("task_id").references(() => tasks.id, { onDelete: "set null" }),
+  userId: varchar("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
+  projectId: varchar("projectId").notNull().references(() => projects.id, { onDelete: "cascade" }),
+  taskId: varchar("taskId").references(() => tasks.id, { onDelete: "set null" }),
   description: text("description"),
   date: date("date").notNull(),
-  startTime: varchar("start_time", { length: 5 }).notNull(), // HH:MM format
-  endTime: varchar("end_time", { length: 5 }).notNull(), // HH:MM format
+  startTime: varchar("startTime", { length: 5 }).notNull(), // HH:MM format
+  endTime: varchar("endTime", { length: 5 }).notNull(), // HH:MM format
   duration: decimal("duration", { precision: 5, scale: 2 }).notNull(), // Hours with 2 decimal places
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
+  createdAt: timestamp("createdAt").defaultNow(),
+  updatedAt: timestamp("updatedAt").defaultNow(),
   // Entry metadata
-  isTemplate: boolean('is_template').default(false).notNull(),
-  isBillable: boolean('is_billable').default(false).notNull(),
-  isApproved: boolean('is_approved').default(false).notNull(),
+  isTemplate: boolean('isTemplate').default(false).notNull(),
+  isBillable: boolean('isBillable').default(false).notNull(),
+  isApproved: boolean('isApproved').default(false).notNull(),
 
   // Time tracking settings
-  isManualEntry: boolean('is_manual_entry').default(true).notNull(),
-  isTimerEntry: boolean('is_timer_entry').default(false).notNull(),
+  isManualEntry: boolean('isManualEntry').default(true).notNull(),
+  isTimerEntry: boolean('isTimerEntry').default(false).notNull(),
 });
 
 // Relations
@@ -162,22 +162,22 @@ export const insertTimeEntrySchema = createInsertSchema(timeEntries).omit({
 // Employee management table
 export const employees = pgTable("employees", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  employeeId: varchar("employee_id").notNull().unique(),
-  firstName: varchar("first_name").notNull(),
-  lastName: varchar("last_name").notNull(),
+  employeeId: varchar("employeeId").notNull().unique(),
+  firstName: varchar("firstName").notNull(),
+  lastName: varchar("lastName").notNull(),
   department: varchar("department").notNull(),
-  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
+  userId: varchar("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
+  createdAt: timestamp("createdAt").defaultNow(),
+  updatedAt: timestamp("updatedAt").defaultNow(),
 });
 
 // Project-Employee assignments table (for restricted projects)
 export const projectEmployees = pgTable("project_employees", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  projectId: varchar("project_id").notNull().references(() => projects.id, { onDelete: "cascade" }),
-  employeeId: varchar("employee_id").notNull().references(() => employees.id, { onDelete: "cascade" }),
-  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
-  createdAt: timestamp("created_at").defaultNow(),
+  projectId: varchar("projectId").notNull().references(() => projects.id, { onDelete: "cascade" }),
+  employeeId: varchar("employeeId").notNull().references(() => employees.id, { onDelete: "cascade" }),
+  userId: varchar("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
+  createdAt: timestamp("createdAt").defaultNow(),
 });
 
 // Relations that depend on all tables being defined
@@ -231,21 +231,21 @@ export const organizations = pgTable("organizations", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   name: varchar("name").notNull(),
   description: text("description"),
-  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
+  userId: varchar("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
+  createdAt: timestamp("createdAt").defaultNow(),
+  updatedAt: timestamp("updatedAt").defaultNow(),
 });
 
 // Departments table for department management - now references organizations
 export const departments = pgTable("departments", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   name: varchar("name").notNull(),
-  organizationId: varchar("organization_id").notNull().references(() => organizations.id, { onDelete: "cascade" }),
-  managerId: varchar("manager_id").references(() => employees.id),
+  organizationId: varchar("organizationId").notNull().references(() => organizations.id, { onDelete: "cascade" }),
+  managerId: varchar("managerId").references(() => employees.id),
   description: varchar("description"),
-  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
+  userId: varchar("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
+  createdAt: timestamp("createdAt").defaultNow(),
+  updatedAt: timestamp("updatedAt").defaultNow(),
 });
 
 export const organizationsRelations = relations(organizations, ({ one, many }) => ({
