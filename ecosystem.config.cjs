@@ -1,5 +1,5 @@
 
-export default {
+module.exports = {
   apps: [{
     name: 'FMBTimeTracker',
     script: './dist/server/index.js',
