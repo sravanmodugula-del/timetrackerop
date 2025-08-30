@@ -45,6 +45,17 @@ function getStorage() {
   return storage;
 }
 
+// Helper function to extract user ID consistently across authentication types
+function extractUserId(user: any): string {
+  if (isFmbOnPremEnvironment()) {
+    // FMB SAML user object structure
+    return user.userId || user.email;
+  } else {
+    // Replit user object structure
+    return user.claims?.sub || user.sub || user.id;
+  }
+}
+
 // Helper function to get user by ID, handling both Replit and SAML user IDs
 async function getUserById(userId: string) {
   const activeStorage = getStorage();
@@ -97,11 +108,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      // Get user identifier - handle both Replit and FMB user objects
-      // For FMB SAML: user has userId, email properties
-      // For Replit: user.claims has sub, email properties
-      const userId = user.userId || user.claims?.sub || user.sub || user.id;
-      const email = user.email || user.claims?.email;
+      // Extract user ID using helper function
+      const userId = extractUserId(user);
+      const email = isFmbOnPremEnvironment() ? user.email : (user.claims?.email || user.email);
 
       if (!userId) {
         console.error("No user identifier found in user object:", user);
@@ -154,7 +163,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Project routes
   app.get('/api/projects', isAuthenticated, async (req, res) => {
     try {
-      const userId = req.user.claims?.sub || req.user.id;
+      // Extract user ID based on authentication type
+      const userId = isFmbOnPremEnvironment() ? 
+        (req.user.userId || req.user.email) : 
+        (req.user.claims?.sub || req.user.id);
       const activeStorage = getStorage();
       const projects = await activeStorage.getProjects(userId);
       res.json(projects);
