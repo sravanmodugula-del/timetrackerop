@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { setupAuth, isAuthenticated } from "./replitAuth";
+import { isAuthenticated } from "./replitAuth";
 
 // Import FMB SAML authentication if on-prem
 import { isFmbOnPremEnvironment } from '../fmb-onprem/config/fmb-env.js';
@@ -46,6 +46,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   } else {
     // Setup Replit authentication for Replit environment
     console.log("🚀 Setting up Replit Authentication...");
+    // Dynamically import setupAuth only when needed to avoid import errors in on-prem
+    const { setupAuth } = await import("./replitAuth");
     await setupAuth(app);
   }
 
