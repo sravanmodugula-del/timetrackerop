@@ -53,12 +53,55 @@ try {
 
 # Copy application files
 Write-Host "📋 Copying application files..." -ForegroundColor Yellow
-$SourcePath = Get-Location
-Copy-Item -Path "$SourcePath\*" -Destination $InstallPath -Recurse -Force -Exclude @('.git', 'node_modules', 'dist')
-Write-Host "✅ Application files copied" -ForegroundColor Green
 
-# Set working directory
+# Get the script's directory and determine source path
+$ScriptPath = Split-Path -Parent $MyInvocation.MyCommand.Path
+$SourcePath = Split-Path -Parent (Split-Path -Parent $ScriptPath)  # Go up two levels to get project root
+
+Write-Host "📂 Script path: $ScriptPath" -ForegroundColor Yellow
+Write-Host "📂 Source path: $SourcePath" -ForegroundColor Yellow
+Write-Host "📂 Install path: $InstallPath" -ForegroundColor Yellow
+
+# Verify source path exists and contains required files
+if (!(Test-Path $SourcePath)) {
+    Write-Host "❌ Source path not found: $SourcePath" -ForegroundColor Red
+    Write-Host "💡 Make sure to run this script from the fmb-onprem/scripts directory" -ForegroundColor Yellow
+    exit 1
+}
+
+# Verify critical source files exist
+$RequiredSourceFiles = @("package.json", "server", "client", "shared")
+foreach ($file in $RequiredSourceFiles) {
+    $sourceFile = Join-Path $SourcePath $file
+    if (!(Test-Path $sourceFile)) {
+        Write-Host "❌ Required source file/directory missing: $sourceFile" -ForegroundColor Red
+        exit 1
+    }
+}
+
+# Create install directory if it doesn't exist
+if (!(Test-Path $InstallPath)) {
+    New-Item -ItemType Directory -Path $InstallPath -Force | Out-Null
+}
+
+# Copy application files excluding unnecessary directories
+$ExcludeItems = @('.git', 'node_modules', 'dist', '.replit', '.vscode', '.idea', 'logs')
+Write-Host "📋 Copying application files..." -ForegroundColor Yellow
+
+Get-ChildItem -Path $SourcePath -Exclude $ExcludeItems | ForEach-Object {
+    $destPath = Join-Path $InstallPath $_.Name
+    if ($_.PSIsContainer) {
+        Copy-Item -Path $_.FullName -Destination $destPath -Recurse -Force
+    } else {
+        Copy-Item -Path $_.FullName -Destination $destPath -Force
+    }
+    Write-Host "  ✅ Copied: $($_.Name)" -ForegroundColor Green
+}
+
+# Store original location and set working directory to install path
+$OriginalLocation = Get-Location
 Set-Location $InstallPath
+Write-Host "📍 Working directory set to: $InstallPath" -ForegroundColor Yellow
 
 # Install application dependencies
 Write-Host "📦 Installing application dependencies..." -ForegroundColor Yellow
@@ -70,11 +113,66 @@ try {
     exit 1
 }
 
-# Copy environment file if it doesn't exist
-if (!(Test-Path "$InstallPath\.env")) {
-    Copy-Item -Path "$InstallPath\fmb-onprem\.env.fmb-onprem" -Destination "$InstallPath\.env"
-    Write-Host "📝 Environment template copied to .env - Please configure your settings" -ForegroundColor Yellow
+# Set up environment configuration
+$EnvTemplatePath = "$InstallPath\fmb-onprem\.env.fmb-onprem"
+$EnvPath = "$InstallPath\.env"
+
+Write-Host "🔧 Setting up environment configuration..." -ForegroundColor Yellow
+
+if (Test-Path $EnvTemplatePath) {
+    if (!(Test-Path $EnvPath)) {
+        Copy-Item -Path $EnvTemplatePath -Destination $EnvPath
+        Write-Host "✅ Environment template copied to .env" -ForegroundColor Green
+        Write-Host "📝 Please edit $EnvPath with your specific configuration" -ForegroundColor Yellow
+    } else {
+        Write-Host "📝 Environment file already exists: $EnvPath" -ForegroundColor Green
+        Write-Host "📝 You may want to review and update it with new settings from the template" -ForegroundColor Yellow
+    }
+} else {
+    Write-Host "⚠️ Environment template not found at: $EnvTemplatePath" -ForegroundColor Yellow
+    Write-Host "⚠️ Creating basic .env file..." -ForegroundColor Yellow
+    
+    $BasicEnvContent = @"
+# FMB TimeTracker On-Premises Configuration
+FMB_DEPLOYMENT=onprem
+NODE_ENV=production
+PORT=3000
+HOST=0.0.0.0
+
+# Database Configuration (Update these values)
+FMB_DB_SERVER=HUB-SQL1TST-LIS
+FMB_DB_NAME=timetracker
+FMB_DB_USER=timetracker
+FMB_DB_PASSWORD=YOUR_PASSWORD_HERE
+FMB_DB_PORT=1433
+FMB_DB_ENCRYPT=true
+FMB_DB_TRUST_CERT=true
+
+# SAML Configuration (Update these values)
+FMB_SAML_ENTITY_ID=https://timetracker.fmb.com
+FMB_SAML_SSO_URL=https://rsa.fmb.com/saml/sso
+FMB_SAML_ACS_URL=https://timetracker.fmb.com/saml/acs
+FMB_SAML_CERTIFICATE=YOUR_CERTIFICATE_HERE
+
+# Session Configuration
+FMB_SESSION_SECRET=CHANGE_THIS_TO_A_SECURE_SECRET
+"@
+    
+    Set-Content -Path $EnvPath -Value $BasicEnvContent
+    Write-Host "✅ Basic .env file created" -ForegroundColor Green
 }
+
+# Verify critical files exist
+$CriticalFiles = @("package.json", "fmb-onprem\config\fmb-database.ts", "server\index.ts")
+foreach ($file in $CriticalFiles) {
+    $filePath = "$InstallPath\$file"
+    if (!(Test-Path $filePath)) {
+        Write-Host "❌ Critical file missing: $filePath" -ForegroundColor Red
+        Write-Host "❌ Installation may be incomplete. Please check source files." -ForegroundColor Red
+        exit 1
+    }
+}
+Write-Host "✅ Critical files verified" -ForegroundColor Green
 
 # Build application
 Write-Host "🔨 Building application..." -ForegroundColor Yellow
@@ -86,28 +184,35 @@ try {
     exit 1
 }
 
-# Create PM2 ecosystem file
+# Create PM2 ecosystem file with proper Windows path handling
+$NormalizedInstallPath = $InstallPath.Replace('\', '/')
+$NormalizedLogPath = $LogPath.Replace('\', '/')
+
 $EcosystemContent = @"
 module.exports = {
   apps: [{
     name: '$ServiceName',
-    script: 'dist/index.js',
-    cwd: '$InstallPath',
+    script: './dist/server/index.js',
+    cwd: '$NormalizedInstallPath',
     env: {
       NODE_ENV: 'production',
       PORT: 3000,
+      HOST: '0.0.0.0',
       FMB_DEPLOYMENT: 'onprem'
     },
     instances: 1,
     exec_mode: 'cluster',
     watch: false,
     max_memory_restart: '1G',
-    log_file: '$LogPath\\combined.log',
-    out_file: '$LogPath\\out.log',
-    error_file: '$LogPath\\error.log',
+    log_file: '$NormalizedLogPath/combined.log',
+    out_file: '$NormalizedLogPath/out.log',
+    error_file: '$NormalizedLogPath/error.log',
     time: true,
     merge_logs: true,
-    windows_hide: true
+    windows_hide: true,
+    restart_delay: 5000,
+    max_restarts: 10,
+    min_uptime: '10s'
   }]
 };
 "@
@@ -148,3 +253,7 @@ Write-Host "🔧 Service Management:" -ForegroundColor Cyan
 Write-Host "Start service: net start $ServiceName" -ForegroundColor White
 Write-Host "Stop service: net stop $ServiceName" -ForegroundColor White
 Write-Host "Restart service: net stop $ServiceName && net start $ServiceName" -ForegroundColor White
+
+# Restore original working directory
+Set-Location $OriginalLocation
+Write-Host "📍 Restored original working directory" -ForegroundColor Yellow
