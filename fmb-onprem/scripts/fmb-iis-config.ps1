@@ -75,6 +75,18 @@ try {
     Write-Host "Enabling ARR proxy functionality..." -ForegroundColor Yellow
     Import-Module WebAdministration
     Set-WebConfigurationProperty -PSPath "MACHINE/WEBROOT/APPHOST" -Filter "system.webServer/proxy" -Name "enabled" -Value "True"
+    
+    # Allow custom server variables for proxy headers
+    Write-Host "Configuring allowed server variables..." -ForegroundColor Yellow
+    try {
+        Add-WebConfigurationProperty -PSPath "MACHINE/WEBROOT/APPHOST" -Filter "system.webServer/rewrite/allowedServerVariables" -Name "." -Value @{name="HTTP_X_FORWARDED_PROTO"}
+        Add-WebConfigurationProperty -PSPath "MACHINE/WEBROOT/APPHOST" -Filter "system.webServer/rewrite/allowedServerVariables" -Name "." -Value @{name="HTTP_X_FORWARDED_FOR"}
+        Add-WebConfigurationProperty -PSPath "MACHINE/WEBROOT/APPHOST" -Filter "system.webServer/rewrite/allowedServerVariables" -Name "." -Value @{name="HTTP_X_FORWARDED_HOST"}
+        Write-Host "Server variables configured successfully" -ForegroundColor Green
+    } catch {
+        Write-Host "Server variables may already be configured or failed to configure" -ForegroundColor Yellow
+    }
+    
     Write-Host "ARR proxy enabled successfully" -ForegroundColor Green
 } catch {
     Write-Host "ARR Module installation may have failed - install manually if needed" -ForegroundColor Yellow
@@ -133,13 +145,14 @@ $webConfigContent = @"
   <system.webServer>
     <rewrite>
       <rules>
-        <rule name="Redirect to HTTPS" stopProcessing="true">
-          <match url=".*" />
+        <rule name="Force HTTPS" stopProcessing="true">
+          <match url="(.*)" />
           <conditions>
             <add input="{HTTPS}" pattern="off" ignoreCase="true" />
             <add input="{HTTP_HOST}" pattern="localhost" negate="true" />
+            <add input="{HTTP_HOST}" pattern="127.0.0.1" negate="true" />
           </conditions>
-          <action type="Redirect" url="https://{HTTP_HOST}/{R:0}" redirectType="Permanent" />
+          <action type="Redirect" url="https://{HTTP_HOST}/{R:1}" redirectType="Permanent" />
         </rule>
         <rule name="Reverse Proxy to Node.js" stopProcessing="true">
           <match url="(.*)" />
@@ -149,9 +162,10 @@ $webConfigContent = @"
           </conditions>
           <action type="Rewrite" url="http://127.0.0.1:$NodePort/{R:1}" logRewrittenUrl="true" />
           <serverVariables>
-            <set name="HTTP_X_FORWARDED_PROTO" value="https" />
+            <set name="HTTP_X_FORWARDED_PROTO" value="{HTTPS_ON:https:http}" />
             <set name="HTTP_X_FORWARDED_FOR" value="{REMOTE_ADDR}" />
             <set name="HTTP_X_FORWARDED_HOST" value="{HTTP_HOST}" />
+            <set name="HTTP_X_ORIGINAL_URL" value="{REQUEST_URI}" />
           </serverVariables>
         </rule>
       </rules>
@@ -257,3 +271,13 @@ Write-Host ""
 Write-Host "Test Commands:" -ForegroundColor Cyan
 Write-Host "curl http://localhost" -ForegroundColor Gray
 Write-Host "curl http://localhost/api/health" -ForegroundColor Gray
+Write-Host ""
+Write-Host "Troubleshooting Commands:" -ForegroundColor Cyan
+Write-Host "Check allowed server variables:" -ForegroundColor White
+Write-Host "Get-WebConfigurationProperty -PSPath 'MACHINE/WEBROOT/APPHOST' -Filter 'system.webServer/rewrite/allowedServerVariables'" -ForegroundColor Gray
+Write-Host "Check proxy enabled:" -ForegroundColor White
+Write-Host "Get-WebConfigurationProperty -PSPath 'MACHINE/WEBROOT/APPHOST' -Filter 'system.webServer/proxy' -Name 'enabled'" -ForegroundColor Gray
+Write-Host "View web.config location:" -ForegroundColor White
+Write-Host "Get-Content '$wwwPath\web.config'" -ForegroundColor Gray
+Write-Host "Check website bindings:" -ForegroundColor White
+Write-Host "Get-WebBinding -Name '$SiteName'" -ForegroundColor Gray
