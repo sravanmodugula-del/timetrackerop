@@ -1,4 +1,3 @@
-
 # FMB TimeTracker On-Premises Deployment Script for Windows
 # Updates the application with new version
 
@@ -71,29 +70,29 @@ try {
 Write-Host "🔨 Building application..." -ForegroundColor Yellow
 try {
     npm run build
-    
+
     # Copy FMB on-premises configuration files to dist
     Write-Host "📋 Copying FMB configuration files..." -ForegroundColor Yellow
     if (-not (Test-Path "dist/fmb-onprem")) {
         New-Item -ItemType Directory -Path "dist/fmb-onprem" -Force | Out-Null
         New-Item -ItemType Directory -Path "dist/fmb-onprem/config" -Force | Out-Null
     }
-    
+
     # Build the TypeScript files for on-prem configs
     npx tsc fmb-onprem/config/fmb-env.ts --outDir dist --target es2020 --module es2020 --moduleResolution node --allowSyntheticDefaultImports --esModuleInterop
     npx tsc fmb-onprem/config/fmb-database.ts --outDir dist --target es2020 --module es2020 --moduleResolution node --allowSyntheticDefaultImports --esModuleInterop
-    
+
     # Verify build artifacts exist
     if (-not (Test-Path "dist")) {
         Write-Host "❌ Build directory not found" -ForegroundColor Red
         exit 1
     }
-    
+
     if (-not (Test-Path "dist/index.js")) {
         Write-Host "❌ Server build not found" -ForegroundColor Red
         exit 1
     }
-    
+
     Write-Host "✅ Application built successfully" -ForegroundColor Green
 } catch {
     Write-Host "❌ Build failed" -ForegroundColor Red
@@ -110,9 +109,10 @@ Write-Host "🔍 Running configuration health check..." -ForegroundColor Yellow
 try {
     # Only validate FMB environment if actually deploying on-premises
     # For Replit deployment, skip FMB-specific validation
-    if ($env:FMB_DEPLOYMENT -eq "onprem") {
+    $isFmbOnPrem = $env:FMB_DEPLOYMENT -eq "onprem" -and $env:NODE_ENV -eq "production"
+    if ($isFmbOnPrem) {
         $env:NODE_ENV = "production"
-        
+
         # Check if built config exists, otherwise use ts-node for health check
         if (Test-Path "dist/fmb-onprem/config/fmb-env.js") {
             node -e "
@@ -133,17 +133,17 @@ try {
                     $missing += $var
                 }
             }
-            
+
             if ($missing.Count -gt 0) {
                 Write-Host "❌ Missing required FMB environment variables: $($missing -join ', ')" -ForegroundColor Red
                 exit 1
             }
-            
+
             Write-Host "✅ FMB environment validation passed" -ForegroundColor Green
         }
     } else {
         Write-Host "☁️ Replit deployment detected - skipping FMB on-prem validation" -ForegroundColor Yellow
-        
+
         # Basic validation for Replit environment
         $basicVars = @('NODE_ENV')
         $missing = @()
@@ -152,15 +152,15 @@ try {
                 $missing += $var
             }
         }
-        
+
         if ($missing.Count -gt 0) {
             Write-Host "❌ Missing basic environment variables: $($missing -join ', ')" -ForegroundColor Red
             exit 1
         }
-        
+
         Write-Host "✅ Basic Replit environment validation passed" -ForegroundColor Green
     }
-    
+
     Write-Host "✅ Configuration validation completed" -ForegroundColor Green
 } catch {
     Write-Host "❌ Configuration validation failed" -ForegroundColor Red
@@ -178,35 +178,35 @@ try {
         Write-Host "Installing PM2 globally..." -ForegroundColor Yellow
         npm install -g pm2
     }
-    
+
     # Stop any existing processes first
     Write-Host "🛑 Stopping any existing processes..." -ForegroundColor Yellow
     npx pm2 delete fmb-timetracker 2>$null
-    
+
     # Start the application with explicit production environment
     Write-Host "🚀 Starting application with PM2..." -ForegroundColor Yellow
     npx pm2 start ecosystem.config.cjs --env production --no-daemon
-    
+
     # Wait for the process to initialize
     Start-Sleep -Seconds 5
-    
+
     # Check process status multiple times with retries
     $maxRetries = 6
     $retryCount = 0
     $processOnline = $false
-    
+
     while ($retryCount -lt $maxRetries -and -not $processOnline) {
         $retryCount++
         Write-Host "🔍 Checking process status (attempt $retryCount/$maxRetries)..." -ForegroundColor Yellow
-        
+
         try {
             $processStatus = npx pm2 jlist | ConvertFrom-Json
             $appProcess = $processStatus | Where-Object { $_.name -eq "fmb-timetracker" }
-            
+
             if ($appProcess) {
                 $status = $appProcess.pm2_env.status
                 Write-Host "📊 Process status: $status" -ForegroundColor Cyan
-                
+
                 if ($status -eq "online") {
                     $processOnline = $true
                     Write-Host "✅ Application started successfully" -ForegroundColor Green
@@ -229,7 +229,7 @@ try {
             Start-Sleep -Seconds 5
         }
     }
-    
+
     if (-not $processOnline) {
         Write-Host "❌ Application failed to start within expected time" -ForegroundColor Red
         Write-Host "📝 PM2 Status:" -ForegroundColor Yellow
@@ -238,7 +238,7 @@ try {
         npx pm2 logs fmb-timetracker --lines 20
         exit 1
     }
-    
+
 } catch {
     Write-Host "❌ Failed to start application" -ForegroundColor Red
     Write-Host "Error: $($_.Exception.Message)" -ForegroundColor Red

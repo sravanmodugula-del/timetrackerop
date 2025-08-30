@@ -29,7 +29,7 @@ import {
   type Organization,
   type InsertOrganization,
   type OrganizationWithDepartments,
-} from "@shared/schema";
+} from "../shared/schema.js";
 import { db, withDatabaseRetry } from "./db";
 import { eq, and, or, desc, asc, gte, lte, sql, notInArray } from "drizzle-orm";
 

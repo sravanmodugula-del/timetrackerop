@@ -33,7 +33,7 @@ function getRolePermissions(role: string) {
   return permissions[role as keyof typeof permissions] || permissions.employee;
 }
 // Remove unused auth imports - using isAuthenticated consistently
-import { insertProjectSchema, insertTaskSchema, insertTimeEntrySchema, insertEmployeeSchema } from "@shared/schema";
+import { insertProjectSchema, insertTaskSchema, insertTimeEntrySchema, insertEmployeeSchema } from "../shared/schema.js";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {

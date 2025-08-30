@@ -8,6 +8,13 @@
       "when": 1756490450092,
       "tag": "0000_salty_iron_man",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1756539676057,
+      "tag": "0001_hot_kabuki",
+      "breakpoints": true
     }
   ]
 }

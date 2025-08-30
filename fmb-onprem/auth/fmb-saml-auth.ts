@@ -4,7 +4,7 @@ import session from "express-session";
 import passport from "passport";
 import { Strategy as SamlStrategy } from "passport-saml";
 import { getFmbStorage } from "../config/fmb-database.js";
-import { loadFmbOnPremConfig } from "../config/fmb-env";
+import { loadFmbOnPremConfig } from "../config/fmb-env.js";
 
 // Enhanced logging utility
 function authLog(level: 'INFO' | 'WARN' | 'ERROR' | 'DEBUG', message: string, data?: any) {
@@ -116,6 +116,19 @@ export async function setupFmbSamlAuth(app: Express) {
   });
 
   authLog('INFO', 'FMB SAML Authentication configured successfully');
+}
+
+export function getFmbSamlMetadata(): string {
+  const config = loadFmbOnPremConfig();
+  
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<md:EntityDescriptor xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata" 
+                     entityID="${config.saml.entityId}">
+  <md:SPSSODescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">
+    <md:AssertionConsumerService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
+                                Location="${config.saml.acsUrl}" index="0" isDefault="true"/>
+  </md:SPSSODescriptor>
+</md:EntityDescriptor>`;
 }
 
 export const isAuthenticated: RequestHandler = async (req, res, next) => {

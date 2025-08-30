@@ -19,7 +19,11 @@ export async function initializeFmbDatabase() {
     port: config.database.port,
     encrypt: config.database.encrypt,
     trustServerCertificate: config.database.trustServerCertificate,
-    options: {}
+    options: {
+      enableArithAbort: true,
+      connectTimeout: 30000,
+      requestTimeout: 30000
+    }
   });
 
   try {

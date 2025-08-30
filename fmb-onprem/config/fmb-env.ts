@@ -7,11 +7,13 @@ interface FmbOnPremConfig {
   database: {
     server: string;
     database: string;
+    name: string;
     user: string;
     password: string;
     port: number;
     encrypt: boolean;
     trustServerCertificate: boolean;
+    options: Record<string, any>;
   };
   saml: {
     entityId: string;
@@ -58,11 +60,17 @@ export function loadFmbOnPremConfig(): FmbOnPremConfig {
     database: {
       server: process.env.FMB_DB_SERVER!,
       database: process.env.FMB_DB_NAME!,
+      name: process.env.FMB_DB_NAME!,
       user: process.env.FMB_DB_USER!,
       password: dbPassword,
       port: parseInt(process.env.FMB_DB_PORT || '1433', 10),
       encrypt: process.env.FMB_DB_ENCRYPT !== 'false',
-      trustServerCertificate: process.env.FMB_DB_TRUST_CERT === 'true'
+      trustServerCertificate: process.env.FMB_DB_TRUST_CERT === 'true',
+      options: {
+        enableArithAbort: true,
+        connectTimeout: 30000,
+        requestTimeout: 30000
+      }
     },
     saml: {
       entityId: process.env.FMB_SAML_ENTITY_ID!,
