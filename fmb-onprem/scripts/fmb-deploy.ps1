@@ -144,7 +144,19 @@ try {
     } else {
         Write-Host "☁️ Replit deployment detected - skipping FMB on-prem validation" -ForegroundColor Yellow
 
-        # Basic validation for Replit environment
+        # Load environment variables from .env file for validation
+        if (Test-Path ".env") {
+            Write-Host "📋 Loading environment variables from .env file..." -ForegroundColor Yellow
+            Get-Content ".env" | ForEach-Object {
+                if ($_ -match "^([^#=]+)=(.*)$") {
+                    $name = $matches[1].Trim()
+                    $value = $matches[2].Trim()
+                    [Environment]::SetEnvironmentVariable($name, $value, "Process")
+                }
+            }
+        }
+
+        # Basic validation for environment
         $basicVars = @('NODE_ENV')
         $missing = @()
         foreach ($var in $basicVars) {
@@ -155,10 +167,11 @@ try {
 
         if ($missing.Count -gt 0) {
             Write-Host "❌ Missing basic environment variables: $($missing -join ', ')" -ForegroundColor Red
+            Write-Host "💡 Tip: Ensure .env file contains NODE_ENV=production" -ForegroundColor Yellow
             exit 1
         }
 
-        Write-Host "✅ Basic Replit environment validation passed" -ForegroundColor Green
+        Write-Host "✅ Basic environment validation passed" -ForegroundColor Green
     }
 
     Write-Host "✅ Configuration validation completed" -ForegroundColor Green
