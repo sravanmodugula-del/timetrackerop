@@ -108,45 +108,63 @@ Write-Host "✅ Dependencies preserved for production build" -ForegroundColor Gr
 # Health check
 Write-Host "🔍 Running configuration health check..." -ForegroundColor Yellow
 try {
-    $env:FMB_DEPLOYMENT = "onprem"
-    $env:NODE_ENV = "production"
-    
-    # Check if built config exists, otherwise use ts-node for health check
-    if (Test-Path "dist/fmb-onprem/config/fmb-env.js") {
-        node -e "
-        import('./dist/fmb-onprem/config/fmb-env.js').then(config => {
-          config.loadFmbOnPremConfig();
-          console.log('✅ Configuration valid');
-        }).catch(err => {
-          console.error('❌ Config error:', err.message);
-          process.exit(1);
-        });
-        " --input-type=module
-    } else {
-        # Skip detailed health check if TypeScript files not built - basic validation only
-        Write-Host "⚠️ Skipping detailed config validation (TypeScript files not in dist)" -ForegroundColor Yellow
+    # Only validate FMB environment if actually deploying on-premises
+    # For Replit deployment, skip FMB-specific validation
+    if ($env:FMB_DEPLOYMENT -eq "onprem") {
+        $env:NODE_ENV = "production"
         
-        # Basic environment variable check
-        $requiredVars = @('FMB_SESSION_SECRET', 'FMB_DB_SERVER', 'FMB_DB_NAME')
+        # Check if built config exists, otherwise use ts-node for health check
+        if (Test-Path "dist/fmb-onprem/config/fmb-env.js") {
+            node -e "
+            import('./dist/fmb-onprem/config/fmb-env.js').then(config => {
+              config.loadFmbOnPremConfig();
+              console.log('✅ Configuration valid');
+            }).catch(err => {
+              console.error('❌ Config error:', err.message);
+              process.exit(1);
+            });
+            " --input-type=module
+        } else {
+            # Basic FMB environment variable check
+            $requiredVars = @('FMB_SESSION_SECRET', 'FMB_DB_SERVER', 'FMB_DB_NAME')
+            $missing = @()
+            foreach ($var in $requiredVars) {
+                if (-not (Get-ChildItem Env: | Where-Object { $_.Name -eq $var })) {
+                    $missing += $var
+                }
+            }
+            
+            if ($missing.Count -gt 0) {
+                Write-Host "❌ Missing required FMB environment variables: $($missing -join ', ')" -ForegroundColor Red
+                exit 1
+            }
+            
+            Write-Host "✅ FMB environment validation passed" -ForegroundColor Green
+        }
+    } else {
+        Write-Host "☁️ Replit deployment detected - skipping FMB on-prem validation" -ForegroundColor Yellow
+        
+        # Basic validation for Replit environment
+        $basicVars = @('NODE_ENV')
         $missing = @()
-        foreach ($var in $requiredVars) {
+        foreach ($var in $basicVars) {
             if (-not (Get-ChildItem Env: | Where-Object { $_.Name -eq $var })) {
                 $missing += $var
             }
         }
         
         if ($missing.Count -gt 0) {
-            Write-Host "❌ Missing required environment variables: $($missing -join ', ')" -ForegroundColor Red
+            Write-Host "❌ Missing basic environment variables: $($missing -join ', ')" -ForegroundColor Red
             exit 1
         }
         
-        Write-Host "✅ Basic environment validation passed" -ForegroundColor Green
+        Write-Host "✅ Basic Replit environment validation passed" -ForegroundColor Green
     }
     
     Write-Host "✅ Configuration validation completed" -ForegroundColor Green
 } catch {
     Write-Host "❌ Configuration validation failed" -ForegroundColor Red
-    Write-Host "Please check your .env file and database connection" -ForegroundColor Yellow
+    Write-Host "Please check your .env file and configuration" -ForegroundColor Yellow
     exit 1
 }
 
