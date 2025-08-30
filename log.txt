@@ -1,12 +1,34 @@
-Msg 111, Level 15, State 1, Line 171
-'CREATE TRIGGER' must be the first statement in a query batch.
-Msg 207, Level 16, State 1, Procedure TR_departments_updated_at, Line 10 [Batch Start Line 196]
-Invalid column name 'updated_at'.
-Msg 207, Level 16, State 1, Procedure TR_tasks_updated_at, Line 10 [Batch Start Line 224]
-Invalid column name 'updated_at'.
-Msg 207, Level 16, State 1, Procedure TR_time_entries_updated_at, Line 10 [Batch Start Line 238]
-Invalid column name 'updated_at'.
-Msg 207, Level 16, State 1, Line 263
+Msg 3726, Level 16, State 1, Line 16
+Could not drop object 'departments' because it is referenced by a FOREIGN KEY constraint.
+Msg 3726, Level 16, State 1, Line 17
+Could not drop object 'employees' because it is referenced by a FOREIGN KEY constraint.
+Msg 3726, Level 16, State 1, Line 18
+Could not drop object 'organizations' because it is referenced by a FOREIGN KEY constraint.
+Msg 3726, Level 16, State 1, Line 19
+Could not drop object 'users' because it is referenced by a FOREIGN KEY constraint.
+Msg 2714, Level 16, State 6, Line 27
+There is already an object named 'users' in the database.
+Msg 207, Level 16, State 1, Line 188
 Invalid column name 'organization_id'.
+Msg 207, Level 16, State 1, Line 195
+Invalid column name 'user_id'.
+Msg 207, Level 16, State 1, Procedure TR_organizations_update, Line 5 [Batch Start Line 236]
+Invalid column name 'updated_at'.
+Msg 207, Level 16, State 1, Procedure TR_employees_update, Line 5 [Batch Start Line 243]
+Invalid column name 'updated_at'.
+Msg 207, Level 16, State 1, Procedure TR_departments_update, Line 5 [Batch Start Line 250]
+Invalid column name 'updated_at'.
+Msg 8197, Level 16, State 4, Procedure TR_projects_update, Line 2 [Batch Start Line 257]
+The object 'projects' does not exist or is invalid for this operation.
+Msg 8197, Level 16, State 4, Procedure TR_tasks_update, Line 2 [Batch Start Line 264]
+The object 'tasks' does not exist or is invalid for this operation.
+Msg 8197, Level 16, State 4, Procedure TR_timeentries_update, Line 2 [Batch Start Line 271]
+The object 'time_entries' does not exist or is invalid for this operation.
+Msg 207, Level 16, State 1, Line 289
+Invalid column name 'user_id'.
+=== FMB TimeTracker Database Setup Complete ===
+ 
+Msg 208, Level 16, State 1, Line 316
+Invalid object name 'projects'.
 
-Completion time: 2025-08-30T05:49:29.2381913-07:00
+Completion time: 2025-08-30T06:07:04.4229505-07:00
