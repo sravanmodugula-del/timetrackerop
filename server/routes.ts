@@ -81,7 +81,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/auth/user", isAuthenticated, async (req, res) => {
     try {
       const user = req.user;
-
       if (!user) {
         return res.status(401).json({ message: "Not authenticated" });
       }
@@ -98,8 +97,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      // Handle both Replit (user.sub) and SAML (user.id or user.email) authentication
-      const userId = user.sub || user.id || user.email;
+      // Get user identifier - handle both Replit and FMB user objects
+      // For FMB SAML: user has userId, email properties
+      // For Replit: user.claims has sub, email properties
+      const userId = user.userId || user.claims?.sub || user.sub || user.id;
+      const email = user.email || user.claims?.email;
 
       if (!userId) {
         console.error("No user identifier found in user object:", user);
@@ -111,6 +113,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       if (!dbUser) {
         return res.status(404).json({ message: "User not found" });
+      }
+
+      // Extract user data based on authentication type
+      let userData;
+      if (isFmbOnPremEnvironment()) {
+        // FMB SAML user object structure
+        userData = {
+          id: userId,
+          email: email,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          profileImageUrl: null
+        };
+      } else {
+        // Replit user object structure
+        userData = {
+          id: userId,
+          email: email,
+          firstName: user.claims?.first_name,
+          lastName: user.claims?.last_name,
+          profileImageUrl: user.claims?.profile_image_url || null
+        };
       }
 
       res.json({
