@@ -237,7 +237,8 @@ Write-Host "📍 Working directory set to: $InstallPath" -ForegroundColor Yellow
 # Install application dependencies
 Write-Host "📦 Installing application dependencies..." -ForegroundColor Yellow
 try {
-    npm install --production
+    # Install all dependencies first (including dev dependencies needed for build)
+    npm install
     Write-Host "✅ Dependencies installed" -ForegroundColor Green
 } catch {
     Write-Host "❌ Failed to install dependencies" -ForegroundColor Red
@@ -308,10 +309,22 @@ Write-Host "✅ Critical files verified" -ForegroundColor Green
 # Build application
 Write-Host "🔨 Building application..." -ForegroundColor Yellow
 try {
-    npm run build
+    $buildResult = npm run build 2>&1
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "❌ Build failed with exit code: $LASTEXITCODE" -ForegroundColor Red
+        Write-Host "Build output:" -ForegroundColor Yellow
+        Write-Host $buildResult -ForegroundColor Red
+        exit 1
+    }
     Write-Host "✅ Application built successfully" -ForegroundColor Green
+    
+    # Clean up dev dependencies after build for production
+    Write-Host "🧹 Cleaning up development dependencies..." -ForegroundColor Yellow
+    npm prune --production
+    Write-Host "✅ Development dependencies removed" -ForegroundColor Green
 } catch {
     Write-Host "❌ Failed to build application" -ForegroundColor Red
+    Write-Host "Error: $_" -ForegroundColor Red
     exit 1
 }
 

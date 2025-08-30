@@ -41,7 +41,7 @@ npm install -g pm2-windows-service
 
 ```powershell
 # Connect to MS SQL Server and run the setup script
-sqlcmd -S HUB-SQL1TST-LIS -d timetracker -U timetracker -P "iTT!\$Lo7gm\"i\'JAg~5Y\\" -i fmb-onprem\scripts\fmb-setup-db.sql
+sqlcmd -S HUB-SQL1TST-LIS -d timetracker -U timetracker -P "iTT!`$Lo7gm`"i'JAg~5Y\\" -i fmb-onprem\scripts\fmb-setup-db.sql
 ```
 
 ### 3. Application Installation
@@ -81,7 +81,7 @@ NODE_ENV=production
 FMB_DB_SERVER=HUB-SQL1TST-LIS
 FMB_DB_NAME=timetracker
 FMB_DB_USER=timetracker
-FMB_DB_PASSWORD=iTT!$Lo7gm"i'JAg~5Y\\
+FMB_DB_PASSWORD=iTT!$Lo7gm"i'JAg~5Y\
 FMB_DB_PORT=1433
 FMB_DB_ENCRYPT=true
 FMB_DB_TRUST_CERT=true
@@ -253,7 +253,7 @@ Get-Service FMBTimeTracker
 
 ```powershell
 # Test MS SQL Server connectivity
-sqlcmd -S HUB-SQL1TST-LIS -U timetracker -P "iTT!\$Lo7gm\"i\'JAg~5Y\\" -Q "SELECT 1"
+sqlcmd -S HUB-SQL1TST-LIS -U timetracker -P "iTT!`$Lo7gm`"i'JAg~5Y\\" -Q "SELECT 1"
 ```
 
 ### SAML Authentication Issues
