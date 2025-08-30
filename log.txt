@@ -1,3 +1,282 @@
+}
+
+Write-Host ""
+Write-Host "📋 Post-deployment commands:" -ForegroundColor Cyan
+Write-Host "View status: npx pm2 status" -ForegroundColor White
+Write-Host "View logs: npx pm2 logs" -ForegroundColor White
+Write-Host "Restart if needed: npx pm2 restart ecosystem.config.cjs" -ForegroundColor White
+🚀 FMB TimeTracker Deployment (Windows)
+======================================
+📁 Creating required directories...
+✅ Directories created
+🔍 Validating environment configuration...
+✅ Environment file found
+⏹️ Stopping application...
+[PM2] [fmb-timetracker](1) âœ“
+â”Œâ”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â
+”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”
+€â”€â”€â”€â”€â”€â”€â”
+â”‚ id â”‚ name               â”‚ namespace   â”‚ version â”‚ mode    â”‚ pid      â”‚ uptime â”‚ â†º    â”‚ status    â”‚ cpu      â”‚ mem      â”‚ user     â”‚ watching â”‚
+â”œâ”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â
+”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”
+€â”€â”€â”€â”€â”€â”€â”¤
+â”‚ 0  â”‚ FMBTimeTracker     â”‚ default     â”‚ 1.0.0   â”‚ cluster â”‚ 0        â”‚ 0      â”‚ 18   â”‚ waiting â€¦ â”‚ 0%       â”‚ 0b       â”‚ ADM91381 â”‚ disabled â”‚
+â”‚ 1  â”‚ fmb-timetracker    â”‚ default     â”‚ 1.0.0   â”‚ cluster â”‚ 0        â”‚ 0      â”‚ 0    â”‚ stopped   â”‚ 0%       â”‚ 0b       â”‚ ADM91381 â”‚ disabled â”‚
+â””â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â
+”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”
+€â”€â”€â”€â”€â”€â”€â”˜
+✅ Application stopped
+📦 Installing all dependencies...
+
+up to date, audited 1335 packages in 3s
+
+194 packages are looking for funding
+  run `npm fund` for details
+
+14 vulnerabilities (4 low, 9 moderate, 1 critical)
+
+To address issues that do not require attention, run:
+  npm audit fix
+
+To address all issues possible (including breaking changes), run:
+  npm audit fix --force
+
+Some issues need review, and may require choosing
+a different dependency.
+
+Run `npm audit` for details.
+✅ All dependencies installed
+🔨 Building application...
+
+> rest-express@1.0.0 build
+> vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
+
+[36mvite v5.4.19 [32mbuilding for production...[36m[39m
+transforming...
+node.exe : Browserslist: browsers data (caniuse-lite) is 10 months old. Please run:
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Browserslist: b...ld. Please run::String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+[32mâœ“[39m 2188 modules transformed.
+rendering chunks...
+computing gzip size...
+[2m../dist/public/[22m[32mindex.html                 [39m[1m[2m  0.86 kB[22m[1m[22m[2m â”‚ gzip:   0.44 kB[22m
+[2m../dist/public/[22m[35massets/index-TxekZ2R9.css  [39m[1m[2m 70.40 kB[22m[1m[22m[2m â”‚ gzip:  12.52 kB[22m
+[2m../dist/public/[22m[36massets/index-Cdn7ZzJN.js   [39m[1m[33m711.68 kB[39m[22m[2m â”‚ gzip: 202.03 kB[22m
+[33m
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.[39m
+[32mâœ“ built in 8.17s[39m
+  dist\index.js  141.2kb
+Done in 30ms
+📋 Copying FMB configuration files...
+node_modules/tedious/lib/connection.d.ts(755,29): error TS2304: Cannot find name 'AggregateError'.
+node_modules/tedious/lib/errors.d.ts(4,59): error TS2304: Cannot find name 'ErrorOptions'.
+node_modules/tedious/lib/errors.d.ts(14,59): error TS2304: Cannot find name 'ErrorOptions'.
+fmb-onprem/config/fmb-database.ts(19,5): error TS2353: Object literal may only specify known properties, and 'port' does not exist in type 'FmbDatabaseConfig'.
+fmb-onprem/config/fmb-database.ts(70,38): error TS2339: Property 'execute' does not exist on type 'FmbStorage'.
+fmb-onprem/config/fmb-database.ts(87,38): error TS2339: Property 'execute' does not exist on type 'FmbStorage'.
+fmb-onprem/storage/fmb-storage.ts(91,48): error TS2339: Property 'id' does not exist on type '{}'.
+fmb-onprem/storage/fmb-storage.ts(92,51): error TS2339: Property 'email' does not exist on type '{}'.
+fmb-onprem/storage/fmb-storage.ts(93,55): error TS2339: Property 'firstName' does not exist on type '{}'.
+fmb-onprem/storage/fmb-storage.ts(94,54): error TS2339: Property 'lastName' does not exist on type '{}'.
+fmb-onprem/storage/fmb-storage.ts(95,61): error TS2339: Property 'profileImageUrl' does not exist on type '{}'.
+fmb-onprem/storage/fmb-storage.ts(96,49): error TS2339: Property 'role' does not exist on type '{}'.
+fmb-onprem/storage/fmb-storage.ts(97,45): error TS2339: Property 'isActive' does not exist on type '{}'.
+fmb-onprem/storage/fmb-storage.ts(140,53): error TS2339: Property 'name' does not exist on type '{ startDate?: Date; endDate?: Date; }'.
+fmb-onprem/storage/fmb-storage.ts(141,61): error TS2339: Property 'projectNumber' does not exist on type '{ startDate?: Date; endDate?: Date; }'.
+fmb-onprem/storage/fmb-storage.ts(142,52): error TS2339: Property 'description' does not exist on type '{ startDate?: Date; endDate?: Date; }'.
+fmb-onprem/storage/fmb-storage.ts(143,52): error TS2339: Property 'color' does not exist on type '{ startDate?: Date; endDate?: Date; }'.
+fmb-onprem/storage/fmb-storage.ts(146,56): error TS2339: Property 'isEnterpriseWide' does not exist on type '{ startDate?: Date; endDate?: Date; }'.
+fmb-onprem/storage/fmb-storage.ts(147,55): error TS2339: Property 'userId' does not exist on type '{ startDate?: Date; endDate?: Date; }'.
+fmb-onprem/storage/fmb-storage.ts(148,50): error TS2339: Property 'isTemplate' does not exist on type '{ startDate?: Date; endDate?: Date; }'.
+fmb-onprem/storage/fmb-storage.ts(149,57): error TS2339: Property 'allowTimeTracking' does not exist on type '{ startDate?: Date; endDate?: Date; }'.
+fmb-onprem/storage/fmb-storage.ts(150,60): error TS2339: Property 'requireTaskSelection' does not exist on type '{ startDate?: Date; endDate?: Date; }'.
+fmb-onprem/storage/fmb-storage.ts(151,60): error TS2339: Property 'enableBudgetTracking' does not exist on type '{ startDate?: Date; endDate?: Date; }'.
+fmb-onprem/storage/fmb-storage.ts(152,53): error TS2339: Property 'enableBilling' does not exist on type '{ startDate?: Date; endDate?: Date; }'.
+fmb-onprem/storage/fmb-storage.ts(189,53): error TS2339: Property 'userId' does not exist on type '{ taskId?: string; }'.
+fmb-onprem/storage/fmb-storage.ts(190,56): error TS2339: Property 'projectId' does not exist on type '{ taskId?: string; }'.
+fmb-onprem/storage/fmb-storage.ts(192,50): error TS2339: Property 'description' does not exist on type '{ taskId?: string; }'.
+fmb-onprem/storage/fmb-storage.ts(193,43): error TS2339: Property 'date' does not exist on type '{ taskId?: string; }'.
+fmb-onprem/storage/fmb-storage.ts(194,54): error TS2339: Property 'startTime' does not exist on type '{ taskId?: string; }'.
+fmb-onprem/storage/fmb-storage.ts(195,52): error TS2339: Property 'endTime' does not exist on type '{ taskId?: string; }'.
+fmb-onprem/storage/fmb-storage.ts(196,56): error TS2339: Property 'duration' does not exist on type '{ taskId?: string; }'.
+fmb-onprem/storage/fmb-storage.ts(197,48): error TS2339: Property 'isTemplate' does not exist on type '{ taskId?: string; }'.
+fmb-onprem/storage/fmb-storage.ts(198,48): error TS2339: Property 'isBillable' does not exist on type '{ taskId?: string; }'.
+fmb-onprem/storage/fmb-storage.ts(199,48): error TS2339: Property 'isApproved' does not exist on type '{ taskId?: string; }'.
+fmb-onprem/storage/fmb-storage.ts(200,51): error TS2339: Property 'isManualEntry' does not exist on type '{ taskId?: string; }'.
+fmb-onprem/storage/fmb-storage.ts(201,50): error TS2339: Property 'isTimerEntry' does not exist on type '{ taskId?: string; }'.
+fmb-onprem/storage/fmb-storage.ts(237,49): error TS2339: Property 'name' does not exist on type '{}'.
+fmb-onprem/storage/fmb-storage.ts(238,48): error TS2339: Property 'description' does not exist on type '{}'.
+fmb-onprem/storage/fmb-storage.ts(239,51): error TS2339: Property 'userId' does not exist on type '{}'.
+node_modules/drizzle-orm/mysql-core/db.d.ts(1,38): error TS2307: Cannot find module 'mysql2/promise' or its corresponding type declarations.
+node_modules/drizzle-orm/mysql-core/query-builders/delete.d.ts(36,22): error TS2420: Class 'MySqlDeleteBase<TTable, TQueryResult, TPreparedQueryHKT, TDynamic, TExcludedMethods>' incorrectly implements inte
+rface 'SQLWrapper'.
+  Property 'getSQL' is missing in type 'MySqlDeleteBase<TTable, TQueryResult, TPreparedQueryHKT, TDynamic, TExcludedMethods>' but required in type 'SQLWrapper'.
+node_modules/drizzle-orm/mysql-core/query-builders/select.d.ts(249,244): error TS2344: Type 'string' does not satisfy the constraint 'keyof this & string'.
+  Type 'string' is not assignable to type 'keyof this & string'.
+    Type 'string' is not assignable to type 'keyof this'.
+      Type '"session"' is not assignable to type '"offset" | "_" | "getSQL" | "as" | "union" | "intersect" | "except" | "where" | "orderBy" | "limit" | "toSQL" | "$dynamic" | "having" | "groupBy" | "leftJo
+in" | "rightJoin" | "innerJoin" | ... 4 more ... | "exceptAll"'.
+node_modules/drizzle-orm/mysql-core/query-builders/select.d.ts(275,247): error TS2344: Type 'string' does not satisfy the constraint 'keyof this & string'.
+  Type 'string' is not assignable to type 'keyof this & string'.
+    Type 'string' is not assignable to type 'keyof this'.
+      Type '"session"' is not assignable to type '"offset" | "_" | "getSQL" | "as" | "union" | "intersect" | "except" | "where" | "orderBy" | "limit" | "toSQL" | "$dynamic" | "having" | "groupBy" | "leftJo
+in" | "rightJoin" | "innerJoin" | ... 4 more ... | "exceptAll"'.
+node_modules/drizzle-orm/mysql-core/query-builders/select.d.ts(301,248): error TS2344: Type 'string' does not satisfy the constraint 'keyof this & string'.
+  Type 'string' is not assignable to type 'keyof this & string'.
+    Type 'string' is not assignable to type 'keyof this'.
+      Type '"session"' is not assignable to type '"offset" | "_" | "getSQL" | "as" | "union" | "intersect" | "except" | "where" | "orderBy" | "limit" | "toSQL" | "$dynamic" | "having" | "groupBy" | "leftJo
+in" | "rightJoin" | "innerJoin" | ... 4 more ... | "exceptAll"'.
+node_modules/drizzle-orm/mysql-core/query-builders/select.d.ts(342,251): error TS2344: Type 'string' does not satisfy the constraint 'keyof this & string'.
+  Type 'string' is not assignable to type 'keyof this & string'.
+    Type 'string' is not assignable to type 'keyof this'.
+      Type '"session"' is not assignable to type '"offset" | "_" | "getSQL" | "as" | "union" | "intersect" | "except" | "where" | "orderBy" | "limit" | "toSQL" | "$dynamic" | "having" | "groupBy" | "leftJo
+in" | "rightJoin" | "innerJoin" | ... 4 more ... | "exceptAll"'.
+node_modules/drizzle-orm/mysql-core/query-builders/select.d.ts(368,245): error TS2344: Type 'string' does not satisfy the constraint 'keyof this & string'.
+  Type 'string' is not assignable to type 'keyof this & string'.
+    Type 'string' is not assignable to type 'keyof this'.
+      Type '"session"' is not assignable to type '"offset" | "_" | "getSQL" | "as" | "union" | "intersect" | "except" | "where" | "orderBy" | "limit" | "toSQL" | "$dynamic" | "having" | "groupBy" | "leftJo
+in" | "rightJoin" | "innerJoin" | ... 4 more ... | "exceptAll"'.
+node_modules/drizzle-orm/mysql-core/query-builders/select.d.ts(409,248): error TS2344: Type 'string' does not satisfy the constraint 'keyof this & string'.
+  Type 'string' is not assignable to type 'keyof this & string'.
+    Type 'string' is not assignable to type 'keyof this'.
+      Type '"session"' is not assignable to type '"offset" | "_" | "getSQL" | "as" | "union" | "intersect" | "except" | "where" | "orderBy" | "limit" | "toSQL" | "$dynamic" | "having" | "groupBy" | "leftJo
+in" | "rightJoin" | "innerJoin" | ... 4 more ... | "exceptAll"'.
+node_modules/drizzle-orm/mysql-core/query-builders/select.d.ts(561,22): error TS2515: Non-abstract class 'MySqlSelectBase<TTableName, TSelection, TSelectMode, TPreparedQueryHKT, TNullabilityMap, TDynamic, 
+TExcludedMethods, TResult, TSelectedFields>' does not implement inherited abstract member getSQL from class 'MySqlSelectQueryBuilderBase<MySqlSelectHKT, TTableName, TSelection, TSelectMode, TPreparedQueryH
+KT, TNullabilityMap, TDynamic, TExcludedMethods, TResult, TSelectedFields>'.
+node_modules/drizzle-orm/mysql-core/query-builders/select.types.d.ts(136,1149): error TS2344: Type 'MySqlSetOperatorExcludedMethods' does not satisfy the constraint '"offset" | "_" | "getSQL" | "as" | "uni
+on" | "intersect" | "except" | "where" | "orderBy" | "limit" | "toSQL" | "prepare" | "execute" | "iterator" | "$dynamic" | "catch" | "finally" | ... 10 more ... | "exceptAll"'.
+  Type '"session"' is not assignable to type '"offset" | "_" | "getSQL" | "as" | "union" | "intersect" | "except" | "where" | "orderBy" | "limit" | "toSQL" | "prepare" | "execute" | "iterator" | "$dynamic"
+ | "catch" | "finally" | ... 10 more ... | "exceptAll"'.
+node_modules/drizzle-orm/pg-core/query-builders/query.d.ts(23,22): error TS2420: Class 'PgRelationalQuery<TResult>' incorrectly implements interface 'SQLWrapper'.
+  Property 'getSQL' is missing in type 'PgRelationalQuery<TResult>' but required in type 'SQLWrapper'.
+node_modules/drizzle-orm/pg-core/roles.d.ts(7,22): error TS2559: Type 'PgRole' has no properties in common with type 'PgRoleConfig'.
+node_modules/drizzle-orm/singlestore-core/columns/bigint.d.ts(13,22): error TS2515: Non-abstract class 'SingleStoreBigInt53Builder<T>' does not implement inherited abstract member generatedAlwaysAs from cl
+ass 'SingleStoreColumnBuilderWithAutoIncrement<T, { unsigned: boolean; }, ColumnBuilderExtraConfig>'.
+node_modules/drizzle-orm/singlestore-core/columns/bigint.d.ts(35,22): error TS2515: Non-abstract class 'SingleStoreBigInt64Builder<T>' does not implement inherited abstract member generatedAlwaysAs from cl
+ass 'SingleStoreColumnBuilderWithAutoIncrement<T, { unsigned: boolean; }, ColumnBuilderExtraConfig>'.
+node_modules/drizzle-orm/singlestore-core/columns/binary.d.ts(14,22): error TS2515: Non-abstract class 'SingleStoreBinaryBuilder<T>' does not implement inherited abstract member generatedAlwaysAs from clas
+s 'SingleStoreColumnBuilder<T, SingleStoreBinaryConfig, object, ColumnBuilderExtraConfig>'.
+node_modules/drizzle-orm/singlestore-core/columns/boolean.d.ts(14,22): error TS2515: Non-abstract class 'SingleStoreBooleanBuilder<T>' does not implement inherited abstract member generatedAlwaysAs from cl
+ass 'SingleStoreColumnBuilder<T, object, object, ColumnBuilderExtraConfig>'.
+node_modules/drizzle-orm/singlestore-core/columns/char.d.ts(16,22): error TS2515: Non-abstract class 'SingleStoreCharBuilder<T>' does not implement inherited abstract member generatedAlwaysAs from class 'S
+ingleStoreColumnBuilder<T, SingleStoreCharConfig<T["enumValues"], T["length"]>, { length: T["length"]; }, ColumnBuilderExtraConfig>'.
+node_modules/drizzle-orm/singlestore-core/columns/custom.d.ts(24,22): error TS2515: Non-abstract class 'SingleStoreCustomColumnBuilder<T>' does not implement inherited abstract member generatedAlwaysAs fro
+m class 'SingleStoreColumnBuilder<T, { fieldConfig: Record<string, any>; customTypeParams: CustomTypeParams<any>; }, { singlestoreColumnBuilderBrand: "SingleStoreCustomColumnBuilderBrand"; }, ColumnBuilder
+ExtraConfig>'.
+node_modules/drizzle-orm/singlestore-core/columns/date.d.ts(16,22): error TS2515: Non-abstract class 'SingleStoreDateBuilder<T>' does not implement inherited abstract member generatedAlwaysAs from class 'S
+ingleStoreColumnBuilder<T, object, object, ColumnBuilderExtraConfig>'.
+node_modules/drizzle-orm/singlestore-core/columns/date.d.ts(37,22): error TS2515: Non-abstract class 'SingleStoreDateStringBuilder<T>' does not implement inherited abstract member generatedAlwaysAs from cl
+ass 'SingleStoreColumnBuilder<T, object, object, ColumnBuilderExtraConfig>'.
+node_modules/drizzle-orm/singlestore-core/columns/datetime.d.ts(16,22): error TS2515: Non-abstract class 'SingleStoreDateTimeBuilder<T>' does not implement inherited abstract member generatedAlwaysAs from 
+class 'SingleStoreColumnBuilder<T, SingleStoreDatetimeConfig<"string" | "date">, object, ColumnBuilderExtraConfig>'.
+node_modules/drizzle-orm/singlestore-core/columns/datetime.d.ts(38,22): error TS2515: Non-abstract class 'SingleStoreDateTimeStringBuilder<T>' does not implement inherited abstract member generatedAlwaysAs
+ from class 'SingleStoreColumnBuilder<T, SingleStoreDatetimeConfig<"string" | "date">, object, ColumnBuilderExtraConfig>'.
+node_modules/drizzle-orm/singlestore-core/columns/decimal.d.ts(14,22): error TS2515: Non-abstract class 'SingleStoreDecimalBuilder<T>' does not implement inherited abstract member generatedAlwaysAs from cl
+ass 'SingleStoreColumnBuilderWithAutoIncrement<T, SingleStoreDecimalConfig, ColumnBuilderExtraConfig>'.
+node_modules/drizzle-orm/singlestore-core/columns/double.d.ts(14,22): error TS2515: Non-abstract class 'SingleStoreDoubleBuilder<T>' does not implement inherited abstract member generatedAlwaysAs from clas
+s 'SingleStoreColumnBuilderWithAutoIncrement<T, SingleStoreDoubleConfig, ColumnBuilderExtraConfig>'.
+node_modules/drizzle-orm/singlestore-core/columns/enum.d.ts(19,5): error TS2416: Property 'generatedAlwaysAs' in type 'SingleStoreEnumColumnBuilder<T>' is not assignable to the same property in base type '
+SingleStoreColumnBuilder<T, { enumValues: T["enumValues"]; }, object, ColumnBuilderExtraConfig>'.
+  Type '(as: SQL<unknown> | (() => SQL<unknown>) | T["data"], config?: Partial<GeneratedColumnConfig<unknown>>) => HasGenerated<this, {}>' is not assignable to type '(as: SQL<unknown> | (() => SQL<unknown>
+) | T["data"], config?: Partial<GeneratedColumnConfig<unknown>>) => HasGenerated<this, { type: "always"; }>'.
+    Type 'HasGenerated<this, {}>' is not assignable to type 'HasGenerated<this, { type: "always"; }>'.
+      Type 'HasGenerated<this, {}>' is not assignable to type '{ _: { hasDefault: true; generated: { type: "always"; }; }; }'.
+        The types of '_.generated' are incompatible between these types.
+          Property 'type' is missing in type '{}' but required in type '{ type: "always"; }'.
+node_modules/drizzle-orm/singlestore-core/columns/float.d.ts(14,22): error TS2515: Non-abstract class 'SingleStoreFloatBuilder<T>' does not implement inherited abstract member generatedAlwaysAs from class 
+'SingleStoreColumnBuilderWithAutoIncrement<T, SingleStoreFloatConfig, ColumnBuilderExtraConfig>'.
+node_modules/drizzle-orm/singlestore-core/columns/int.d.ts(14,22): error TS2515: Non-abstract class 'SingleStoreIntBuilder<T>' does not implement inherited abstract member generatedAlwaysAs from class 'Sin
+gleStoreColumnBuilderWithAutoIncrement<T, SingleStoreIntConfig, ColumnBuilderExtraConfig>'.
+node_modules/drizzle-orm/singlestore-core/columns/json.d.ts(14,22): error TS2515: Non-abstract class 'SingleStoreJsonBuilder<T>' does not implement inherited abstract member generatedAlwaysAs from class 'S
+ingleStoreColumnBuilder<T, object, object, ColumnBuilderExtraConfig>'.
+node_modules/drizzle-orm/singlestore-core/columns/mediumint.d.ts(15,22): error TS2515: Non-abstract class 'SingleStoreMediumIntBuilder<T>' does not implement inherited abstract member generatedAlwaysAs fro
+m class 'SingleStoreColumnBuilderWithAutoIncrement<T, SingleStoreIntConfig, ColumnBuilderExtraConfig>'.
+node_modules/drizzle-orm/singlestore-core/columns/real.d.ts(14,22): error TS2515: Non-abstract class 'SingleStoreRealBuilder<T>' does not implement inherited abstract member generatedAlwaysAs from class 'S
+ingleStoreColumnBuilderWithAutoIncrement<T, SingleStoreRealConfig, ColumnBuilderExtraConfig>'.
+node_modules/drizzle-orm/singlestore-core/columns/serial.d.ts(14,22): error TS2515: Non-abstract class 'SingleStoreSerialBuilder<T>' does not implement inherited abstract member generatedAlwaysAs from clas
+s 'SingleStoreColumnBuilderWithAutoIncrement<T, object, ColumnBuilderExtraConfig>'.
+node_modules/drizzle-orm/singlestore-core/columns/smallint.d.ts(15,22): error TS2515: Non-abstract class 'SingleStoreSmallIntBuilder<T>' does not implement inherited abstract member generatedAlwaysAs from 
+class 'SingleStoreColumnBuilderWithAutoIncrement<T, SingleStoreIntConfig, ColumnBuilderExtraConfig>'.
+node_modules/drizzle-orm/singlestore-core/columns/text.d.ts(16,22): error TS2515: Non-abstract class 'SingleStoreTextBuilder<T>' does not implement inherited abstract member generatedAlwaysAs from class 'S
+ingleStoreColumnBuilder<T, { textType: SingleStoreTextColumnType; enumValues: T["enumValues"]; }, object, ColumnBuilderExtraConfig>'.
+node_modules/drizzle-orm/singlestore-core/columns/time.d.ts(14,22): error TS2515: Non-abstract class 'SingleStoreTimeBuilder<T>' does not implement inherited abstract member generatedAlwaysAs from class 'S
+ingleStoreColumnBuilder<T, object, object, ColumnBuilderExtraConfig>'.
+node_modules/drizzle-orm/singlestore-core/columns/timestamp.d.ts(15,22): error TS2515: Non-abstract class 'SingleStoreTimestampBuilder<T>' does not implement inherited abstract member generatedAlwaysAs fro
+m class 'SingleStoreDateColumnBaseBuilder<T, SingleStoreTimestampConfig<"string" | "date">, ColumnBuilderExtraConfig>'.
+node_modules/drizzle-orm/singlestore-core/columns/timestamp.d.ts(35,22): error TS2515: Non-abstract class 'SingleStoreTimestampStringBuilder<T>' does not implement inherited abstract member generatedAlways
+As from class 'SingleStoreDateColumnBaseBuilder<T, SingleStoreTimestampConfig<"string" | "date">, ColumnBuilderExtraConfig>'.
+node_modules/drizzle-orm/singlestore-core/columns/tinyint.d.ts(15,22): error TS2515: Non-abstract class 'SingleStoreTinyIntBuilder<T>' does not implement inherited abstract member generatedAlwaysAs from cl
+ass 'SingleStoreColumnBuilderWithAutoIncrement<T, SingleStoreIntConfig, ColumnBuilderExtraConfig>'.
+node_modules/drizzle-orm/singlestore-core/columns/varbinary.d.ts(14,22): error TS2515: Non-abstract class 'SingleStoreVarBinaryBuilder<T>' does not implement inherited abstract member generatedAlwaysAs fro
+m class 'SingleStoreColumnBuilder<T, SingleStoreVarbinaryOptions, object, ColumnBuilderExtraConfig>'.
+node_modules/drizzle-orm/singlestore-core/columns/varchar.d.ts(16,22): error TS2515: Non-abstract class 'SingleStoreVarCharBuilder<T>' does not implement inherited abstract member generatedAlwaysAs from cl
+ass 'SingleStoreColumnBuilder<T, SingleStoreVarCharConfig<T["enumValues"], T["length"]>, { length: T["length"]; }, ColumnBuilderExtraConfig>'.
+node_modules/drizzle-orm/singlestore-core/columns/vector.d.ts(13,22): error TS2515: Non-abstract class 'SingleStoreVectorBuilder<T>' does not implement inherited abstract member generatedAlwaysAs from clas
+s 'SingleStoreColumnBuilder<T, SingleStoreVectorConfig, object, ColumnBuilderExtraConfig>'.
+node_modules/drizzle-orm/singlestore-core/columns/year.d.ts(14,22): error TS2515: Non-abstract class 'SingleStoreYearBuilder<T>' does not implement inherited abstract member generatedAlwaysAs from class 'S
+ingleStoreColumnBuilder<T, object, object, ColumnBuilderExtraConfig>'.
+node_modules/drizzle-orm/singlestore-core/db.d.ts(1,38): error TS2307: Cannot find module 'mysql2/promise' or its corresponding type declarations.
+node_modules/drizzle-orm/singlestore-core/query-builders/delete.d.ts(36,22): error TS2420: Class 'SingleStoreDeleteBase<TTable, TQueryResult, TPreparedQueryHKT, TDynamic, TExcludedMethods>' incorrectly imp
+lements interface 'SQLWrapper'.
+  Property 'getSQL' is missing in type 'SingleStoreDeleteBase<TTable, TQueryResult, TPreparedQueryHKT, TDynamic, TExcludedMethods>' but required in type 'SQLWrapper'.
+node_modules/drizzle-orm/singlestore-core/query-builders/select.d.ts(199,262): error TS2344: Type 'string' does not satisfy the constraint 'keyof this & string'.
+  Type 'string' is not assignable to type 'keyof this & string'.
+    Type 'string' is not assignable to type 'keyof this'.
+      Type '"session"' is not assignable to type '"offset" | "_" | "getSQL" | "as" | "union" | "intersect" | "except" | "where" | "orderBy" | "limit" | "toSQL" | "$dynamic" | "having" | "groupBy" | "leftJo
+in" | "rightJoin" | "innerJoin" | "fullJoin" | "for" | "unionAll" | "minus"'.
+node_modules/drizzle-orm/singlestore-core/query-builders/select.d.ts(225,265): error TS2344: Type 'string' does not satisfy the constraint 'keyof this & string'.
+  Type 'string' is not assignable to type 'keyof this & string'.
+    Type 'string' is not assignable to type 'keyof this'.
+      Type '"session"' is not assignable to type '"offset" | "_" | "getSQL" | "as" | "union" | "intersect" | "except" | "where" | "orderBy" | "limit" | "toSQL" | "$dynamic" | "having" | "groupBy" | "leftJo
+in" | "rightJoin" | "innerJoin" | "fullJoin" | "for" | "unionAll" | "minus"'.
+node_modules/drizzle-orm/singlestore-core/query-builders/select.d.ts(251,266): error TS2344: Type 'string' does not satisfy the constraint 'keyof this & string'.
+  Type 'string' is not assignable to type 'keyof this & string'.
+    Type 'string' is not assignable to type 'keyof this'.
+      Type '"session"' is not assignable to type '"offset" | "_" | "getSQL" | "as" | "union" | "intersect" | "except" | "where" | "orderBy" | "limit" | "toSQL" | "$dynamic" | "having" | "groupBy" | "leftJo
+in" | "rightJoin" | "innerJoin" | "fullJoin" | "for" | "unionAll" | "minus"'.
+node_modules/drizzle-orm/singlestore-core/query-builders/select.d.ts(277,263): error TS2344: Type 'string' does not satisfy the constraint 'keyof this & string'.
+  Type 'string' is not assignable to type 'keyof this & string'.
+    Type 'string' is not assignable to type 'keyof this'.
+      Type '"session"' is not assignable to type '"offset" | "_" | "getSQL" | "as" | "union" | "intersect" | "except" | "where" | "orderBy" | "limit" | "toSQL" | "$dynamic" | "having" | "groupBy" | "leftJo
+in" | "rightJoin" | "innerJoin" | "fullJoin" | "for" | "unionAll" | "minus"'.
+node_modules/drizzle-orm/singlestore-core/query-builders/select.d.ts(301,262): error TS2344: Type 'string' does not satisfy the constraint 'keyof this & string'.
+  Type 'string' is not assignable to type 'keyof this & string'.
+    Type 'string' is not assignable to type 'keyof this'.
+      Type '"session"' is not assignable to type '"offset" | "_" | "getSQL" | "as" | "union" | "intersect" | "except" | "where" | "orderBy" | "limit" | "toSQL" | "$dynamic" | "having" | "groupBy" | "leftJo
+in" | "rightJoin" | "innerJoin" | "fullJoin" | "for" | "unionAll" | "minus"'.
+node_modules/drizzle-orm/singlestore-core/query-builders/select.d.ts(451,22): error TS2515: Non-abstract class 'SingleStoreSelectBase<TTableName, TSelection, TSelectMode, TPreparedQueryHKT, TNullabilityMap
+, TDynamic, TExcludedMethods, TResult, TSelectedFields>' does not implement inherited abstract member getSQL from class 'SingleStoreSelectQueryBuilderBase<SingleStoreSelectHKT, TTableName, TSelection, TSel
+ectMode, TPreparedQueryHKT, TNullabilityMap, TDynamic, TExcludedMethods, TResult, TSelectedFields>'.
+node_modules/drizzle-orm/singlestore-core/query-builders/select.types.d.ts(130,1185): error TS2344: Type 'SingleStoreSetOperatorExcludedMethods' does not satisfy the constraint '"offset" | "_" | "getSQL" |
+ "as" | "union" | "intersect" | "except" | "where" | "orderBy" | "limit" | "toSQL" | "prepare" | "execute" | "iterator" | "$dynamic" | "catch" | "finally" | ... 9 more ... | "minus"'.
+  Type '"session"' is not assignable to type '"offset" | "_" | "getSQL" | "as" | "union" | "intersect" | "except" | "where" | "orderBy" | "limit" | "toSQL" | "prepare" | "execute" | "iterator" | "$dynamic"
+ | "catch" | "finally" | ... 9 more ... | "minus"'.
+node_modules/drizzle-orm/singlestore/driver.d.ts(1,100): error TS2307: Cannot find module 'mysql2' or its corresponding type declarations.
+node_modules/drizzle-orm/singlestore/driver.d.ts(2,39): error TS2307: Cannot find module 'mysql2/promise' or its corresponding type declarations.
+node_modules/drizzle-orm/singlestore/session.d.ts(1,94): error TS2307: Cannot find module 'mysql2/promise' or its corresponding type declarations.
+node_modules/drizzle-orm/sqlite-core/query-builders/query.d.ts(25,22): error TS2420: Class 'SQLiteRelationalQuery<TType, TResult>' incorrectly implements interface 'SQLWrapper'.
+  Property 'getSQL' is missing in type 'SQLiteRelationalQuery<TType, TResult>' but required in type 'SQLWrapper'.
+node_modules/drizzle-orm/sqlite-core/query-builders/select.d.ts(202,247): error TS2344: Type 'string' does not satisfy the constraint 'keyof this & string'.
+  Type 'string' is not assignable to type 'keyof this & string'.
+    Type 'string' is not assignable to type 'keyof this'.
+      Type '"config"' is not assignable to type '"offset" | "_" | "getSQL" | "as" | "union" | "intersect" | "except" | "where" | "orderBy" | "limit" | "toSQL" | "$dynamic" | "having" | "groupBy" | "leftJoi
+n" | "rightJoin" | "innerJoin" | "fullJoin" | "unionAll"'.
+node_modules/drizzle-orm/sqlite-core/query-builders/select.d.ts(228,250): error TS2344: Type 'string' does not satisfy the constraint 'keyof this & string'.
+  Type 'string' is not assignable to type 'keyof this & string'.
+    Type 'string' is not assignable to type 'keyof this'.
+      Type '"config"' is not assignable to type '"offset" | "_" | "getSQL" | "as" | "union" | "intersect" | "except" | "where" | "orderBy" | "limit" | "toSQL" | "$dynamic" | "having" | "groupBy" | "leftJoi
+n" | "rightJoin" | "innerJoin" | "fullJoin" | "unionAll"'.
+node_modules/drizzle-orm/sqlite-core/query-builders/select.d.ts(254,251): error TS2344: Type 'string' does not satisfy the constraint 'keyof this & string'.
   Type 'string' is not assignable to type 'keyof this & string'.
     Type 'string' is not assignable to type 'keyof this'.
       Type '"config"' is not assignable to type '"offset" | "_" | "getSQL" | "as" | "union" | "intersect" | "except" | "where" | "orderBy" | "limit" | "toSQL" | "$dynamic" | "having" | "groupBy" | "leftJoi
@@ -17,29 +296,83 @@ node_modules/drizzle-orm/sqlite-core/query-builders/select.types.d.ts(122,1157):
 node_modules/tedious/lib/connection.d.ts(755,29): error TS2304: Cannot find name 'AggregateError'.
 node_modules/tedious/lib/errors.d.ts(4,59): error TS2304: Cannot find name 'ErrorOptions'.
 node_modules/tedious/lib/errors.d.ts(14,59): error TS2304: Cannot find name 'ErrorOptions'.
-shared/schema.ts(124,3): error TS2322: Type 'boolean' is not assignable to type 'never'.
-shared/schema.ts(125,3): error TS2322: Type 'boolean' is not assignable to type 'never'.
-shared/schema.ts(126,3): error TS2322: Type 'boolean' is not assignable to type 'never'.
-shared/schema.ts(133,3): error TS2322: Type 'boolean' is not assignable to type 'never'.
-shared/schema.ts(134,3): error TS2322: Type 'boolean' is not assignable to type 'never'.
-shared/schema.ts(135,3): error TS2322: Type 'boolean' is not assignable to type 'never'.
-shared/schema.ts(139,3): error TS2322: Type 'boolean' is not assignable to type 'never'.
 shared/schema.ts(140,3): error TS2322: Type 'boolean' is not assignable to type 'never'.
 shared/schema.ts(141,3): error TS2322: Type 'boolean' is not assignable to type 'never'.
-shared/schema.ts(194,3): error TS2322: Type 'boolean' is not assignable to type 'never'.
-shared/schema.ts(195,3): error TS2322: Type 'boolean' is not assignable to type 'never'.
-shared/schema.ts(196,3): error TS2322: Type 'boolean' is not assignable to type 'never'.
-shared/schema.ts(200,3): error TS2322: Type 'boolean' is not assignable to type 'never'.
-shared/schema.ts(201,3): error TS2322: Type 'boolean' is not assignable to type 'never'.
-shared/schema.ts(259,3): error TS2322: Type 'boolean' is not assignable to type 'never'.
-shared/schema.ts(260,3): error TS2322: Type 'boolean' is not assignable to type 'never'.
-shared/schema.ts(261,3): error TS2322: Type 'boolean' is not assignable to type 'never'.
-shared/schema.ts(265,3): error TS2322: Type 'boolean' is not assignable to type 'never'.
-shared/schema.ts(266,3): error TS2322: Type 'boolean' is not assignable to type 'never'.
-shared/schema.ts(267,3): error TS2322: Type 'boolean' is not assignable to type 'never'.
+shared/schema.ts(142,3): error TS2322: Type 'boolean' is not assignable to type 'never'.
+shared/schema.ts(149,3): error TS2322: Type 'boolean' is not assignable to type 'never'.
+shared/schema.ts(150,3): error TS2322: Type 'boolean' is not assignable to type 'never'.
+shared/schema.ts(151,3): error TS2322: Type 'boolean' is not assignable to type 'never'.
+shared/schema.ts(155,3): error TS2322: Type 'boolean' is not assignable to type 'never'.
+shared/schema.ts(156,3): error TS2322: Type 'boolean' is not assignable to type 'never'.
+shared/schema.ts(157,3): error TS2322: Type 'boolean' is not assignable to type 'never'.
+shared/schema.ts(210,3): error TS2322: Type 'boolean' is not assignable to type 'never'.
+shared/schema.ts(211,3): error TS2322: Type 'boolean' is not assignable to type 'never'.
+shared/schema.ts(212,3): error TS2322: Type 'boolean' is not assignable to type 'never'.
+shared/schema.ts(216,3): error TS2322: Type 'boolean' is not assignable to type 'never'.
+shared/schema.ts(217,3): error TS2322: Type 'boolean' is not assignable to type 'never'.
+shared/schema.ts(275,3): error TS2322: Type 'boolean' is not assignable to type 'never'.
+shared/schema.ts(276,3): error TS2322: Type 'boolean' is not assignable to type 'never'.
+shared/schema.ts(277,3): error TS2322: Type 'boolean' is not assignable to type 'never'.
+shared/schema.ts(281,3): error TS2322: Type 'boolean' is not assignable to type 'never'.
+shared/schema.ts(282,3): error TS2322: Type 'boolean' is not assignable to type 'never'.
+shared/schema.ts(283,3): error TS2322: Type 'boolean' is not assignable to type 'never'.
 ✅ Application built successfully
 📦 Keeping all dependencies for Vite compatibility...
 ✅ Dependencies preserved for production build
 🔍 Running configuration health check...
 ☁️ Replit deployment detected - skipping FMB on-prem validation
-❌ Missing basic environment variables: NODE_ENV
+📋 Loading environment variables from .env file...
+✅ Basic environment validation passed
+✅ Configuration validation completed
+▶️ Starting application...
+🛑 Stopping any existing processes...
+[PM2] Applying action deleteProcessId on app [fmb-timetracker](ids: [ 1 ])
+[PM2] [fmb-timetracker](1) âœ“
+â”Œâ”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â
+”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”
+€â”€â”€â”€â”€â”€â”
+â”‚ id â”‚ name              â”‚ namespace   â”‚ version â”‚ mode    â”‚ pid      â”‚ uptime â”‚ â†º    â”‚ status    â”‚ cpu      â”‚ mem      â”‚ user     â”‚ watching â”‚
+â”œâ”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â
+”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”
+€â”€â”€â”€â”€â”€â”¤
+â”‚ 0  â”‚ FMBTimeTracker    â”‚ default     â”‚ 1.0.0   â”‚ cluster â”‚ 0        â”‚ 0      â”‚ 18   â”‚ waiting â€¦ â”‚ 0%       â”‚ 0b       â”‚ ADM91381 â”‚ disabled â”‚
+â””â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â
+”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”
+€â”€â”€â”€â”€â”€â”˜
+🚀 Starting application with PM2...
+pm2 launched in no-daemon mode (you can add DEBUG="*" env variable to get more messages)
+[PM2][WARN] Applications fmb-timetracker not running, starting...
+node.exe : [PM2][ERROR] Error: Script not found: C:\fmb-timetracker\dist\server\index.js
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ([PM2][ERROR] Er...server\index.js:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+🔍 Checking process status (attempt 1/6)...
+⚠️ Error checking process status: Cannot convert the JSON string because a dictionary that was converted from the string contains the duplicated keys 'username' and 'USERNAME'.
+🔍 Checking process status (attempt 2/6)...
+⚠️ Error checking process status: Cannot convert the JSON string because a dictionary that was converted from the string contains the duplicated keys 'username' and 'USERNAME'.
+🔍 Checking process status (attempt 3/6)...
+⚠️ Error checking process status: Cannot convert the JSON string because a dictionary that was converted from the string contains the duplicated keys 'username' and 'USERNAME'.
+🔍 Checking process status (attempt 4/6)...
+⚠️ Error checking process status: Cannot convert the JSON string because a dictionary that was converted from the string contains the duplicated keys 'username' and 'USERNAME'.
+🔍 Checking process status (attempt 5/6)...
+⚠️ Error checking process status: Cannot convert the JSON string because a dictionary that was converted from the string contains the duplicated keys 'username' and 'USERNAME'.
+🔍 Checking process status (attempt 6/6)...
+⚠️ Error checking process status: Cannot convert the JSON string because a dictionary that was converted from the string contains the duplicated keys 'username' and 'USERNAME'.
+❌ Application failed to start within expected time
+📝 PM2 Status:
+â”Œâ”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â
+”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”
+€â”€â”€â”€â”€â”€â”
+â”‚ id â”‚ name              â”‚ namespace   â”‚ version â”‚ mode    â”‚ pid      â”‚ uptime â”‚ â†º    â”‚ status    â”‚ cpu      â”‚ mem      â”‚ user     â”‚ watching â”‚
+â”œâ”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â
+”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”
+€â”€â”€â”€â”€â”€â”¤
+â”‚ 0  â”‚ FMBTimeTracker    â”‚ default     â”‚ 1.0.0   â”‚ cluster â”‚ 0        â”‚ 0      â”‚ 18   â”‚ waiting â€¦ â”‚ 0%       â”‚ 0b       â”‚ ADM91381 â”‚ disabled â”‚
+â””â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â
+”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”
+€â”€â”€â”€â”€â”€â”˜
+📝 Recent logs:
+[TAILING] Tailing last 20 lines for [fmb-timetracker] process (change the value with --lines option)
