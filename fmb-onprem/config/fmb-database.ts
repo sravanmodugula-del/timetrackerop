@@ -13,10 +13,13 @@ export async function initializeFmbDatabase() {
 
   fmbStorage = new FmbStorage({
     server: config.database.server,
-    database: config.database.name,
+    database: config.database.database,
     user: config.database.user,
     password: config.database.password,
-    options: config.database.options
+    port: config.database.port,
+    encrypt: config.database.encrypt,
+    trustServerCertificate: config.database.trustServerCertificate,
+    options: {}
   });
 
   try {
