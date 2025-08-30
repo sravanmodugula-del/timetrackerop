@@ -1,5 +1,17 @@
-Msg 1911, Level 16, State 1, Line 197
+Msg 1769, Level 16, State 1, Line 181
+Foreign key 'FK_project_employees_projectId' references invalid column 'projectId' in referencing table 'project_employees'.
+Msg 1750, Level 16, State 0, Line 181
+Could not create constraint or index. See previous errors.
+Msg 1769, Level 16, State 1, Line 188
+Foreign key 'FK_project_employees_employeeId' references invalid column 'employeeId' in referencing table 'project_employees'.
+Msg 1750, Level 16, State 0, Line 188
+Could not create constraint or index. See previous errors.
+Msg 1769, Level 16, State 1, Line 195
+Foreign key 'FK_project_employees_userId' references invalid column 'userId' in referencing table 'project_employees'.
+Msg 1750, Level 16, State 0, Line 195
+Could not create constraint or index. See previous errors.
+Msg 1911, Level 16, State 1, Line 217
 Column name 'userId' does not exist in the target table or view.
 FMB TimeTracker database schema created successfully
 
-Completion time: 2025-08-30T02:32:16.5066306-07:00
+Completion time: 2025-08-30T02:48:06.7357900-07:00
