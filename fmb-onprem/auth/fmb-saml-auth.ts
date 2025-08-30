@@ -5,6 +5,7 @@ import passport from "passport";
 import { Strategy as SamlStrategy } from "passport-saml";
 import { getFmbStorage } from "../config/fmb-database.js";
 import { loadFmbOnPremConfig } from "../config/fmb-env.js";
+import connectSQLServer from 'connect-mssql-v2';
 
 // Enhanced logging utility
 function authLog(level: 'INFO' | 'WARN' | 'ERROR' | 'DEBUG', message: string, data?: any) {
@@ -24,10 +25,26 @@ export async function setupFmbSamlAuth(app: Express) {
   
   const config = loadFmbOnPremConfig();
   
-  // Setup session management
+  // Setup session management with MS SQL session store
   const sessionTtl = 7 * 24 * 60 * 60 * 1000; // 1 week
   
+  const MSSQLStore = connectSQLServer(session);
+  const sessionStore = new MSSQLStore({
+    server: config.database.server,
+    user: config.database.user,
+    password: config.database.password,
+    database: config.database.database,
+    port: parseInt(config.database.port),
+    options: {
+      encrypt: config.database.encrypt,
+      trustServerCertificate: config.database.trustServerCertificate,
+      enableArithAbort: true
+    },
+    table: 'sessions'
+  });
+  
   app.use(session({
+    store: sessionStore,
     secret: config.app.sessionSecret,
     resave: false,
     saveUninitialized: false,
