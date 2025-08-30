@@ -45,6 +45,19 @@ function getStorage() {
   return storage;
 }
 
+// Helper function to get user by ID, handling both Replit and SAML user IDs
+async function getUserById(userId: string) {
+  const activeStorage = getStorage();
+  // Attempt to get user using the provided ID, which could be from Replit (sub) or SAML (id/email)
+  const user = await activeStorage.getUser(userId);
+  // If not found with the direct ID, and it looks like an email (from SAML), try searching by email
+  if (!user && userId.includes('@')) {
+    const userByEmail = await activeStorage.getUserByEmail(userId);
+    return userByEmail;
+  }
+  return user;
+}
+
 export async function registerRoutes(app: Express): Promise<Server> {
   // Dynamic authentication middleware based on environment
   let isAuthenticated: RequestHandler;
@@ -64,21 +77,50 @@ export async function registerRoutes(app: Express): Promise<Server> {
   }
 
   // Auth routes
-  app.get('/api/auth/user', isAuthenticated, async (req, res) => {
+  // Get current user
+  app.get("/api/auth/user", isAuthenticated, async (req, res) => {
     try {
-      const userId = req.user.claims?.sub || req.user.id;
-      const activeStorage = getStorage();
-      const user = await activeStorage.getUser(userId);
+      const user = req.user;
 
-      const response = {
-        ...user,
-        authContext: {
-          role: user?.role || 'employee',
-          permissions: getRolePermissions(user?.role || 'employee')
-        }
-      };
+      if (!user) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
 
-      res.json(response);
+      // For development mode with test users
+      if (process.env.NODE_ENV === "development" && (user.sub === "test-admin-user" || user.id === "test-admin-user")) {
+        return res.json({
+          id: user.sub || user.id || "test-admin-user",
+          email: user.email || "admin@test.com",
+          firstName: user.firstName || "Test",
+          lastName: user.lastName || "Admin",
+          role: user.role || "admin",
+          profileImageUrl: user.profileImageUrl
+        });
+      }
+
+      // Handle both Replit (user.sub) and SAML (user.id or user.email) authentication
+      const userId = user.sub || user.id || user.email;
+
+      if (!userId) {
+        console.error("No user identifier found in user object:", user);
+        return res.status(400).json({ message: "Invalid user data" });
+      }
+
+      // Get user from database
+      const dbUser = await getUserById(userId);
+
+      if (!dbUser) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      res.json({
+        id: dbUser.id,
+        email: dbUser.email,
+        firstName: dbUser.firstName,
+        lastName: dbUser.lastName,
+        role: dbUser.role,
+        profileImageUrl: dbUser.profileImageUrl
+      });
     } catch (error) {
       console.error("Error fetching user:", error);
       res.status(500).json({ message: "Failed to fetch user" });
