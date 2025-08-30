@@ -1,27 +1,49 @@
+
+added 449 packages, and audited 1335 packages in 1m
+
+195 packages are looking for funding
+  run `npm fund` for details
+
+8 vulnerabilities (1 low, 6 moderate, 1 critical)
+
+To address all issues possible (including breaking changes), run:
+  npm audit fix --force
+
+Some issues need review, and may require choosing
+a different dependency.
+
+Run `npm audit` for details.
 ✅ All dependencies installed
 🔨 Building application...
 
 > rest-express@1.0.0 build
 > vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
 
-node.exe : [31mfailed to load config from C:\fmb-timetracker\vite.config.ts[39m
+[36mvite v5.4.19 [32mbuilding for production...[36m[39m
+transforming...
+node.exe : Browserslist: browsers data (caniuse-lite) is 10 months old. Please run:
 At line:1 char:1
 + & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
 + ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    + CategoryInfo          : NotSpecified: ([31mfailed to ....config.ts[39m:String) [], RemoteException
+    + CategoryInfo          : NotSpecified: (Browserslist: b...ld. Please run::String) [], RemoteException
     + FullyQualifiedErrorId : NativeCommandError
  
-[31merror during build:
-Error [ERR_MODULE_NOT_FOUND]: Cannot find package '@vitejs/plugin-react' imported from C:\fmb-timetracker\vite.config.ts.timestamp-1756533514326-e75c0c98473ae.mjs
-    at Object.getPackageJSONURL (node:internal/modules/package_json_reader:255:9)
-    at packageResolve (node:internal/modules/esm/resolve:767:81)
-    at moduleResolve (node:internal/modules/esm/resolve:853:18)
-    at defaultResolve (node:internal/modules/esm/resolve:983:11)
-    at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:783:12)
-    at #cachedDefaultResolve (node:internal/modules/esm/loader:707:25)
-    at ModuleLoader.resolve (node:internal/modules/esm/loader:690:38)
-    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:307:38)
-    at ModuleJob._link (node:internal/modules/esm/module_job:183:49)[39m
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+[32mâœ“[39m 2188 modules transformed.
+rendering chunks...
+computing gzip size...
+[2m../dist/public/[22m[32mindex.html                 [39m[1m[2m  0.86 kB[22m[1m[22m[2m â”‚ gzip:   0.44 kB[22m
+[2m../dist/public/[22m[35massets/index-TxekZ2R9.css  [39m[1m[2m 70.40 kB[22m[1m[22m[2m â”‚ gzip:  12.52 kB[22m
+[2m../dist/public/[22m[36massets/index-3ykus8Y9.js   [39m[1m[33m711.01 kB[39m[22m[2m â”‚ gzip: 201.77 kB[22m
+[33m
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.[39m
+[32mâœ“ built in 8.94s[39m
+  dist\index.js  134.4kb
+Done in 34ms
 📋 Copying FMB configuration files...
 node_modules/tedious/lib/connection.d.ts(755,29): error TS2304: Cannot find name 'AggregateError'.
 node_modules/tedious/lib/errors.d.ts(4,59): error TS2304: Cannot find name 'ErrorOptions'.
@@ -206,33 +228,33 @@ node_modules/drizzle-orm/sqlite-core/query-builders/select.types.d.ts(122,1157):
 node_modules/tedious/lib/connection.d.ts(755,29): error TS2304: Cannot find name 'AggregateError'.
 node_modules/tedious/lib/errors.d.ts(4,59): error TS2304: Cannot find name 'ErrorOptions'.
 node_modules/tedious/lib/errors.d.ts(14,59): error TS2304: Cannot find name 'ErrorOptions'.
-shared/schema.ts(124,3): error TS2322: Type 'true' is not assignable to type 'never'.
-shared/schema.ts(125,3): error TS2322: Type 'true' is not assignable to type 'never'.
-shared/schema.ts(126,3): error TS2322: Type 'true' is not assignable to type 'never'.
-shared/schema.ts(133,3): error TS2322: Type 'true' is not assignable to type 'never'.
-shared/schema.ts(134,3): error TS2322: Type 'true' is not assignable to type 'never'.
-shared/schema.ts(135,3): error TS2322: Type 'true' is not assignable to type 'never'.
-shared/schema.ts(139,3): error TS2322: Type 'true' is not assignable to type 'never'.
-shared/schema.ts(140,3): error TS2322: Type 'true' is not assignable to type 'never'.
-shared/schema.ts(141,3): error TS2322: Type 'true' is not assignable to type 'never'.
-shared/schema.ts(194,3): error TS2322: Type 'true' is not assignable to type 'never'.
-shared/schema.ts(195,3): error TS2322: Type 'true' is not assignable to type 'never'.
-shared/schema.ts(196,3): error TS2322: Type 'true' is not assignable to type 'never'.
-shared/schema.ts(200,3): error TS2322: Type 'true' is not assignable to type 'never'.
-shared/schema.ts(201,3): error TS2322: Type 'true' is not assignable to type 'never'.
-shared/schema.ts(259,3): error TS2322: Type 'true' is not assignable to type 'never'.
-shared/schema.ts(260,3): error TS2322: Type 'true' is not assignable to type 'never'.
-shared/schema.ts(261,3): error TS2322: Type 'true' is not assignable to type 'never'.
-shared/schema.ts(265,3): error TS2322: Type 'true' is not assignable to type 'never'.
-shared/schema.ts(266,3): error TS2322: Type 'true' is not assignable to type 'never'.
-shared/schema.ts(267,3): error TS2322: Type 'true' is not assignable to type 'never'.
+shared/schema.ts(124,3): error TS2322: Type 'boolean' is not assignable to type 'never'.
+shared/schema.ts(125,3): error TS2322: Type 'boolean' is not assignable to type 'never'.
+shared/schema.ts(126,3): error TS2322: Type 'boolean' is not assignable to type 'never'.
+shared/schema.ts(133,3): error TS2322: Type 'boolean' is not assignable to type 'never'.
+shared/schema.ts(134,3): error TS2322: Type 'boolean' is not assignable to type 'never'.
+shared/schema.ts(135,3): error TS2322: Type 'boolean' is not assignable to type 'never'.
+shared/schema.ts(139,3): error TS2322: Type 'boolean' is not assignable to type 'never'.
+shared/schema.ts(140,3): error TS2322: Type 'boolean' is not assignable to type 'never'.
+shared/schema.ts(141,3): error TS2322: Type 'boolean' is not assignable to type 'never'.
+shared/schema.ts(194,3): error TS2322: Type 'boolean' is not assignable to type 'never'.
+shared/schema.ts(195,3): error TS2322: Type 'boolean' is not assignable to type 'never'.
+shared/schema.ts(196,3): error TS2322: Type 'boolean' is not assignable to type 'never'.
+shared/schema.ts(200,3): error TS2322: Type 'boolean' is not assignable to type 'never'.
+shared/schema.ts(201,3): error TS2322: Type 'boolean' is not assignable to type 'never'.
+shared/schema.ts(259,3): error TS2322: Type 'boolean' is not assignable to type 'never'.
+shared/schema.ts(260,3): error TS2322: Type 'boolean' is not assignable to type 'never'.
+shared/schema.ts(261,3): error TS2322: Type 'boolean' is not assignable to type 'never'.
+shared/schema.ts(265,3): error TS2322: Type 'boolean' is not assignable to type 'never'.
+shared/schema.ts(266,3): error TS2322: Type 'boolean' is not assignable to type 'never'.
+shared/schema.ts(267,3): error TS2322: Type 'boolean' is not assignable to type 'never'.
 ✅ Application built successfully
 📦 Keeping all dependencies for Vite compatibility...
 ✅ Dependencies preserved for production build
 🔍 Running configuration health check...
 node : âŒ Config error: Missing required FMB environment variables: FMB_DB_SERVER, FMB_DB_NAME, FMB_DB_USER, FMB_DB_PASSWORD, FMB_SAML_ENTITY_ID, FMB_SAML_SSO_URL, FMB_SAML_CERTIFICATE, 
 FMB_SESSION_SECRET
-At line:109 char:9
+At line:110 char:9
 +         node -e "
 +         ~~~~~~~~~
     + CategoryInfo          : NotSpecified: (âŒ Config erro..._SESSION_SECRET:String) [], RemoteException
@@ -240,16 +262,22 @@ At line:109 char:9
  
 ✅ Configuration validation completed
 ▶️ Starting application...
-[PM2][WARN] Applications  not running, starting...
-node.exe : [PM2][ERROR] Error: No script path - aborting
-At line:1 char:1
-+ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
-+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    + CategoryInfo          : NotSpecified: ([PM2][ERROR] Er...path - aborting:String) [], RemoteException
-    + FullyQualifiedErrorId : NativeCommandError
- 
+[PM2][WARN] Environment [production] is not defined in process file
+[PM2] Applying action restartProcessId on app [FMBTimeTracker](ids: [ 0 ])
+[PM2] [FMBTimeTracker](0) âœ“
+â”Œâ”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â
+”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”
+€â”€â”€â”€â”€â”€â”
+â”‚ id â”‚ name              â”‚ namespace   â”‚ version â”‚ mode    â”‚ pid      â”‚ uptime â”‚ â†º    â”‚ status    â”‚ cpu      â”‚ mem      â”‚ user     â”‚ watching â”‚
+â”œâ”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â
+”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”
+€â”€â”€â”€â”€â”€â”¤
+â”‚ 0  â”‚ FMBTimeTracker    â”‚ default     â”‚ 1.0.0   â”‚ cluster â”‚ 18464    â”‚ 0s     â”‚ 0    â”‚ online    â”‚ 0%       â”‚ 56.6mb   â”‚ ADM91381 â”‚ disabled â”‚
+â””â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â
+”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”
+€â”€â”€â”€â”€â”€â”˜
 ❌ Failed to start application
-Error: Cannot convert the JSON string because a dictionary that was converted from the string contains the duplicated keys 'username' and 'USERNAME'.
+Error: Cannot convert the JSON string because a dictionary that was converted from the string contains the duplicated keys 'USERNAME' and 'username'.
 📝 PM2 Status:
 â”Œâ”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â
 ”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”
@@ -258,7 +286,7 @@ Error: Cannot convert the JSON string because a dictionary that was converted fr
 â”œâ”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â
 ”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”
 €â”€â”€â”€â”€â”€â”¤
-â”‚ 0  â”‚ FMBTimeTracker    â”‚ default     â”‚ 1.0.0   â”‚ cluster â”‚ 6252     â”‚ 7m     â”‚ 0    â”‚ online    â”‚ 0%       â”‚ 56.9mb   â”‚ ADM91381 â”‚ disabled â”‚
+â”‚ 0  â”‚ FMBTimeTracker    â”‚ default     â”‚ 1.0.0   â”‚ cluster â”‚ 18464    â”‚ 0      â”‚ 0    â”‚ waiting â€¦ â”‚ 0%       â”‚ 0b       â”‚ ADM91381 â”‚ disabled â”‚
 â””â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â
 ”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”
 €â”€â”€â”€â”€â”€â”˜
