@@ -159,15 +159,27 @@ if (process.env.NODE_ENV === 'production') {
   // Trust proxy for production load balancers
   app.set('trust proxy', 1);
 
-  // Production security headers
+  // Production security headers with HTTPS enforcement
   app.use((req, res, next) => {
     res.setHeader('X-Content-Type-Options', 'nosniff');
     res.setHeader('X-Frame-Options', 'DENY');
     res.setHeader('X-XSS-Protection', '1; mode=block');
     res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
     res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+    res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
+    res.setHeader('Content-Security-Policy', "upgrade-insecure-requests");
     next();
   });
+
+  // Redirect HTTP to HTTPS for FMB on-premises (fallback if IIS doesn't handle it)
+  if (isFmbOnPremEnvironment()) {
+    app.use((req, res, next) => {
+      if (req.header('x-forwarded-proto') !== 'https' && req.hostname !== 'localhost') {
+        return res.redirect(301, `https://${req.hostname}${req.url}`);
+      }
+      next();
+    });
+  }
 }
 
 
